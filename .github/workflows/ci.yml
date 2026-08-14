@@ -2,8 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ['**']
-    tags-ignore: ['**']
+    branches: [master]
   pull_request:
 
 permissions:
