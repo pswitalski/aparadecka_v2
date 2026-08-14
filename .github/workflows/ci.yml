@@ -6,8 +6,30 @@ on:
   pull_request:
 
 jobs:
-  studio:
-    name: Studio (typecheck + lint)
+  changes:
+    name: Detect changed packages
+    runs-on: ubuntu-latest
+    outputs:
+      studio: ${{ steps.filter.outputs.studio }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            studio:
+              - 'studio/**'
+              - '.github/**'
+            web:
+              - 'web/**'
+              - '.github/**'
+
+  check-studio:
+    name: checks · studio
+    needs: changes
+    if: needs.changes.outputs.studio == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,8 +52,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
-  web:
-    name: Web (check + build)
+  check-web:
+    name: checks · web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,8 +75,37 @@ jobs:
       - name: Astro check
         run: npm run check
 
+  build-web:
+    name: build · web
+    needs: [changes, check-web]
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build
         run: npm run build
         env:
           PUBLIC_SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
           PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
+
+  deploy-web:
+    name: deploy · web
+    needs: [build-web]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Deploy to Cloudflare Pages — to be implemented"
