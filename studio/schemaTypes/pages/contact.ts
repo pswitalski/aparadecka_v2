@@ -9,57 +9,18 @@ export const contact = defineType({
   fields: [
     defineField({
       name: 'email',
-      type: 'object',
+      type: 'socialLink',
       title: 'E-mail',
-      fields: [
-        defineField({
-          name: 'label',
-          type: 'string',
-          title: 'Tekst',
-        }),
-        defineField({
-          name: 'url',
-          type: 'url',
-          title: 'URL',
-          validation: (rule) => rule.uri({scheme: ['http', 'https', 'mailto']}),
-        }),
-      ],
     }),
     defineField({
       name: 'instagram',
-      type: 'object',
+      type: 'socialLink',
       title: 'Instagram',
-      fields: [
-        defineField({
-          name: 'label',
-          type: 'string',
-          title: 'Tekst',
-        }),
-        defineField({
-          name: 'url',
-          type: 'url',
-          title: 'URL',
-          validation: (rule) => rule.uri({scheme: ['http', 'https', 'mailto']}),
-        }),
-      ],
     }),
     defineField({
       name: 'facebook',
-      type: 'object',
+      type: 'socialLink',
       title: 'Facebook',
-      fields: [
-        defineField({
-          name: 'label',
-          type: 'string',
-          title: 'Tekst',
-        }),
-        defineField({
-          name: 'url',
-          type: 'url',
-          title: 'URL',
-          validation: (rule) => rule.uri({scheme: ['http', 'https', 'mailto']}),
-        }),
-      ],
     }),
   ],
 })
