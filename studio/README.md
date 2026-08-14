@@ -1,9 +1,20 @@
-# Sanity Clean Content Studio
+# Sanity Studio — aparadecka_v2
 
-Congratulations, you have now installed the Sanity Content Studio, an open-source real-time content editing environment connected to the Sanity backend.
+Standalone Sanity Studio for the artist portfolio.
 
-Now you can do the following things:
+## Schema
 
-- [Read “getting started” in the docs](https://www.sanity.io/docs/introduction/getting-started?utm_source=readme)
-- [Join the Sanity community](https://www.sanity.io/community/join?utm_source=readme)
-- [Extend and build plugins](https://www.sanity.io/docs/content-studio/extending?utm_source=readme)
+- `painting` — artwork (title, year, medium, support, dimensions, mainImage)
+- `collection` — yearly group of paintings (unique year, thumbnail, paintings)
+- `home`, `about`, `contact` — page singletons (locked: fixed IDs, no duplicates/delete)
+- `socialLink` — shared link object (label + url)
+
+Studio structure is grouped by page: Home · About · Portfolio (Collections + Paintings) · Contact.
+
+## Commands
+
+- `npm run dev` — run the Studio locally
+- `npm run build` — build the Studio
+- `npm run typecheck` / `npm run lint` — CI checks
+- `npx sanity schemas deploy` — deploy schema to Content Lake
+- `npx sanity deploy` — deploy the hosted Studio
