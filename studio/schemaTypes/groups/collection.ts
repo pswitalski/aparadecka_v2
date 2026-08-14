@@ -23,7 +23,7 @@ export const collection = defineType({
             `count(*[_type == "collection" && year == $year && _id != $id])`,
             {year, id},
           )
-          return existing === 0 || 'Rocznik o tym roku już istnieje'
+          return existing === 0 || `Rok ${year} już istnieje`
         }),
     }),
     defineField({
