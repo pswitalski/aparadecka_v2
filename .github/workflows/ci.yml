@@ -9,17 +9,22 @@ permissions:
   contents: read
   pull-requests: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   changes:
     name: Detect changed packages
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       studio: ${{ steps.filter.outputs.studio }}
       web: ${{ steps.filter.outputs.web }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v3.0.4
         id: filter
         with:
           filters: |
@@ -35,13 +40,14 @@ jobs:
     needs: changes
     if: needs.changes.outputs.studio == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: studio
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -56,18 +62,43 @@ jobs:
       - name: Lint
         run: npm run lint
 
+  build-studio:
+    name: build · studio
+    needs: [changes, check-studio]
+    if: needs.changes.outputs.studio == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: studio
+    steps:
+      - uses: actions/checkout@v4.4.0
+
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
   check-web:
     name: checks · web
     needs: changes
     if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -84,13 +115,14 @@ jobs:
     needs: [changes, check-web]
     if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -110,6 +142,7 @@ jobs:
     needs: [build-web]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Placeholder
         run: echo "Deploy to Cloudflare Pages — to be implemented"
