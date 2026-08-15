@@ -1,15 +1,72 @@
 ---
+import '@fontsource/caladea/400.css';
+import '@fontsource/caladea/700.css';
+import '@fontsource/calistoga/400.css';
+import '../styles/tokens.css';
+
+import { sanityClient } from 'sanity:client';
+import { siteQuery } from '../lib/queries';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title, description } = Astro.props;
+
+const site = await sanityClient.fetch<{
+	title: string | null;
+	description: string | null;
+	keywords: string[] | null;
+}>(siteQuery);
+
+const resolvedTitle = title ?? site?.title ?? 'Agnieszka Paradecka';
+const resolvedDescription = description ?? site?.description ?? 'Agnieszka Paradecka - Portfolio';
 ---
 
-<html lang="en">
+<!doctype html>
+<html lang="pl">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={resolvedDescription} />
+		{site?.keywords?.length && <meta name="keywords" content={site.keywords.join(', ')} />}
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
-		<title>Portfolio</title>
+		<meta name="generator" content={Astro.generator} />
+		<title>{resolvedTitle}</title>
 	</head>
 	<body>
-		<slot />
+		<header>
+			<nav aria-label="Nawigacja główna">
+				<a href="/">Strona główna</a>
+				<a href="/o-mnie">O mnie</a>
+				<a href="/portfolio">Portfolio</a>
+				<a href="/kontakt">Kontakt</a>
+			</nav>
+		</header>
+		<main>
+			<slot />
+		</main>
 	</body>
 </html>
+
+<style>
+	header {
+		padding: var(--header-padding);
+	}
+	nav {
+		display: flex;
+		gap: var(--space-4);
+	}
+	nav a {
+		font-family: var(--font-special);
+		color: var(--color-text);
+		text-decoration: none;
+	}
+	main {
+		padding: var(--page-padding);
+		max-width: var(--container-width);
+		margin: 0 auto;
+	}
+</style>

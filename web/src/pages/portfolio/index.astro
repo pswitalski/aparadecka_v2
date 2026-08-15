@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/main.astro';
+import { sanityClient } from 'sanity:client';
+import { collectionsQuery } from '../../lib/queries';
+import { urlForImage } from '../../lib/sanity';
+import type { Painting } from '../../lib/types';
+
+interface CollectionItem {
+	year: number;
+	thumbnail: Painting | null;
+}
+
+const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery);
+---
+
+<Layout title="Portfolio">
+	<h1>Portfolio</h1>
+	<ul class="grid years">
+		{collections.map(({ year, thumbnail }) => (
+			<li>
+				<a href={`/portfolio/${year}`}>
+					{thumbnail?.mainImage && (
+						<img
+							src={urlForImage(thumbnail.mainImage).width(400).format('webp').url()}
+							alt={thumbnail.title ?? ''}
+							loading="lazy"
+						/>
+					)}
+					<span>{year}</span>
+				</a>
+			</li>
+		))}
+	</ul>
+</Layout>
+
+<style>
+	.years {
+		list-style: none;
+		padding: 0;
+	}
+	.years a {
+		font-family: var(--font-special);
+		text-decoration: none;
+		color: var(--color-text);
+	}
+	.years img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+</style>

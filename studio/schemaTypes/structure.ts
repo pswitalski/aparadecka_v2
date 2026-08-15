@@ -5,6 +5,7 @@ import {ThLargeIcon} from '@sanity/icons/ThLarge'
 import {EnvelopeIcon} from '@sanity/icons/Envelope'
 import {FolderIcon} from '@sanity/icons/Folder'
 import {ImageIcon} from '@sanity/icons/Image'
+import {CogIcon} from '@sanity/icons/Cog'
 
 export const structure: StructureResolver = (S) => {
   const singleton = (id: string, title: string) =>
@@ -82,6 +83,19 @@ export const structure: StructureResolver = (S) => {
               .title('Kontakt')
               .icon(EnvelopeIcon)
               .child(singleton('contact', 'Kontakt')),
+          ]),
+        ),
+      S.listItem()
+        .id('settingsGroup')
+        .title('Ustawienia')
+        .icon(CogIcon)
+        .child(
+          S.list().title('Ustawienia').items([
+            S.listItem()
+              .id('site')
+              .title('Ustawienia strony')
+              .icon(CogIcon)
+              .child(singleton('site', 'Ustawienia strony')),
           ]),
         ),
     ])

@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/main.astro';
+import PortableText from '../components/PortableText.astro';
+import { sanityClient } from 'sanity:client';
+import { aboutQuery } from '../lib/queries';
+import type { PortableTextProps } from 'astro-portabletext/types';
+
+const { body } = await sanityClient.fetch<{ body: PortableTextProps['value'] }>(aboutQuery);
+---
+
+<Layout title="O mnie">
+	<h1>O mnie</h1>
+	{body && <PortableText value={body} />}
+</Layout>
