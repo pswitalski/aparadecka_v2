@@ -1,5 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {FolderIcon} from '@sanity/icons/Folder'
+import {apiVersion} from '../../apiVersion'
 
 export const collection = defineType({
   name: 'collection',
@@ -17,7 +18,7 @@ export const collection = defineType({
       title: 'Rok',
       validation: (rule) =>
         rule.required().integer().min(1900).max(2100).custom(async (year, context) => {
-          const client = context.getClient({apiVersion: '2026-08-14'})
+          const client = context.getClient({apiVersion})
           const id = context.document?._id?.replace(/^drafts\./, '')
           const existing = await client.fetch(
             `count(*[_type == "collection" && year == $year && _id != $id])`,
