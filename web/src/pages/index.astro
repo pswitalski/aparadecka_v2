@@ -1,19 +1,16 @@
 ---
+import Layout from '../layouts/main.astro';
+import PaintingCard from '../components/PaintingCard.astro';
+import { sanityClient } from 'sanity:client';
+import { featuredPaintingsQuery } from '../lib/queries';
+import type { Painting } from '../lib/types';
+
+const { featured } = await sanityClient.fetch<{ featured: Painting[] }>(featuredPaintingsQuery);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Portfolio</title>
-	</head>
-
-	<body>
-		<main>
-			<h1>Portfolio</h1>
-		</main>
-	</body>
-</html>
+<Layout>
+	<h1>Wyróżnione obrazy</h1>
+	<div class="grid">
+		{(featured ?? []).map((painting) => <PaintingCard painting={painting} />)}
+	</div>
+</Layout>
