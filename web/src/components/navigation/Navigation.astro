@@ -1,0 +1,44 @@
+---
+import DesktopNav from './DesktopNav.astro';
+import MobileMenu from './MobileMenu.astro';
+import { navLinks } from './links';
+
+const [home, ...links] = navLinks;
+---
+
+<header class="site-header">
+	<a class="site-name" href={home.href}>{home.label}</a>
+	<DesktopNav links={links} />
+	<MobileMenu links={links} />
+</header>
+
+<style>
+	.site-header {
+		--nav-gap: var(--space-5);
+		--nav-font-size: var(--font-size-lg);
+		--nav-panel-width: min(320px, 80vw);
+		--nav-panel-bg: #e8e3e3;
+		--nav-overlay: rgba(0, 0, 0, 0.4);
+		--nav-transition: 200ms ease;
+
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		padding: var(--header-padding);
+		background-color: var(--color-bg);
+	}
+
+	.site-name {
+		font-family: var(--font-special);
+		font-size: var(--nav-font-size);
+		color: var(--color-text);
+		text-decoration: underline;
+		white-space: nowrap;
+	}
+
+	.site-name:focus-visible {
+		outline: var(--focus-ring-width) solid var(--focus-ring-color);
+		outline-offset: var(--focus-ring-offset);
+	}
+</style>
