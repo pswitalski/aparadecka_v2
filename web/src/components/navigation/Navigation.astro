@@ -12,21 +12,29 @@ const [home, ...links] = navLinks;
 	<MobileMenu links={links} />
 </header>
 
-<style>
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
 	.site-header {
 		--nav-gap: var(--space-5);
-		--nav-font-size: var(--font-size-lg);
+		--nav-font-size: var(--font-size-3xl);
 		--nav-panel-width: min(320px, 80vw);
 		--nav-panel-bg: #e8e3e3;
 		--nav-overlay: rgba(0, 0, 0, 0.4);
 		--nav-transition: 200ms ease;
+		--nav-bg: #ffffff;
+		--nav-height-desktop: 166px;
+		--nav-height-mobile: 82px;
 
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-4);
-		padding: var(--header-padding);
-		background-color: var(--color-bg);
+		padding: var(--header-padding) var(--page-padding);
+		background-color: var(--nav-bg);
+		height: var(--nav-height-desktop);
+		max-width: var(--container-width);
+		margin: 0 auto;
 	}
 
 	.site-name {
@@ -40,5 +48,14 @@ const [home, ...links] = navLinks;
 	.site-name:focus-visible {
 		outline: var(--focus-ring-width) solid var(--focus-ring-color);
 		outline-offset: var(--focus-ring-offset);
+	}
+
+	/* Below $breakpoints.nav — mobile header height + nav font size */
+	@include breakpoints.bp-down(nav) {
+		.site-header {
+			--nav-font-size: var(--font-size-xl);
+
+			height: var(--nav-height-mobile);
+		}
 	}
 </style>
