@@ -13,4 +13,10 @@ export default defineCliConfig({
      */
     autoUpdates: true,
   },
+  typegen: {
+    path: '../web/src/**/*.{ts,tsx}',
+    schema: 'schema.json',
+    generates: '../web/sanity.types.ts',
+    overloadClientMethods: true,
+  },
 })
