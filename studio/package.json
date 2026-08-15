@@ -13,8 +13,11 @@
     "deploy-graphql": "sanity graphql deploy",
     "dev": "sanity dev",
     "lint": "eslint .",
+    "schema:extract": "sanity schemas extract",
     "start": "sanity start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "typegen": "sanity typegen generate",
+    "types": "npm run schema:extract && npm run typegen"
   },
   "keywords": [
     "sanity"
