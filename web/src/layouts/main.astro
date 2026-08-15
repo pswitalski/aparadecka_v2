@@ -2,10 +2,11 @@
 import '@fontsource/caladea/400.css';
 import '@fontsource/caladea/700.css';
 import '@fontsource/calistoga/400.css';
-import '../styles/tokens.css';
+import '../styles/tokens.scss';
 
 import { sanityClient } from 'sanity:client';
 import { siteQuery } from '../lib/queries';
+import Navigation from '../components/navigation/Navigation.astro';
 
 interface Props {
 	title?: string;
@@ -20,8 +21,9 @@ const site = await sanityClient.fetch<{
 	keywords: string[] | null;
 }>(siteQuery);
 
-const resolvedTitle = title ?? site?.title ?? 'Agnieszka Paradecka';
-const resolvedDescription = description ?? site?.description ?? 'Agnieszka Paradecka - Portfolio';
+const resolvedTitle = title ?? site?.title ?? 'Agnieszka Paradecka – Świtalska';
+const resolvedDescription =
+	description ?? site?.description ?? 'Agnieszka Paradecka – Świtalska – Portfolio';
 ---
 
 <!doctype html>
@@ -37,14 +39,7 @@ const resolvedDescription = description ?? site?.description ?? 'Agnieszka Parad
 		<title>{resolvedTitle}</title>
 	</head>
 	<body>
-		<header>
-			<nav aria-label="Nawigacja główna">
-				<a href="/">Strona główna</a>
-				<a href="/o-mnie">O mnie</a>
-				<a href="/portfolio">Portfolio</a>
-				<a href="/kontakt">Kontakt</a>
-			</nav>
-		</header>
+		<Navigation />
 		<main>
 			<slot />
 		</main>
@@ -52,18 +47,6 @@ const resolvedDescription = description ?? site?.description ?? 'Agnieszka Parad
 </html>
 
 <style>
-	header {
-		padding: var(--header-padding);
-	}
-	nav {
-		display: flex;
-		gap: var(--space-4);
-	}
-	nav a {
-		font-family: var(--font-special);
-		color: var(--color-text);
-		text-decoration: none;
-	}
 	main {
 		padding: var(--page-padding);
 		max-width: var(--container-width);

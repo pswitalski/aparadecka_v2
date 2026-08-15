@@ -1,0 +1,18 @@
+@use 'sass:map';
+
+$breakpoints: (
+	nav: 768px,
+	// More breakpoints (from Figma) will be added during the design phase
+);
+
+@mixin bp-up($name) {
+	@media (min-width: map.get($breakpoints, $name)) {
+		@content;
+	}
+}
+
+@mixin bp-down($name) {
+	@media (max-width: (map.get($breakpoints, $name) - 1px)) {
+		@content;
+	}
+}

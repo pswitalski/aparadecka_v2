@@ -1,0 +1,216 @@
+---
+import IconButton from '../IconButton.astro';
+import Icon from '../Icon.astro';
+import NavLinks from './NavLinks.astro';
+import type { NavLink } from './links';
+
+interface Props {
+	links: NavLink[];
+	id?: string;
+}
+
+const { links, id = 'mobile-menu' } = Astro.props;
+---
+
+<div class="menu-toggle-wrap">
+	<IconButton
+		label="Otwórz menu"
+		aria-expanded="false"
+		aria-controls={id}
+		data-menu-toggle
+	>
+		<Icon name="menu" />
+	</IconButton>
+</div>
+
+<dialog class="mobile-menu" id={id} aria-label="Menu">
+	<IconButton label="Zamknij menu" class="menu-close" data-menu-close>
+		<Icon name="close" />
+	</IconButton>
+	<nav aria-label="Nawigacja mobilna">
+		<NavLinks links={links} />
+	</nav>
+</dialog>
+
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
+	.menu-toggle-wrap {
+		display: none;
+	}
+
+	.mobile-menu {
+		margin: 0;
+		padding: var(--space-7) var(--space-4);
+		border: 0;
+		background-color: var(--nav-panel-bg);
+	}
+
+	/* Below $breakpoints.nav — mobile menu is active */
+	@include breakpoints.bp-down(nav) {
+		.menu-toggle-wrap {
+			display: block;
+		}
+
+		.mobile-menu {
+			position: fixed;
+			top: auto;
+			right: 0;
+			bottom: 0;
+			left: auto;
+			width: var(--nav-panel-width);
+			height: 100dvh;
+			max-height: 100dvh;
+			transform: translateX(100%);
+			transition: transform var(--nav-transition);
+		}
+
+		.mobile-menu[open] {
+			transform: translateX(0);
+		}
+
+		.mobile-menu[open].is-closing {
+			transform: translateX(100%);
+		}
+
+		@starting-style {
+			.mobile-menu[open] {
+				transform: translateX(100%);
+			}
+		}
+
+		.mobile-menu::backdrop {
+			background-color: transparent;
+			transition: background-color var(--nav-transition);
+		}
+
+		.mobile-menu[open]::backdrop {
+			background-color: var(--nav-overlay);
+		}
+
+		.mobile-menu[open].is-closing::backdrop {
+			background-color: transparent;
+		}
+
+		@starting-style {
+			.mobile-menu[open]::backdrop {
+				background-color: transparent;
+			}
+		}
+
+		:global(.menu-close) {
+			position: absolute;
+			top: var(--space-4);
+			right: var(--space-4);
+		}
+	}
+
+	/* At/above $breakpoints.nav — mobile menu is hidden */
+	@include breakpoints.bp-up(nav) {
+		.menu-toggle-wrap,
+		.mobile-menu {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.mobile-menu,
+		.mobile-menu::backdrop {
+			transition: none;
+		}
+	}
+
+	:global(html.is-menu-open),
+	:global(html.is-menu-open body) {
+		overflow: hidden;
+	}
+</style>
+
+<script is:inline define:vars={{ id }}>
+	const dialog = document.getElementById(id);
+	const toggle = document.querySelector(`[aria-controls="${id}"]`);
+
+	if (dialog && toggle) {
+		const closeButton = dialog.querySelector('[data-menu-close]');
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const setOpenState = (open) => {
+			toggle.setAttribute('aria-expanded', String(open));
+			toggle.setAttribute('aria-label', open ? 'Zamknij menu' : 'Otwórz menu');
+			document.documentElement.classList.toggle('is-menu-open', open);
+		};
+
+		const openMenu = () => {
+			dialog.classList.remove('is-closing');
+			dialog.showModal();
+			setOpenState(true);
+		};
+
+		const closeMenu = () => {
+			if (!dialog.open) return;
+
+			if (prefersReducedMotion) {
+				dialog.close();
+				return;
+			}
+
+			dialog.classList.add('is-closing');
+
+			let done = false;
+			const finish = () => {
+				if (done) return;
+				done = true;
+				dialog.classList.remove('is-closing');
+				dialog.close();
+			};
+
+			const onTransitionEnd = (event) => {
+				if (event.propertyName === 'transform' && dialog.classList.contains('is-closing')) {
+					finish();
+				}
+			};
+
+			dialog.addEventListener('transitionend', onTransitionEnd, { once: true });
+			window.setTimeout(finish, 400);
+		};
+
+		toggle.addEventListener('click', () => {
+			if (dialog.open) {
+				closeMenu();
+			} else {
+				openMenu();
+			}
+		});
+
+		closeButton?.addEventListener('click', closeMenu);
+
+		dialog.addEventListener('click', (event) => {
+			if (event.target === dialog) {
+				closeMenu();
+			}
+		});
+
+		dialog.addEventListener('cancel', (event) => {
+			event.preventDefault();
+			closeMenu();
+		});
+
+		dialog.addEventListener('close', () => {
+			setOpenState(false);
+		});
+
+		const breakpoint = Number.parseInt(
+			getComputedStyle(document.documentElement).getPropertyValue('--nav-breakpoint'),
+			10,
+		);
+		const desktopQuery = window.matchMedia(`(min-width: ${Number.isNaN(breakpoint) ? 768 : breakpoint}px)`);
+
+		const onViewportChange = () => {
+			if (desktopQuery.matches && dialog.open) {
+				closeMenu();
+			}
+		};
+
+		desktopQuery.addEventListener('change', onViewportChange);
+	}
+</script>

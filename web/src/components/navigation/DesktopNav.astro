@@ -1,0 +1,25 @@
+---
+import NavLinks from './NavLinks.astro';
+import type { NavLink } from './links';
+
+interface Props {
+	links: NavLink[];
+}
+
+const { links } = Astro.props;
+---
+
+<nav class="desktop-nav" aria-label="Nawigacja główna">
+	<NavLinks links={links} orientation="row" />
+</nav>
+
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
+	/* Below $breakpoints.nav — desktop nav is hidden */
+	@include breakpoints.bp-down(nav) {
+		.desktop-nav {
+			display: none;
+		}
+	}
+</style>

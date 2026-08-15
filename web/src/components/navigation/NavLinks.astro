@@ -1,0 +1,45 @@
+---
+import type { NavLink } from './links';
+
+interface Props {
+	links: NavLink[];
+	orientation?: 'row' | 'column';
+}
+
+const { links, orientation = 'column' } = Astro.props;
+---
+
+<ul class:list={[orientation === 'row' && 'nav-links--row']}>
+	{links.map((link) => (
+		<li>
+			<a href={link.href}>{link.label}</a>
+		</li>
+	))}
+</ul>
+
+<style>
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--nav-gap);
+	}
+
+	.nav-links--row {
+		flex-direction: row;
+	}
+
+	a {
+		font-family: var(--font-special);
+		font-size: var(--nav-font-size);
+		color: var(--color-text);
+		text-decoration: none;
+	}
+
+	a:focus-visible {
+		outline: var(--focus-ring-width) solid var(--focus-ring-color);
+		outline-offset: var(--focus-ring-offset);
+	}
+</style>

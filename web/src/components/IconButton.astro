@@ -1,0 +1,32 @@
+---
+interface Props {
+	label: string;
+	class?: string;
+}
+
+const { label, class: className, ...attrs } = Astro.props;
+---
+
+<button type="button" class:list={['icon-button', className]} aria-label={label} {...attrs}>
+	<slot />
+</button>
+
+<style>
+	.icon-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: var(--color-text);
+		cursor: pointer;
+	}
+
+	.icon-button:focus-visible {
+		outline: var(--focus-ring-width) solid var(--focus-ring-color);
+		outline-offset: var(--focus-ring-offset);
+	}
+</style>

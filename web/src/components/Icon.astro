@@ -1,0 +1,39 @@
+---
+interface Props {
+	name: 'menu' | 'close';
+}
+
+const { name } = Astro.props;
+
+const icons = {
+	menu: { viewBox: '0 0 25 12', width: 25, height: 12 },
+	close: { viewBox: '0 0 24 24', width: 26.25, height: 26.25 },
+} as const;
+
+const icon = icons[name];
+---
+
+<svg
+	width={icon.width}
+	height={icon.height}
+	viewBox={icon.viewBox}
+	fill="none"
+	stroke="currentColor"
+	stroke-width="2"
+	stroke-linecap="round"
+	aria-hidden="true"
+>
+	{name === 'menu' && (
+		<>
+			<line x1="0" y1="1" x2="25" y2="1" stroke-linecap="butt" />
+			<line x1="0" y1="6" x2="25" y2="6" stroke-linecap="butt" />
+			<line x1="0" y1="11" x2="25" y2="11" stroke-linecap="butt" />
+		</>
+	)}
+	{name === 'close' && (
+		<>
+			<line x1="6" y1="6" x2="18" y2="18" />
+			<line x1="6" y1="18" x2="18" y2="6" />
+		</>
+	)}
+</svg>

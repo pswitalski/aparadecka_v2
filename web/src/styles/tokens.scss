@@ -1,3 +1,6 @@
+@use 'breakpoints';
+@use 'sass:map';
+
 :root {
 	/* Typography */
 	--font-body: 'Caladea', Georgia, 'Times New Roman', serif;
@@ -23,6 +26,9 @@
 	--color-muted: #6b6b6b;
 	--color-accent: #8b6f47;
 	--color-border: #e5e5e5;
+	/* Provisional values — confirm with Figma */
+	--color-panel: #e8e3e3;
+	--color-overlay: rgba(0, 0, 0, 0.4);
 
 	/* Spacing */
 	--space-1: 0.25rem;
@@ -39,6 +45,18 @@
 	--header-padding: var(--space-4);
 	--grid-gap: var(--space-5);
 	--grid-min: 280px;
+
+	/* Navigation */
+	/* Runtime value for JS (read via getComputedStyle) — derived from
+	   $breakpoints.nav in _breakpoints.scss (single source of truth).
+	   CSS custom properties can't be used in media queries, so components
+	   use the bp-up/bp-down mixins instead. */
+	--nav-breakpoint: #{map.get(breakpoints.$breakpoints, nav)};
+
+	/* Focus */
+	--focus-ring-color: var(--color-accent);
+	--focus-ring-width: 2px;
+	--focus-ring-offset: 2px;
 }
 
 *,
