@@ -21,8 +21,9 @@ const site = await sanityClient.fetch<{
 	keywords: string[] | null;
 }>(siteQuery);
 
-const resolvedTitle = title ?? site?.title ?? 'Agnieszka Paradecka';
-const resolvedDescription = description ?? site?.description ?? 'Agnieszka Paradecka - Portfolio';
+const resolvedTitle = title ?? site?.title ?? 'Agnieszka Paradecka – Świtalska';
+const resolvedDescription =
+	description ?? site?.description ?? 'Agnieszka Paradecka – Świtalska – Portfolio';
 ---
 
 <!doctype html>

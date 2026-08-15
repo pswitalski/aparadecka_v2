@@ -2,31 +2,28 @@
 import IconButton from '../IconButton.astro';
 import Icon from '../Icon.astro';
 import NavLinks from './NavLinks.astro';
-
-interface Link {
-	label: string;
-	href: string;
-}
+import type { NavLink } from './links';
 
 interface Props {
-	links: Link[];
+	links: NavLink[];
+	id?: string;
 }
 
-const { links } = Astro.props;
+const { links, id = 'mobile-menu' } = Astro.props;
 ---
 
 <div class="menu-toggle-wrap">
 	<IconButton
 		label="Otwórz menu"
 		aria-expanded="false"
-		aria-controls="mobile-menu"
+		aria-controls={id}
 		data-menu-toggle
 	>
 		<Icon name="menu" />
 	</IconButton>
 </div>
 
-<dialog class="mobile-menu" id="mobile-menu" aria-label="Menu">
+<dialog class="mobile-menu" id={id} aria-label="Menu">
 	<IconButton label="Zamknij menu" class="menu-close" data-menu-close>
 		<Icon name="close" />
 	</IconButton>
@@ -129,16 +126,17 @@ const { links } = Astro.props;
 	}
 </style>
 
-<script>
-	const dialog = document.getElementById('mobile-menu') as HTMLDialogElement | null;
-	const toggle = document.querySelector('[data-menu-toggle]');
+<script is:inline define:vars={{ id }}>
+	const dialog = document.getElementById(id);
+	const toggle = document.querySelector(`[aria-controls="${id}"]`);
 
 	if (dialog && toggle) {
 		const closeButton = dialog.querySelector('[data-menu-close]');
 		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-		const setOpenState = (open: boolean) => {
+		const setOpenState = (open) => {
 			toggle.setAttribute('aria-expanded', String(open));
+			toggle.setAttribute('aria-label', open ? 'Zamknij menu' : 'Otwórz menu');
 			document.documentElement.classList.toggle('is-menu-open', open);
 		};
 
@@ -166,7 +164,7 @@ const { links } = Astro.props;
 				dialog.close();
 			};
 
-			const onTransitionEnd = (event: TransitionEvent) => {
+			const onTransitionEnd = (event) => {
 				if (event.propertyName === 'transform' && dialog.classList.contains('is-closing')) {
 					finish();
 				}

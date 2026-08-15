@@ -1,11 +1,8 @@
 ---
-interface Link {
-	label: string;
-	href: string;
-}
+import type { NavLink } from './links';
 
 interface Props {
-	links: Link[];
+	links: NavLink[];
 	orientation?: 'row' | 'column';
 }
 
