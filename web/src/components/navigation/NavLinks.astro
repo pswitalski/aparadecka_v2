@@ -17,14 +17,16 @@ const { links, orientation = 'column' } = Astro.props;
 	))}
 </ul>
 
-<style>
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
 	ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: var(--nav-gap);
+		gap: var(--space-5);
 	}
 
 	.nav-links--row {
@@ -33,13 +35,20 @@ const { links, orientation = 'column' } = Astro.props;
 
 	a {
 		font-family: var(--font-special);
-		font-size: var(--nav-font-size);
+		font-size: var(--font-size-3xl);
 		color: var(--color-text);
 		text-decoration: none;
 	}
 
 	a:focus-visible {
-		outline: var(--focus-ring-width) solid var(--focus-ring-color);
+		outline: var(--focus-ring-width) solid var(--color-accent);
 		outline-offset: var(--focus-ring-offset);
+	}
+
+	/* Below $breakpoints.nav — nav link font size */
+	@include breakpoints.max-width(nav) {
+		a {
+			font-size: var(--font-size-xl);
+		}
 	}
 </style>

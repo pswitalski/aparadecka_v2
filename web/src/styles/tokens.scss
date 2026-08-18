@@ -41,52 +41,16 @@
 
 	/* Layout */
 	--container-width: 1200px;
-	--page-padding: var(--space-4);
-	--header-padding: var(--space-4);
-	--grid-gap: var(--space-5);
 	--grid-min: 280px;
 
-	/* Navigation */
+	/* Breakpoints */
 	/* Runtime value for JS (read via getComputedStyle) — derived from
 	   $breakpoints.nav in _breakpoints.scss (single source of truth).
 	   CSS custom properties can't be used in media queries, so components
-	   use the bp-up/bp-down mixins instead. */
-	--nav-breakpoint: #{map.get(breakpoints.$breakpoints, nav)};
+	   use the min-width/max-width mixins instead. */
+	--breakpoint-nav: #{map.get(breakpoints.$breakpoints, nav)};
 
 	/* Focus */
-	--focus-ring-color: var(--color-accent);
 	--focus-ring-width: 2px;
 	--focus-ring-offset: 2px;
-}
-
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-}
-
-body {
-	margin: 0;
-	font-family: var(--font-body);
-	font-size: var(--font-size-base);
-	line-height: var(--line-height-base);
-	color: var(--color-text);
-	background-color: var(--color-bg);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font-family: var(--font-special);
-	font-weight: 400;
-	line-height: 1.2;
-}
-
-.grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr));
-	gap: var(--grid-gap);
 }

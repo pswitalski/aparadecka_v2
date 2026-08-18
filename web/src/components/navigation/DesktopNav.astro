@@ -17,7 +17,7 @@ const { links } = Astro.props;
 	@use '../../styles/breakpoints';
 
 	/* Below $breakpoints.nav — desktop nav is hidden */
-	@include breakpoints.bp-down(nav) {
+	@include breakpoints.max-width(nav) {
 		.desktop-nav {
 			display: none;
 		}

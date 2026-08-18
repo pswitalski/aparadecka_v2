@@ -40,14 +40,16 @@ const { links, id = 'mobile-menu' } = Astro.props;
 	}
 
 	.mobile-menu {
+		--nav-transition: 200ms ease;
+
 		margin: 0;
 		padding: var(--space-7) var(--space-4);
 		border: 0;
-		background-color: var(--nav-panel-bg);
+		background-color: var(--color-panel);
 	}
 
 	/* Below $breakpoints.nav — mobile menu is active */
-	@include breakpoints.bp-down(nav) {
+	@include breakpoints.max-width(nav) {
 		.menu-toggle-wrap {
 			display: block;
 		}
@@ -58,7 +60,7 @@ const { links, id = 'mobile-menu' } = Astro.props;
 			right: 0;
 			bottom: 0;
 			left: auto;
-			width: var(--nav-panel-width);
+			width: min(320px, 80vw);
 			height: 100dvh;
 			max-height: 100dvh;
 			transform: translateX(100%);
@@ -85,7 +87,7 @@ const { links, id = 'mobile-menu' } = Astro.props;
 		}
 
 		.mobile-menu[open]::backdrop {
-			background-color: var(--nav-overlay);
+			background-color: var(--color-overlay);
 		}
 
 		.mobile-menu[open].is-closing::backdrop {
@@ -106,7 +108,7 @@ const { links, id = 'mobile-menu' } = Astro.props;
 	}
 
 	/* At/above $breakpoints.nav — mobile menu is hidden */
-	@include breakpoints.bp-up(nav) {
+	@include breakpoints.min-width(nav) {
 		.menu-toggle-wrap,
 		.mobile-menu {
 			display: none;
@@ -200,7 +202,7 @@ const { links, id = 'mobile-menu' } = Astro.props;
 		});
 
 		const breakpoint = Number.parseInt(
-			getComputedStyle(document.documentElement).getPropertyValue('--nav-breakpoint'),
+			getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-nav'),
 			10,
 		);
 		const desktopQuery = window.matchMedia(`(min-width: ${Number.isNaN(breakpoint) ? 768 : breakpoint}px)`);

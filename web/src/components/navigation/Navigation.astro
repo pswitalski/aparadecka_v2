@@ -16,46 +16,38 @@ const [home, ...links] = navLinks;
 	@use '../../styles/breakpoints';
 
 	.site-header {
-		--nav-gap: var(--space-5);
-		--nav-font-size: var(--font-size-3xl);
-		--nav-panel-width: min(320px, 80vw);
-		--nav-panel-bg: var(--color-panel);
-		--nav-overlay: var(--color-overlay);
-		--nav-transition: 200ms ease;
-		--nav-bg: #ffffff;
-		--nav-height-desktop: 166px;
-		--nav-height-mobile: 82px;
-
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-4);
-		padding: var(--header-padding) var(--page-padding);
-		background-color: var(--nav-bg);
-		height: var(--nav-height-desktop);
+		padding: var(--space-4);
+		background-color: var(--color-bg);
+		height: 166px;
 		max-width: var(--container-width);
 		margin: 0 auto;
 	}
 
 	.site-name {
 		font-family: var(--font-special);
-		font-size: var(--nav-font-size);
+		font-size: var(--font-size-3xl);
 		color: var(--color-text);
 		text-decoration: underline;
 		white-space: nowrap;
 	}
 
 	.site-name:focus-visible {
-		outline: var(--focus-ring-width) solid var(--focus-ring-color);
+		outline: var(--focus-ring-width) solid var(--color-accent);
 		outline-offset: var(--focus-ring-offset);
 	}
 
 	/* Below $breakpoints.nav — mobile header height + nav font size */
-	@include breakpoints.bp-down(nav) {
+	@include breakpoints.max-width(nav) {
 		.site-header {
-			--nav-font-size: var(--font-size-xl);
+			height: 82px;
+		}
 
-			height: var(--nav-height-mobile);
+		.site-name {
+			font-size: var(--font-size-xl);
 		}
 	}
 </style>
