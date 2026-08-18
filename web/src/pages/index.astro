@@ -1,16 +1,19 @@
 ---
 import Layout from '../layouts/main.astro';
-import PaintingCard from '../components/PaintingCard.astro';
+import DesktopGallery from '../components/home-gallery/desktop/DesktopGallery';
+import MobileGallery from '../components/home-gallery/mobile/MobileGallery';
+import { adaptPaintings } from '../components/home-gallery/adapter';
 import { sanityClient } from 'sanity:client';
 import { featuredPaintingsQuery } from '../lib/queries';
 import type { Painting } from '../lib/types';
 
-const { featured } = await sanityClient.fetch<{ featured: Painting[] }>(featuredPaintingsQuery);
+const { featuredPaintings } = await sanityClient.fetch<{ featuredPaintings: Painting[] }>(featuredPaintingsQuery);
+
+const paintings = adaptPaintings(featuredPaintings);
 ---
 
 <Layout>
-	<h1>Wyróżnione obrazy</h1>
-	<div class="grid">
-		{(featured ?? []).map((painting) => <PaintingCard painting={painting} />)}
-	</div>
+	<h1 class="visually-hidden">Wyróżnione obrazy</h1>
+	<DesktopGallery paintings={paintings} client:media="(min-width: 768px)" />
+	<MobileGallery paintings={paintings} client:media="(max-width: 767px)" />
 </Layout>

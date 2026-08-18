@@ -3,6 +3,8 @@
 import { loadEnv } from 'vite';
 import { defineConfig } from 'astro/config';
 import sanity from '@sanity/astro';
+import react from '@astrojs/react';
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { apiVersion } from './apiVersion';
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
@@ -14,6 +16,7 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
+		react(),
 		sanity({
 			projectId: PUBLIC_SANITY_PROJECT_ID,
 			dataset: PUBLIC_SANITY_DATASET,
@@ -21,4 +24,7 @@ export default defineConfig({
 			useCdn: false,
 		}),
 	],
+	vite: {
+		plugins: [vanillaExtractPlugin()],
+	},
 });

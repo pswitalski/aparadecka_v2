@@ -28,6 +28,7 @@
 	--color-border: #e5e5e5;
 	/* Provisional values — confirm with Figma */
 	--color-panel: #e8e3e3;
+	--color-surface: #f5f5f5;
 	--color-overlay: rgba(0, 0, 0, 0.4);
 
 	/* Spacing */
@@ -42,6 +43,8 @@
 	/* Layout */
 	--container-width: 1200px;
 	--grid-min: 280px;
+	--header-height: 166px;
+	--header-height-mobile: 82px;
 
 	/* Breakpoints */
 	/* Runtime value for JS (read via getComputedStyle) — derived from

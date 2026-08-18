@@ -285,9 +285,9 @@ export type AllSanitySchemaTypes =
 
 // Source: ../web/src/lib/queries.ts
 // Variable: featuredPaintingsQuery
-// Query: *[_type == "home"][0]{  "featured": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }}
+// Query: *[_type == "home"][0]{  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }}
 export type FeaturedPaintingsQueryResult = {
-  featured: Array<{
+  featuredPaintings: Array<{
     _id: string;
     title: string | null;
     year: number | null;
@@ -405,7 +405,7 @@ export type SiteQueryResult = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '*[_type == "home"][0]{\n  "featured": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': FeaturedPaintingsQueryResult;
+    '*[_type == "home"][0]{\n  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': FeaturedPaintingsQueryResult;
     '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
     '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
     '*[_type == "about"][0]{\n  body\n}': AboutQueryResult;
