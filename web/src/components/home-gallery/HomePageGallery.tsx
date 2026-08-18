@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
+import { staticGeometryOf, THUMB_STEP, toRect, type Rect, type Slot } from './HomePageGallery.geometry';
+import * as styles from './HomePageGallery.css';
 
 export interface GalleryPainting {
 	id: string;
@@ -16,44 +18,11 @@ interface Props {
 const INTERVAL = 5000;
 const VISIBLE = 3;
 
-const THUMB_WIDTH = 261;
-const THUMB_HEIGHT = 186;
-const THUMB_STEP = 210;
-const CLIP_HEIGHT = 606;
-const SIDE_GAP = 61;
-
-interface Rect {
-	left: number;
-	top: number;
-	width: number;
-	height: number;
-}
-
-interface CssGeometry {
-	left: number | string;
-	top: number;
-	width: number | string;
-	height: number;
-}
-
-type Slot = { kind: 'big' } | { kind: 'stack'; pos: number } | { kind: 'thumb'; pos: number };
-
-function staticGeometryOf(slot: Slot): CssGeometry {
-	if (slot.kind === 'big') {
-		return { left: 0, top: 0, width: `calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px)`, height: CLIP_HEIGHT };
-	}
-	const left = `calc(100% - ${THUMB_WIDTH}px)`;
-	if (slot.kind === 'thumb') {
-		return { left, top: slot.pos * THUMB_STEP, width: THUMB_WIDTH, height: THUMB_HEIGHT };
-	}
-	return { left, top: -(slot.pos + 1) * THUMB_STEP, width: THUMB_WIDTH, height: THUMB_HEIGHT };
-}
-
 export default function HomePageGallery({ paintings }: Props) {
 	const total = paintings.length;
 	const visibleCount = Math.min(VISIBLE, total - 1);
 
-	const [state, setState] = useState<number[]>(() => {
+	const [order, setOrder] = useState<number[]>(() => {
 		const visible = [1, 2, 3].slice(0, visibleCount);
 		const stack = Array.from({ length: total - 1 - visibleCount }, (_, i) => total - 1 - i);
 		return [0, ...stack, ...visible];
@@ -65,25 +34,25 @@ export default function HomePageGallery({ paintings }: Props) {
 	);
 	const timerRef = useRef<number | null>(null);
 
-	const strip = state.slice(1);
+	const strip = order.slice(1);
 	const stackStrip = strip.slice(0, strip.length - visibleCount);
 	const visibleStrip = strip.slice(-visibleCount);
-	const bigIndex = state[0];
+	const bigIndex = order[0];
 	const big = paintings[bigIndex];
 
 	// slot for each painting
 	const slotOf = useMemo(() => {
 		const map = new Map<number, Slot>();
-		map.set(state[0], { kind: 'big' });
+		map.set(order[0], { kind: 'big' });
 		stackStrip.forEach((idx, i) => map.set(idx, { kind: 'stack', pos: i }));
 		visibleStrip.forEach((idx, i) => map.set(idx, { kind: 'thumb', pos: i }));
 		return map;
-	}, [state, stackStrip, visibleStrip]);
+	}, [order, stackStrip, visibleStrip]);
 
 	useEffect(() => {
 		if (reduceMotion || paused) return;
 		timerRef.current = window.setInterval(() => {
-			setState((s) => [s[s.length - 1], s[0], ...s.slice(1, -1)]);
+			setOrder((prev) => [prev[prev.length - 1], prev[0], ...prev.slice(1, -1)]);
 		}, INTERVAL);
 		return () => {
 			if (timerRef.current) window.clearInterval(timerRef.current);
@@ -91,8 +60,8 @@ export default function HomePageGallery({ paintings }: Props) {
 	}, [paused, reduceMotion]);
 
 	const select = (targetIndex: number) => {
-		setState((s) => {
-			const rest = s.filter((v) => v !== targetIndex);
+		setOrder((prev) => {
+			const rest = prev.filter((v) => v !== targetIndex);
 			return [targetIndex, ...rest];
 		});
 	};
@@ -124,7 +93,7 @@ export default function HomePageGallery({ paintings }: Props) {
 		const ro = new ResizeObserver(measure);
 		if (rootRef.current) ro.observe(rootRef.current);
 		return () => ro.disconnect();
-	}, [state, total]);
+	}, [order, total]);
 
 	const rectOf = (slot: Slot): Rect | null => {
 		if (slot.kind === 'big') return layout.big;
@@ -133,14 +102,14 @@ export default function HomePageGallery({ paintings }: Props) {
 	};
 
 	return (
-		<section className="home-gallery" data-home-gallery>
-			<div className="home-gallery-inner">
-				<div className="gallery-clip" ref={rootRef}>
+		<section className={styles.homeGallery} data-home-gallery>
+			<div className={styles.inner}>
+				<div className={styles.clip} ref={rootRef}>
 					{/* skeleton cells define slot geometry (invisible, just for measurement + hover) */}
-					<div className="cell big-cell" ref={bigCellRef} />
+					<div className={`${styles.cell} ${styles.bigCell}`} ref={bigCellRef} />
 					{stackStrip.map((_, i) => (
 						<div
-							className="cell stack-cell"
+							className={`${styles.cell} ${styles.sideCell}`}
 							style={{ top: -((i + 1) * THUMB_STEP) }}
 							key={i}
 							ref={(el) => {
@@ -150,7 +119,7 @@ export default function HomePageGallery({ paintings }: Props) {
 					))}
 					{visibleStrip.map((_, i) => (
 						<div
-							className="cell thumb-cell"
+							className={`${styles.cell} ${styles.sideCell}`}
 							style={{ top: i * THUMB_STEP }}
 							key={i}
 							ref={(el) => {
@@ -161,17 +130,17 @@ export default function HomePageGallery({ paintings }: Props) {
 						>
 							<button
 								type="button"
-								className="thumb-btn"
+								className={styles.thumbBtn}
 								aria-label={`Pokaż: ${paintings[visibleStrip[i]].title ?? 'obraz bez tytułu'}`}
 								onClick={() => select(visibleStrip[i])}
 							>
-								<span className="thumb-title">{paintings[visibleStrip[i]].title ?? 'Bez tytułu'}</span>
+								<span className={styles.thumbTitle}>{paintings[visibleStrip[i]].title ?? 'Bez tytułu'}</span>
 							</button>
 						</div>
 					))}
 
 					{/* persistent painting elements */}
-					{state.map((idx) => {
+					{order.map((idx) => {
 						const slot = slotOf.get(idx);
 						if (!slot) return null;
 						const rect = rectOf(slot);
@@ -180,7 +149,7 @@ export default function HomePageGallery({ paintings }: Props) {
 						return (
 							<motion.div
 								key={paintings[idx].id}
-								className={`gallery-item ${isBig ? 'is-big' : 'is-thumb'}`}
+								className={styles.item}
 								style={{
 									left: staticGeom.left,
 									top: staticGeom.top,
@@ -197,21 +166,21 @@ export default function HomePageGallery({ paintings }: Props) {
 							>
 								{isBig ? (
 									<div
-										className="big-frame"
+										className={styles.bigFrame}
 										onMouseEnter={() => setPaused(true)}
 										onMouseLeave={() => setPaused(false)}
 									>
 										<motion.img
 											src={paintings[idx].image}
 											alt={paintings[idx].title ?? ''}
-											className="gallery-img big"
+											className={`${styles.galleryImg} ${styles.bigImg}`}
 										/>
 									</div>
 								) : (
 									<motion.img
 										src={paintings[idx].image}
 										alt={paintings[idx].title ?? ''}
-										className="gallery-img"
+										className={`${styles.galleryImg} ${styles.thumbImg}`}
 									/>
 								)}
 							</motion.div>
@@ -219,130 +188,10 @@ export default function HomePageGallery({ paintings }: Props) {
 					})}
 				</div>
 
-				<p className="stage-caption" aria-live="off">
+				<p className={styles.caption} aria-live="off">
 					{big?.caption}
 				</p>
 			</div>
-
-			<style>{css}</style>
 		</section>
 	);
 }
-
-function toRect(origin: DOMRect, r?: DOMRect): Rect {
-	const o = origin;
-	if (!r) return { left: 0, top: 0, width: 0, height: 0 };
-	return { left: r.left - o.left, top: r.top - o.top, width: r.width, height: r.height };
-}
-
-const css = `
-	.home-gallery {
-		width: 100vw;
-		margin-inline: calc(50% - 50vw);
-		background-color: var(--color-surface);
-		overflow: hidden;
-	}
-	.home-gallery-inner {
-		position: relative;
-		max-width: var(--container-width);
-		margin-inline: auto;
-		padding: var(--space-6) var(--space-4);
-	}
-	.gallery-clip {
-		position: relative;
-		height: ${CLIP_HEIGHT}px;
-		overflow: hidden;
-	}
-	.cell {
-		position: absolute;
-		overflow: hidden;
-	}
-	.big-cell {
-		left: 0;
-		top: 0;
-		bottom: 0;
-		width: calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px);
-	}
-	.thumb-cell,
-	.stack-cell {
-		right: 0;
-		width: ${THUMB_WIDTH}px;
-		height: ${THUMB_HEIGHT}px;
-	}
-	.gallery-item {
-		position: absolute;
-		overflow: hidden;
-		pointer-events: none;
-	}
-	.gallery-img {
-		width: 100%;
-		height: 100%;
-		display: block;
-		pointer-events: none;
-	}
-	.big-frame {
-		width: 100%;
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-	}
-	.gallery-img.big {
-		width: auto;
-		height: auto;
-		max-width: 100%;
-		max-height: 100%;
-		object-fit: contain;
-		pointer-events: auto;
-	}
-	.gallery-item.is-thumb .gallery-img {
-		object-fit: cover;
-		object-position: center;
-	}
-	.stage-caption {
-		position: relative;
-		width: calc(100% - 261px - 61px);
-		margin-top: var(--space-3);
-		margin-inline: auto;
-		margin-left: 0;
-		font-family: var(--font-body);
-		font-size: var(--font-size-xl);
-		line-height: 100%;
-		color: var(--color-text);
-		text-align: center;
-		text-wrap: balance;
-	}
-	.thumb-btn {
-		display: block;
-		width: 100%;
-		height: 100%;
-		padding: 0;
-		border: 0;
-		background: none;
-		text-align: left;
-		cursor: pointer;
-		position: relative;
-		z-index: 1;
-	}
-	.thumb-title {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		padding: var(--space-4) var(--space-3) var(--space-2);
-		color: #fff;
-		font-family: var(--font-body);
-		font-size: var(--font-size-sm);
-		text-align: center;
-		text-wrap: balance;
-		background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
-		opacity: 0;
-		transition: opacity 200ms ease;
-		pointer-events: none;
-	}
-	.thumb-btn:hover .thumb-title,
-	.thumb-btn:focus-visible .thumb-title {
-		opacity: 1;
-	}
-`;
