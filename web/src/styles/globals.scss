@@ -54,9 +54,3 @@ h6 {
 	white-space: nowrap;
 	border: 0;
 }
-
-/* Smooth morph animation for the home gallery image swaps */
-::view-transition-group(*) {
-	animation-duration: 600ms;
-	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}

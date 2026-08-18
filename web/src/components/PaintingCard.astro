@@ -6,21 +6,16 @@ interface Props {
 	painting: Painting;
 	variant?: 'featured' | 'thumb';
 	class?: string;
-	transitionName?: string;
 }
 
-const { painting, variant = 'thumb', class: className, transitionName, ...rest } = Astro.props;
+const { painting, variant = 'thumb', class: className, ...rest } = Astro.props;
 
 const imageUrl = painting.mainImage
 	? urlForImage(painting.mainImage).width(600).format('webp').url()
 	: null;
 ---
 
-<figure
-	class:list={['painting', `painting--${variant}`, className]}
-	style={transitionName ? `view-transition-name: ${transitionName}` : undefined}
-	{...rest}
->
+<figure class:list={['painting', `painting--${variant}`, className]} {...rest}>
 	{imageUrl && <img src={imageUrl} alt={painting.title ?? ''} loading="lazy" />}
 	{variant === 'thumb' && <figcaption>{painting.title ?? 'Bez tytułu'}</figcaption>}
 </figure>

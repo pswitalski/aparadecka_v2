@@ -7,13 +7,11 @@ export interface GalleryPainting {
 	title: string | null;
 	caption: string;
 	image: string;
-	thumb: string;
 	mobile: string;
 	srcset: string;
 }
 
 const IMAGE_WIDTH = 1200;
-const THUMB_WIDTH = 300;
 const MOBILE_WIDTH = 1024;
 const SRCSET_WIDTHS = [480, 800, 1024, 1200];
 
@@ -34,11 +32,11 @@ export function adaptPaintings(paintings: Painting[] | null | undefined): Galler
 		id: p._id,
 		title: p.title,
 		caption: buildCaption(p),
+		// Desktop thumbnails reuse the full-size `image` (1200w): each painting is a single
+		// persistent element that morphs between the thumb and big slots, so it needs the
+		// full-resolution source.
 		image: imageUrl(p.mainImage, IMAGE_WIDTH),
-		thumb: imageUrl(p.mainImage, THUMB_WIDTH),
 		mobile: imageUrl(p.mainImage, MOBILE_WIDTH),
-		srcset: p.mainImage
-			? SRCSET_WIDTHS.map((w) => `${urlForImage(p.mainImage!).width(w).format('webp').url()} ${w}w`).join(', ')
-			: '',
+		srcset: p.mainImage ? SRCSET_WIDTHS.map((w) => `${imageUrl(p.mainImage, w)} ${w}w`).join(', ') : '',
 	}));
 }

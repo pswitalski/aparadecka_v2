@@ -62,6 +62,8 @@ export default function MobileGallery({ paintings }: Props) {
 
 	const active = paintings[selectedIndex] ?? paintings[0];
 
+	if (paintings.length === 0) return null;
+
 	return (
 		<section className={styles.carousel} data-home-carousel>
 			<div className={styles.dotsBar}>
@@ -78,7 +80,7 @@ export default function MobileGallery({ paintings }: Props) {
 					))}
 				</div>
 			</div>
-			<p className={styles.title} aria-live="polite">
+			<p className={styles.title} aria-live="off">
 				{active?.caption}
 			</p>
 			<div

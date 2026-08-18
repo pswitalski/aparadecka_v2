@@ -3,11 +3,13 @@ import { style } from '@vanilla-extract/css';
 export const carousel = style({
 	display: 'flex',
 	flexDirection: 'column',
+	/* Full-bleed inside `main` (padding var(--space-4)) and fill the viewport below the
+	   mobile header down to the bottom edge (margin-bottom cancels main's bottom padding). */
 	width: 'calc(100% + 2 * var(--space-4))',
 	marginInline: 'calc(-1 * var(--space-4))',
 	marginBottom: 'calc(-1 * var(--space-4))',
 	backgroundColor: 'var(--color-surface)',
-	height: 'calc(100dvh - 82px - var(--space-4))',
+	height: 'calc(100dvh - var(--header-height-mobile) - var(--space-4))',
 	overflow: 'hidden',
 	'@media': {
 		'(min-width: 768px)': {

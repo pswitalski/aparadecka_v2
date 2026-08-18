@@ -94,6 +94,8 @@ export default function DesktopGallery({ paintings }: Props) {
 		return layout.stack[slot.pos] ?? null;
 	};
 
+	if (paintings.length === 0) return null;
+
 	return (
 		<section className={styles.homeGallery} data-home-gallery>
 			<div className={styles.inner}>
