@@ -16,11 +16,37 @@ interface Props {
 const INTERVAL = 5000;
 const VISIBLE = 3;
 
+const THUMB_WIDTH = 261;
+const THUMB_HEIGHT = 186;
+const THUMB_STEP = 210;
+const CLIP_HEIGHT = 606;
+const SIDE_GAP = 61;
+
 interface Rect {
 	left: number;
 	top: number;
 	width: number;
 	height: number;
+}
+
+interface CssGeometry {
+	left: number | string;
+	top: number;
+	width: number | string;
+	height: number;
+}
+
+type Slot = { kind: 'big' } | { kind: 'stack'; pos: number } | { kind: 'thumb'; pos: number };
+
+function staticGeometryOf(slot: Slot): CssGeometry {
+	if (slot.kind === 'big') {
+		return { left: 0, top: 0, width: `calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px)`, height: CLIP_HEIGHT };
+	}
+	const left = `calc(100% - ${THUMB_WIDTH}px)`;
+	if (slot.kind === 'thumb') {
+		return { left, top: slot.pos * THUMB_STEP, width: THUMB_WIDTH, height: THUMB_HEIGHT };
+	}
+	return { left, top: -(slot.pos + 1) * THUMB_STEP, width: THUMB_WIDTH, height: THUMB_HEIGHT };
 }
 
 export default function HomePageGallery({ paintings }: Props) {
@@ -47,7 +73,7 @@ export default function HomePageGallery({ paintings }: Props) {
 
 	// slot for each painting
 	const slotOf = useMemo(() => {
-		const map = new Map<number, { kind: 'big' } | { kind: 'stack'; pos: number } | { kind: 'thumb'; pos: number }>();
+		const map = new Map<number, Slot>();
 		map.set(state[0], { kind: 'big' });
 		stackStrip.forEach((idx, i) => map.set(idx, { kind: 'stack', pos: i }));
 		visibleStrip.forEach((idx, i) => map.set(idx, { kind: 'thumb', pos: i }));
@@ -100,7 +126,7 @@ export default function HomePageGallery({ paintings }: Props) {
 		return () => ro.disconnect();
 	}, [state, total]);
 
-	const rectOf = (slot: { kind: 'big' } | { kind: 'stack'; pos: number } | { kind: 'thumb'; pos: number }): Rect | null => {
+	const rectOf = (slot: Slot): Rect | null => {
 		if (slot.kind === 'big') return layout.big;
 		if (slot.kind === 'thumb') return layout.thumbs[slot.pos] ?? null;
 		return layout.stack[slot.pos] ?? null;
@@ -115,7 +141,7 @@ export default function HomePageGallery({ paintings }: Props) {
 					{stackStrip.map((_, i) => (
 						<div
 							className="cell stack-cell"
-							style={{ top: -((i + 1) * 210) }}
+							style={{ top: -((i + 1) * THUMB_STEP) }}
 							key={i}
 							ref={(el) => {
 								stackCellRefs.current[i] = el;
@@ -125,7 +151,7 @@ export default function HomePageGallery({ paintings }: Props) {
 					{visibleStrip.map((_, i) => (
 						<div
 							className="cell thumb-cell"
-							style={{ top: i * 210 }}
+							style={{ top: i * THUMB_STEP }}
 							key={i}
 							ref={(el) => {
 								thumbCellRefs.current[i] = el;
@@ -149,19 +175,24 @@ export default function HomePageGallery({ paintings }: Props) {
 						const slot = slotOf.get(idx);
 						if (!slot) return null;
 						const rect = rectOf(slot);
-						if (!rect) return null;
 						const isBig = slot.kind === 'big';
+						const staticGeom = staticGeometryOf(slot);
 						return (
 							<motion.div
 								key={paintings[idx].id}
 								className={`gallery-item ${isBig ? 'is-big' : 'is-thumb'}`}
-								initial={false}
-								animate={{
-									left: rect.left,
-									top: rect.top,
-									width: rect.width,
-									height: rect.height,
+								style={{
+									left: staticGeom.left,
+									top: staticGeom.top,
+									width: staticGeom.width,
+									height: staticGeom.height,
 								}}
+								initial={false}
+								animate={
+									rect
+										? { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+										: undefined
+								}
 								transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
 							>
 								{isBig ? (
@@ -219,7 +250,7 @@ const css = `
 	}
 	.gallery-clip {
 		position: relative;
-		height: 606px;
+		height: ${CLIP_HEIGHT}px;
 		overflow: hidden;
 	}
 	.cell {
@@ -230,13 +261,13 @@ const css = `
 		left: 0;
 		top: 0;
 		bottom: 0;
-		width: calc(100% - 261px - 61px);
+		width: calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px);
 	}
 	.thumb-cell,
 	.stack-cell {
 		right: 0;
-		width: 261px;
-		height: 186px;
+		width: ${THUMB_WIDTH}px;
+		height: ${THUMB_HEIGHT}px;
 	}
 	.gallery-item {
 		position: absolute;
