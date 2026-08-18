@@ -3,6 +3,7 @@ import '@fontsource/caladea/400.css';
 import '@fontsource/caladea/700.css';
 import '@fontsource/calistoga/400.css';
 import '../styles/tokens.scss';
+import '../styles/globals.scss';
 
 import { sanityClient } from 'sanity:client';
 import { siteQuery } from '../lib/queries';
@@ -48,7 +49,7 @@ const resolvedDescription =
 
 <style>
 	main {
-		padding: var(--page-padding);
+		padding: var(--space-4);
 		max-width: var(--container-width);
 		margin: 0 auto;
 	}

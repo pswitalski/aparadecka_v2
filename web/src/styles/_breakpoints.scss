@@ -5,13 +5,15 @@ $breakpoints: (
 	// More breakpoints (from Figma) will be added during the design phase
 );
 
-@mixin bp-up($name) {
+// min-width(name): styles at/above the breakpoint (min-width)
+@mixin min-width($name) {
 	@media (min-width: map.get($breakpoints, $name)) {
 		@content;
 	}
 }
 
-@mixin bp-down($name) {
+// max-width(name): styles strictly below the breakpoint (max-width)
+@mixin max-width($name) {
 	@media (max-width: (map.get($breakpoints, $name) - 1px)) {
 		@content;
 	}
