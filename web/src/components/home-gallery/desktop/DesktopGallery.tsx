@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { staticGeometryOf, THUMB_STEP, toRect, type Rect, type Slot } from './HomePageGallery.geometry';
-import * as styles from './HomePageGallery.css';
-import type { GalleryPainting } from './HomePageGallery.adapter';
+import { staticGeometryOf, THUMB_STEP, toRect, type Rect, type Slot } from './geometry';
+import * as styles from './DesktopGallery.css';
+import type { GalleryPainting } from '../adapter';
 
 interface Props {
 	paintings: GalleryPainting[];
@@ -11,7 +11,7 @@ interface Props {
 const INTERVAL = 5000;
 const VISIBLE = 3;
 
-export default function HomePageGallery({ paintings }: Props) {
+export default function DesktopGallery({ paintings }: Props) {
 	const total = paintings.length;
 	const visibleCount = Math.min(VISIBLE, total - 1);
 
@@ -167,6 +167,7 @@ export default function HomePageGallery({ paintings }: Props) {
 											src={paintings[idx].image}
 											alt={paintings[idx].title ?? ''}
 											className={`${styles.galleryImg} ${styles.bigImg}`}
+											loading="lazy"
 										/>
 									</div>
 								) : (
@@ -174,6 +175,7 @@ export default function HomePageGallery({ paintings }: Props) {
 										src={paintings[idx].image}
 										alt={paintings[idx].title ?? ''}
 										className={`${styles.galleryImg} ${styles.thumbImg}`}
+										loading="lazy"
 									/>
 								)}
 							</motion.div>

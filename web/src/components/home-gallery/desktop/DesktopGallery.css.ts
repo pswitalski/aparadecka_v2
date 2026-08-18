@@ -1,11 +1,16 @@
 import { style } from '@vanilla-extract/css';
-import { CLIP_HEIGHT, SIDE_GAP, THUMB_HEIGHT, THUMB_WIDTH } from './HomePageGallery.geometry';
+import { CLIP_HEIGHT, SIDE_GAP, THUMB_HEIGHT, THUMB_WIDTH } from './geometry';
 
 export const homeGallery = style({
 	width: '100vw',
 	marginInline: 'calc(50% - 50vw)',
 	backgroundColor: 'var(--color-surface)',
 	overflow: 'hidden',
+	'@media': {
+		'(max-width: 767px)': {
+			display: 'none',
+		},
+	},
 });
 
 export const inner = style({
