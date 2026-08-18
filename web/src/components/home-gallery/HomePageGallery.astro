@@ -1,0 +1,364 @@
+---
+import PaintingCard from '../PaintingCard.astro';
+import type { Painting } from '../../lib/types';
+
+interface Props {
+	paintings: Painting[];
+}
+
+const { paintings } = Astro.props;
+
+const total = paintings.length;
+const stage = paintings;
+
+const captionFor = (painting: Painting): string => {
+	const metaParts = [painting.year, painting.dimensions, painting.medium, painting.support].filter(Boolean);
+	return painting.title
+		? `"${painting.title}"${metaParts.length ? ` ${metaParts.join(', ')}` : ''}`
+		: metaParts.join(', ');
+};
+---
+
+<section class="home-gallery" data-home-gallery>
+	{total > 0 && (
+		<div class="home-gallery-inner">
+			<div class="stage-col">
+				<div class="stage" data-home-gallery-stage>
+					{stage.map((painting, index) => (
+						<PaintingCard
+							painting={painting}
+							variant="featured"
+							transitionName={index === 0 ? `pt-${index}` : undefined}
+							class:list={['stage-item', index === 0 && 'is-active']}
+							data-caption={captionFor(painting)}
+						/>
+					))}
+				</div>
+				<p class="stage-caption" data-stage-caption aria-live="off">
+					{captionFor(stage[0])}
+				</p>
+			</div>
+
+			{total > 1 && (
+				<ul class="thumbs" data-thumbs>
+					{stage.map((painting, index) => (
+						<li
+							class:list={[
+								'thumb-item',
+								index === 0 && 'is-out',
+								index > 0 && index <= Math.min(3, total - 1) && 'is-visible',
+							]}
+							data-thumb
+							data-index={index}
+						>
+							<button
+								type="button"
+								class="thumb-btn"
+								aria-label={`Pokaż: ${painting.title ?? 'obraz bez tytułu'}`}
+							>
+								<PaintingCard
+									painting={painting}
+									variant="thumb"
+									transitionName={index === 0 ? undefined : `pt-${index}`}
+								/>
+							</button>
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	)}
+</section>
+
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
+	.home-gallery {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		background-color: var(--color-surface);
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	.home-gallery-inner {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-5);
+		max-width: var(--container-width);
+		margin-inline: auto;
+		padding: var(--space-6) var(--space-4);
+	}
+
+	.stage {
+		position: relative;
+		aspect-ratio: 1.4;
+	}
+
+	.stage :global(.stage-item) {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 800ms ease,
+			visibility 0s linear 800ms;
+		pointer-events: none;
+	}
+
+	.stage :global(.stage-item.is-active) {
+		opacity: 1;
+		visibility: visible;
+		transition: opacity 800ms ease;
+	}
+
+	/* View Transitions mode — swap instantly inside the transition (the browser animates the morph) */
+	.home-gallery[data-vt] .stage :global(.stage-item) {
+		display: none;
+		opacity: 1;
+		visibility: visible;
+		transition: none;
+	}
+
+	.home-gallery[data-vt] .stage :global(.stage-item.is-active) {
+		display: flex;
+	}
+
+	.stage-caption {
+		margin-top: var(--space-3);
+		font-family: var(--font-body);
+		font-size: var(--font-size-xl);
+		line-height: 100%;
+		color: var(--color-text);
+		text-align: center;
+		text-wrap: balance;
+	}
+
+	.thumbs {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: row;
+		gap: var(--space-4);
+		overflow: hidden;
+	}
+
+	.thumb-item {
+		flex: 1 1 0;
+		min-width: 0;
+		visibility: hidden;
+	}
+
+	.thumb-item.is-visible {
+		visibility: visible;
+	}
+
+	.thumb-item.is-out {
+		display: none;
+	}
+
+	.thumb-btn {
+		display: block;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.stage :global(.stage-item) {
+			transition: none;
+		}
+	}
+
+	@include breakpoints.min-width(nav) {
+		.home-gallery-inner {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 261px;
+			gap: 61px;
+			align-items: stretch;
+		}
+
+		.stage-col {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.thumbs {
+			flex-direction: column;
+			gap: 24px;
+			overflow: hidden;
+			justify-content: flex-end;
+			height: calc(3 * 186px + 2 * 24px);
+			align-self: start;
+		}
+
+		.thumb-item {
+			flex: 0 0 auto;
+		}
+	}
+</style>
+
+<script>
+	const gallery = document.querySelector<HTMLElement>('[data-home-gallery]');
+
+	if (gallery) {
+		const stage = gallery.querySelector('[data-home-gallery-stage]');
+		const items = stage ? [...stage.querySelectorAll<HTMLElement>('.stage-item')] : [];
+		const thumbItems = [...gallery.querySelectorAll<HTMLElement>('[data-thumb]')];
+		const thumbsList = gallery.querySelector<HTMLElement>('ul.thumbs');
+		const captionEl = gallery.querySelector<HTMLElement>('[data-stage-caption]');
+		const total = items.length;
+
+		if (stage && total > 1) {
+			const INTERVAL = 5000;
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const useViewTransitions =
+				typeof document.startViewTransition === 'function' && !prefersReducedMotion;
+
+			if (useViewTransitions) {
+				gallery.dataset.vt = '';
+			}
+
+			// state = [big, ...strip] where strip = all non-big paintings, top->bottom.
+			// The bottom 3 of the strip are the visible thumbnails; the items before them
+			// are the hidden "stack" above the visible column (clipped), used when total > 4.
+			const visibleCount = Math.min(3, total - 1);
+			const visibleIndices = [1, 2, 3].slice(0, visibleCount);
+			const stackIndices = Array.from({ length: total - 1 - visibleCount }, (_, i) => total - 1 - i);
+			let state: number[] = [0, ...stackIndices, ...visibleIndices];
+			let timer: number | null = null;
+			let hovering = false;
+			let transitionInProgress = false;
+
+			const render = (next: number[]) => {
+				const big = next[0];
+				items.forEach((item, i) => {
+					item.classList.toggle('is-active', i === big);
+					item.setAttribute('aria-hidden', String(i !== big));
+					// Each .stage-item is itself the featured <figure>, so set the
+					// view-transition-name directly on it (unique per active big).
+					item.style.viewTransitionName = i === big ? `pt-${i}` : '';
+				});
+
+				const strip = next.slice(1);
+				if (thumbsList) {
+					const rest = thumbItems.filter(
+						(thumb) => !strip.includes(Number(thumb.dataset.index)),
+					);
+					[...strip, ...rest].forEach((idx, pos) => {
+						const li = thumbItems.find((t) => Number(t.dataset.index) === idx);
+						const target = thumbsList.children[pos];
+						if (li && li !== target) thumbsList.insertBefore(li, target);
+					});
+				}
+
+				const visibleIdx = new Set(strip.slice(-visibleCount));
+				thumbItems.forEach((thumb) => {
+					const idx = Number(thumb.dataset.index);
+					const isBig = idx === big;
+					thumb.classList.toggle('is-visible', !isBig && visibleIdx.has(idx));
+					thumb.classList.toggle('is-out', isBig);
+					// The big painting's name is owned by its stage figure, so the
+					// (hidden) thumb element must not duplicate it — this keeps each
+					// view-transition-name unique for the morph.
+					const figure = thumb.querySelector('.painting');
+					if (figure instanceof HTMLElement) {
+						figure.style.viewTransitionName = isBig ? '' : `pt-${idx}`;
+					}
+				});
+
+				if (captionEl) {
+					captionEl.textContent = items[big].dataset.caption ?? '';
+				}
+				state = next;
+			};
+
+			const stop = () => {
+				if (timer !== null) {
+					window.clearInterval(timer);
+					timer = null;
+				}
+			};
+
+			const go = (next: number[]) => {
+				stop();
+
+				if (useViewTransitions && !transitionInProgress) {
+					transitionInProgress = true;
+					const transition = document.startViewTransition(() => {
+						render(next);
+					});
+					transition.finished.finally(() => {
+						transitionInProgress = false;
+						scheduleNext();
+					});
+					return;
+				}
+
+				render(next);
+				scheduleNext();
+			};
+
+			const advance = () => {
+				// Conveyor: bottom thumb -> big, big -> top of the stack,
+				// every thumbnail shifts down one slot.
+				const next = [state[state.length - 1], state[0], ...state.slice(1, -1)];
+				go(next);
+			};
+
+			const select = (target: number) => {
+				const rest = state.filter((v) => v !== target);
+				go([target, ...rest]);
+			};
+
+			const scheduleNext = () => {
+				stop();
+				if (!hovering && !prefersReducedMotion) {
+					timer = window.setInterval(advance, INTERVAL);
+				}
+			};
+
+			thumbItems.forEach((thumb) => {
+				thumb.addEventListener('mouseenter', () => {
+					hovering = true;
+					stop();
+				});
+				thumb.addEventListener('focus', () => {
+					hovering = true;
+					stop();
+				});
+				thumb.addEventListener('mouseleave', () => {
+					hovering = false;
+					scheduleNext();
+				});
+				thumb.addEventListener('blur', () => {
+					hovering = false;
+					scheduleNext();
+				});
+				thumb.addEventListener('click', () => {
+					select(Number(thumb.dataset.index));
+				});
+			});
+
+			items.forEach((item) => {
+				const img = item.querySelector('img');
+				if (!img) return;
+				img.addEventListener('mouseenter', () => {
+					hovering = true;
+					stop();
+				});
+				img.addEventListener('mouseleave', () => {
+					hovering = false;
+					scheduleNext();
+				});
+			});
+
+			render(state);
+			scheduleNext();
+		}
+	}
+</script>

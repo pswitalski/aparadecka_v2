@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/main.astro';
-import PaintingCard from '../components/PaintingCard.astro';
+import HomePageGallery from '../components/home-gallery/HomePageGallery.astro';
 import { sanityClient } from 'sanity:client';
 import { featuredPaintingsQuery } from '../lib/queries';
 import type { Painting } from '../lib/types';
@@ -9,8 +9,6 @@ const { featured } = await sanityClient.fetch<{ featured: Painting[] }>(featured
 ---
 
 <Layout>
-	<h1>Wyróżnione obrazy</h1>
-	<div class="grid">
-		{(featured ?? []).map((painting) => <PaintingCard painting={painting} />)}
-	</div>
+	<h1 class="visually-hidden">Wyróżnione obrazy</h1>
+	<HomePageGallery paintings={featured ?? []} />
 </Layout>
