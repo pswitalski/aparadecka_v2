@@ -10,5 +10,6 @@
       "url": "https://mcp.docs.astro.build/mcp",
       "enabled": true
     }
-  }
+  },
+  "plugin": ["opencode-agent-browser"]
 }
