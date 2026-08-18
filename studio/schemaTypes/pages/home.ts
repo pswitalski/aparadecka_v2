@@ -20,12 +20,10 @@ export const home = defineType({
         Rule.custom((value) => {
           if (!value) return true
           if (value.length < 4) {
-            return Rule.warning(
-              'Dodaj co najmniej 4 obrazy, aby uzyskać pełny układ galerii (1 duży + 3 miniatury).',
-            )
+            return 'Dodaj co najmniej 4 obrazy, aby uzyskać pełny układ galerii.'
           }
           return true
-        }),
+        }).warning(),
     }),
   ],
 })
