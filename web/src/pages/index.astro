@@ -1,27 +1,14 @@
 ---
 import Layout from '../layouts/main.astro';
 import HomePageGallery from '../components/home-gallery/HomePageGallery';
+import { adaptPaintings } from '../components/home-gallery/HomePageGallery.adapter';
 import { sanityClient } from 'sanity:client';
 import { featuredPaintingsQuery } from '../lib/queries';
-import { urlForImage } from '../lib/sanity';
 import type { Painting } from '../lib/types';
 
-const { featured } = await sanityClient.fetch<{ featured: Painting[] }>(featuredPaintingsQuery);
+const { featuredPaintings } = await sanityClient.fetch<{ featuredPaintings: Painting[] }>(featuredPaintingsQuery);
 
-const paintings = (featured ?? []).map((p) => ({
-	id: p._id,
-	title: p.title,
-	caption: p.title
-		? [
-				`"${p.title}"`,
-				[p.year, p.dimensions, p.medium, p.support].filter(Boolean).join(', '),
-			]
-				.filter(Boolean)
-				.join(' ')
-		: '',
-	image: p.mainImage ? urlForImage(p.mainImage).width(1200).format('webp').url() : '',
-	thumb: p.mainImage ? urlForImage(p.mainImage).width(300).format('webp').url() : '',
-}));
+const paintings = adaptPaintings(featuredPaintings);
 ---
 
 <Layout>

@@ -2,14 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { staticGeometryOf, THUMB_STEP, toRect, type Rect, type Slot } from './HomePageGallery.geometry';
 import * as styles from './HomePageGallery.css';
-
-export interface GalleryPainting {
-	id: string;
-	title: string | null;
-	caption: string;
-	image: string;
-	thumb: string;
-}
+import type { GalleryPainting } from './HomePageGallery.adapter';
 
 interface Props {
 	paintings: GalleryPainting[];
