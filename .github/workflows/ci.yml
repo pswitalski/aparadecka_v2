@@ -4,6 +4,20 @@ on:
   push:
     branches: [master]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to deploy
+        required: true
+        default: master
+      environment:
+        description: Deployment environment
+        type: choice
+        required: true
+        default: preview
+        options:
+          - preview
+          - production
 
 permissions:
   contents: read
@@ -145,63 +159,45 @@ jobs:
           path: web/dist
           if-no-files-found: error
 
-  deploy-web-prod:
-    name: deploy · web (production)
-    needs: [build-web]
-    if: github.ref == 'refs/heads/master'
+  deploy-web:
+    name: deploy · web (${{ github.event.inputs.environment }})
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v4.4.0
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4.3.0
         with:
-          name: web-dist
-          path: web/dist
+          ref: ${{ github.event.inputs.branch }}
 
-      - uses: cloudflare/wrangler-action@v4
+      - uses: actions/setup-node@v4.4.0
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=aparadecka-v2 --branch=master
-          workingDirectory: web
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
 
-  deploy-web-preview:
-    name: deploy · web (preview)
-    needs: [build-web]
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4.4.0
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4.3.0
-        with:
-          name: web-dist
-          path: web/dist
+      - name: Build
+        run: npm run build
+        env:
+          PUBLIC_SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
 
-      - name: Deploy preview to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages
         id: deploy
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=aparadecka-v2 --branch=${{ github.head_ref }}
+          command: pages deploy dist --project-name=aparadecka-v2 --branch=${{ github.event.inputs.environment == 'production' && 'master' || github.event.inputs.branch }}
           workingDirectory: web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Comment preview URL
-        uses: actions/github-script@v7.1.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const url = '${{ steps.deploy.outputs.pages-deployment-alias-url }}';
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `Preview deployed to Cloudflare Pages: ${url}`,
-            });
+      - name: Print deployment URL
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        run: echo "Deployed to $DEPLOYMENT_URL"
