@@ -1,0 +1,53 @@
+name: Promote Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: Promotion path
+        type: choice
+        required: true
+        options:
+          - master -> stage
+          - stage -> prod
+          - master -> prod
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promote-branch-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Promote branch
+        run: |
+          case "${{ github.event.inputs.path }}" in
+            "master -> stage")
+              SOURCE=master
+              TARGET=stage
+              ;;
+            "stage -> prod")
+              SOURCE=stage
+              TARGET=prod
+              ;;
+            "master -> prod")
+              SOURCE=master
+              TARGET=prod
+              ;;
+            *)
+              echo "Unknown promotion path: ${{ github.event.inputs.path }}"
+              exit 1
+              ;;
+          esac
+          echo "Promoting $SOURCE -> $TARGET"
+          git fetch origin "$SOURCE" "$TARGET"
+          git push origin "$SOURCE:$TARGET"
