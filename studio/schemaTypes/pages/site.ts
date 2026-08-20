@@ -10,7 +10,17 @@ export const site = defineType({
     defineField({
       name: 'title',
       type: 'string',
-      title: 'Tytuł strony',
+      title: 'Tytuł',
+      readOnly: true,
+      hidden: true,
+      initialValue: 'Ustawienia strony',
+    }),
+    defineField({
+      name: 'siteTitle',
+      type: 'string',
+      title: 'Tytuł strony (SEO)',
+      description:
+        'Domyślny tytuł strony wyświetlany w karcie przeglądarki i wynikach wyszukiwania.',
     }),
     defineField({
       name: 'description',

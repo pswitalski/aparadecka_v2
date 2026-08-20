@@ -8,13 +8,21 @@ export const home = defineType({
   icon: HomeIcon,
   fields: [
     defineField({
+      name: 'title',
+      type: 'string',
+      title: 'Tytuł',
+      readOnly: true,
+      hidden: true,
+      initialValue: 'Strona główna',
+    }),
+    defineField({
       name: 'featured',
       type: 'array',
       title: 'Wyróżnione obrazy',
       description:
-        'Pierwszy obraz jest wyświetlany jako duży na stronie głównej (cały obraz z marginesami). ' +
-        'Kolejne 3 obrazy pojawiają się jako miniatury (przycięte do proporcji 1,4, wyśrodkowane). ' +
-        'Dodatkowe obrazy rotują w miejscu miniaturek. Zalecane: co najmniej 4 obrazy.',
+        'Strona główna pokazuje galerię obrazów. Pierwszy wybrany obraz jest duży (cały, z marginesami), ' +
+        'kolejne 3 to miniatury (przycięte do proporcji 1,4), a dalsze rotują w miejscu miniaturek. ' +
+        'Dodaj co najmniej 4 obrazy.',
       of: [defineArrayMember({type: 'reference', to: [{type: 'painting'}]})],
       validation: (Rule) =>
         Rule.custom((value) => {

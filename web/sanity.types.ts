@@ -22,6 +22,7 @@ export type Site = {
   _updatedAt: string;
   _rev: string;
   title?: string;
+  siteTitle?: string;
   description?: string;
   keywords?: Array<string>;
 };
@@ -32,6 +33,8 @@ export type Contact = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  title?: string;
+  editorNote?: string;
   email?: SocialLink;
   instagram?: SocialLink;
   facebook?: SocialLink;
@@ -50,40 +53,48 @@ export type SanityImageAssetReference = {
   [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
+export type AboutBlock = {
+  _type: "aboutBlock";
+  text?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    title?: string;
+    _type: "image";
+  };
+};
+
 export type About = {
   _id: string;
   _type: "about";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  body?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?:
-          "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-        listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          _type: "link";
-          _key: string;
-        }>;
-        level?: number;
-        _type: "block";
-        _key: string;
-      }
-    | {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        _type: "image";
-        _key: string;
-      }
+  title?: string;
+  sections?: Array<
+    {
+      _key: string;
+    } & AboutBlock
   >;
 };
 
@@ -116,6 +127,7 @@ export type Home = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  title?: string;
   featured?: Array<
     {
       _key: string;
@@ -266,6 +278,7 @@ export type AllSanitySchemaTypes =
   | Contact
   | SocialLink
   | SanityImageAssetReference
+  | AboutBlock
   | About
   | SanityImageCrop
   | SanityImageHotspot
@@ -350,37 +363,35 @@ export type CollectionByYearQueryResult = {
 
 // Source: ../web/src/lib/queries.ts
 // Variable: aboutQuery
-// Query: *[_type == "about"][0]{  body}
+// Query: *[_type == "about"][0]{  "sections": sections[]{    _key,    _type,    text,    image{      "asset": asset,      alt,      title    }  }}
 export type AboutQueryResult = {
-  body: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?:
-          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
-        listItem?: "bullet" | "number";
-        markDefs?: Array<{
-          href?: string;
-          _type: "link";
-          _key: string;
-        }>;
-        level?: number;
-        _type: "block";
+  sections: Array<{
+    _key: string;
+    _type: "aboutBlock";
+    text: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
         _key: string;
-      }
-    | {
-        asset?: SanityImageAssetReference;
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        _type: "image";
+      }>;
+      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+      listItem?: "bullet" | "number";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
         _key: string;
-      }
-  > | null;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+    image: {
+      asset: SanityImageAssetReference | null;
+      alt: string | null;
+      title: string | null;
+    } | null;
+  }> | null;
 } | null;
 
 // Source: ../web/src/lib/queries.ts
@@ -394,9 +405,9 @@ export type ContactQueryResult = {
 
 // Source: ../web/src/lib/queries.ts
 // Variable: siteQuery
-// Query: *[_type == "site"][0]{  title,  description,  keywords}
+// Query: *[_type == "site"][0]{  siteTitle,  description,  keywords}
 export type SiteQueryResult = {
-  title: string | null;
+  siteTitle: string | null;
   description: string | null;
   keywords: Array<string> | null;
 } | null;
@@ -408,8 +419,8 @@ declare module "@sanity/client" {
     '*[_type == "home"][0]{\n  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': FeaturedPaintingsQueryResult;
     '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
     '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
-    '*[_type == "about"][0]{\n  body\n}': AboutQueryResult;
+    '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
     '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;
-    '*[_type == "site"][0]{\n  title,\n  description,\n  keywords\n}': SiteQueryResult;
+    '*[_type == "site"][0]{\n  siteTitle,\n  description,\n  keywords\n}': SiteQueryResult;
   }
 }

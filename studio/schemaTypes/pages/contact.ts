@@ -8,6 +8,14 @@ export const contact = defineType({
   icon: EnvelopeIcon,
   fields: [
     defineField({
+      name: 'title',
+      type: 'string',
+      title: 'Tytuł',
+      readOnly: true,
+      hidden: true,
+      initialValue: 'Kontakt',
+    }),
+    defineField({
       name: 'email',
       type: 'socialLink',
       title: 'E-mail',
