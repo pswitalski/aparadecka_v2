@@ -11,6 +11,7 @@ body {
 	line-height: var(--line-height-base);
 	color: var(--color-text);
 	background-color: var(--color-bg);
+	overflow-x: clip;
 }
 
 h1,
@@ -26,6 +27,7 @@ figure {
 	margin: 0;
 }
 
+/* Headings: type scale (family/weight/line-height apply site-wide) */
 h1,
 h2,
 h3,
@@ -35,6 +37,26 @@ h6 {
 	font-family: var(--font-special);
 	font-weight: 400;
 	line-height: 1.2;
+}
+
+/* Page titles */
+h1 {
+	font-size: var(--font-size-4xl);
+}
+
+/* Inline emphasis */
+strong {
+	font-weight: var(--font-weight-bold);
+}
+
+em {
+	font-style: italic;
+}
+
+/* Divider */
+hr {
+	border: none;
+	border-top: 1px solid var(--color-border);
 }
 
 .grid {

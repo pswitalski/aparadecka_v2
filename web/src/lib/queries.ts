@@ -15,7 +15,20 @@ export const collectionByYearQuery = defineQuery(`*[_type == "collection" && yea
 }`);
 
 export const aboutQuery = defineQuery(`*[_type == "about"][0]{
-  body
+  "sections": sections[]{
+    _key,
+    _type,
+    text,
+    highlighted,
+    imagePositionDesktop,
+    imagePositionMobile,
+    textAlign,
+    image{
+      "asset": asset,
+      alt,
+      title
+    }
+  }
 }`);
 
 export const contactQuery = defineQuery(`*[_type == "contact"][0]{
@@ -25,7 +38,7 @@ export const contactQuery = defineQuery(`*[_type == "contact"][0]{
 }`);
 
 export const siteQuery = defineQuery(`*[_type == "site"][0]{
-  title,
+  siteTitle,
   description,
   keywords
 }`);

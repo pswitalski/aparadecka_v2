@@ -7,14 +7,29 @@ interface Props {
 }
 
 const { links, orientation = 'column' } = Astro.props;
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isActive = (href: string) => {
+	const target = href.replace(/\/+$/, '') || '/';
+	return target === '/' ? currentPath === '/' : currentPath === target || currentPath.startsWith(target + '/');
+};
 ---
 
 <ul class:list={[orientation === 'row' && 'nav-links--row']}>
-	{links.map((link) => (
-		<li>
-			<a href={link.href}>{link.label}</a>
-		</li>
-	))}
+	{links.map((link) => {
+		const active = isActive(link.href);
+		return (
+			<li>
+				<a
+					href={link.href}
+					class={active ? 'active' : undefined}
+					aria-current={active ? 'page' : undefined}
+				>
+					{link.label}
+				</a>
+			</li>
+		);
+	})}
 </ul>
 
 <style lang="scss">
@@ -43,6 +58,10 @@ const { links, orientation = 'column' } = Astro.props;
 	a:focus-visible {
 		outline: var(--focus-ring-width) solid var(--color-accent);
 		outline-offset: var(--focus-ring-offset);
+	}
+
+	a.active {
+		text-decoration: underline;
 	}
 
 	/* Below $breakpoints.nav — nav link font size */

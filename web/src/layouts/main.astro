@@ -17,12 +17,12 @@ interface Props {
 const { title, description } = Astro.props;
 
 const site = await sanityClient.fetch<{
-	title: string | null;
-	description: string | null;
-	keywords: string[] | null;
+  siteTitle: string | null;
+  description: string | null;
+  keywords: string[] | null;
 }>(siteQuery);
 
-const resolvedTitle = title ?? site?.title ?? 'Agnieszka Paradecka – Świtalska';
+const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka – Świtalska';
 const resolvedDescription =
 	description ?? site?.description ?? 'Agnieszka Paradecka – Świtalska – Portfolio';
 ---

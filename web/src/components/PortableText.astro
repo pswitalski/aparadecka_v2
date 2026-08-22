@@ -2,12 +2,17 @@
 import { PortableText as PortableTextInternal } from 'astro-portabletext';
 import type { PortableTextProps } from 'astro-portabletext/types';
 import PortableTextImage from './PortableTextImage.astro';
+import BigSmallBlock from './BigSmallBlock.tsx';
 
 const { value } = Astro.props as { value: PortableTextProps['value'] };
 
 const components = {
 	type: {
 		image: PortableTextImage,
+	},
+	block: {
+		big: BigSmallBlock,
+		small: BigSmallBlock,
 	},
 };
 ---

@@ -1,0 +1,335 @@
+---
+import PortableText from '../PortableText.astro';
+import { urlForImage } from '../../lib/sanity';
+import type { AboutQueryResult, SanityImageAssetReference } from '../../../sanity.types';
+
+interface Props {
+  sections?: NonNullable<AboutQueryResult>['sections'];
+}
+
+const { sections = [] } = Astro.props;
+
+const blocks = (sections ?? []).map((section) => {
+  const asset = section.image?.asset ?? null;
+  const hasImage = asset !== null;
+  const side = section.imagePositionDesktop === 'right' ? 'right' : 'left';
+  const mobilePos = section.imagePositionMobile === 'under' ? 'under' : 'above';
+  const textAlign = section.textAlign ?? 'left';
+
+  return { ...section, asset, hasImage, side, mobilePos, textAlign };
+});
+
+function imageSrc(asset: SanityImageAssetReference, width: number) {
+  return urlForImage(asset).width(width).format('webp').url();
+}
+---
+
+{
+  blocks.map((block) =>
+    block.hasImage && block.image ? (
+      <section
+        class:list={[
+          'about-block',
+          'about-block--has-image',
+          `about-block--img-${block.side}`,
+          `about-block--mobile-${block.mobilePos}`,
+          `about-block--text-${block.textAlign}`,
+          block.highlighted && 'about-block--highlighted',
+        ]}
+      >
+        <div class="about-block__inner">
+          <div class="about-block__media">
+            <figure>
+              <img
+                src={imageSrc(block.asset!, 800)}
+                srcset={`${imageSrc(block.asset!, 480)} 480w, ${imageSrc(block.asset!, 800)} 800w, ${imageSrc(block.asset!, 1200)} 1200w`}
+                sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
+                alt={block.image.alt ?? ''}
+                aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
+                loading="lazy"
+              />
+              {block.image.title && (
+                <figcaption id={`about-caption-${block._key}`}>{block.image.title}</figcaption>
+              )}
+            </figure>
+          </div>
+          <div class="about-block__text">
+            <div class="about-block__text-inner">
+              <div class="about-block__content">
+                {block.text && <PortableText value={block.text} />}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    ) : (
+      <section
+        class:list={[
+          'about-block',
+          'about-block--text',
+          `about-block--text-${block.textAlign}`,
+          block.highlighted && 'about-block--highlighted',
+        ]}
+      >
+        <div class="about-block__inner">
+          <div class="about-block__text">
+            <div class="about-block__text-inner">
+              <div class="about-block__content">
+                {block.text && <PortableText value={block.text} />}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  )
+}
+
+<style>
+  .about-block {
+    --about-media-pct-desktop: 30%;
+    margin-block: var(--space-6);
+  }
+
+  .about-block__inner {
+    max-width: var(--container-width);
+    margin-inline: auto;
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .about-block__content {
+    line-height: 1.6;
+    min-width: 0;
+  }
+
+  /* Rich-text typography for About content. :global() is required because
+     the headings/lists/links are rendered by astro-portabletext (a child
+     component), so Astro-scoped selectors can't reach them. Bound to the
+     About-only '.about-block__content' class so nothing leaks elsewhere. */
+  :global(.about-block__content p),
+  :global(.about-block__content ul),
+  :global(.about-block__content ol),
+  :global(.about-block__content li) {
+    font-size: var(--font-size-base);
+  }
+
+  :global(.about-block__content .big) {
+    font-size: var(--font-size-lg);
+  }
+
+  :global(.about-block__content .small) {
+    font-size: var(--font-size-sm);
+  }
+
+  :global(.about-block__content h2) {
+    font-size: var(--font-size-2xl);
+  }
+
+  :global(.about-block__content h3) {
+    font-size: var(--font-size-xl);
+  }
+
+  :global(.about-block__content h4) {
+    font-size: var(--font-size-lg);
+  }
+
+  :global(.about-block__content h5) {
+    font-size: var(--font-size-base);
+  }
+
+  :global(.about-block__content h6) {
+    font-size: var(--font-size-sm);
+  }
+
+  :global(.about-block__content a) {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  :global(.about-block__content a:hover) {
+    text-decoration: underline;
+  }
+
+  :global(.about-block__content ul),
+  :global(.about-block__content ol) {
+    padding-left: var(--space-5);
+  }
+
+  :global(.about-block__content li) {
+    margin-block: var(--space-1);
+  }
+
+  :global(.about-block__content figcaption) {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+  }
+
+  /* Text alignment (applies to every block type) */
+  .about-block--text-left .about-block__content {
+    text-align: left;
+  }
+
+  .about-block--text-center .about-block__content {
+    text-align: center;
+  }
+
+  .about-block--text-right .about-block__content {
+    text-align: right;
+  }
+
+  /* Text-only blocks: full content width (no picture-reserved column) */
+
+  .about-block--text.about-block--highlighted .about-block__text {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    background: var(--color-bg);
+  }
+
+  /* Image blocks: shared overlay layout so the white band can hug the text */
+  .about-block--has-image .about-block__inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    align-items: center;
+  }
+
+  .about-block--has-image .about-block__media {
+    grid-row: 1;
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+  }
+
+  .about-block--has-image .about-block__text {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+  }
+
+  .about-block--has-image .about-block__text-inner {
+    display: grid;
+    gap: var(--space-5);
+    max-width: var(--container-width);
+    margin-inline: auto;
+    padding: var(--space-5) var(--space-6);
+  }
+
+  /* Highlight band for image blocks */
+  .about-block--has-image.about-block--highlighted .about-block__text {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    background: var(--color-bg);
+  }
+
+  .about-block__media figure {
+    margin: 0;
+    position: relative;
+  }
+
+  .about-block__media img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .about-block__media figcaption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: var(--space-4) var(--space-3) var(--space-2);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    text-wrap: balance;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+
+  .about-block__media figure:hover figcaption,
+  .about-block__media figure:focus-within figcaption {
+    opacity: 1;
+  }
+
+  /* Desktop (>= 768): side-by-side, image left/right */
+  @media (min-width: 768px) {
+    .about-block--has-image.about-block--img-left .about-block__inner {
+      grid-template-columns: minmax(0, var(--about-media-pct-desktop)) 1fr;
+    }
+
+    .about-block--has-image.about-block--img-left .about-block__media {
+      grid-column: 1;
+    }
+
+    .about-block--has-image.about-block--img-left .about-block__text-inner {
+      grid-template-columns: minmax(0, var(--about-media-pct-desktop)) 1fr;
+    }
+
+    .about-block--has-image.about-block--img-left .about-block__content {
+      grid-column: 2;
+    }
+
+    .about-block--has-image.about-block--img-right .about-block__inner {
+      grid-template-columns: 1fr minmax(0, var(--about-media-pct-desktop));
+    }
+
+    .about-block--has-image.about-block--img-right .about-block__media {
+      grid-column: 2;
+    }
+
+    .about-block--has-image.about-block--img-right .about-block__text-inner {
+      grid-template-columns: 1fr minmax(0, var(--about-media-pct-desktop));
+    }
+
+    .about-block--has-image.about-block--img-right .about-block__content {
+      grid-column: 1;
+    }
+  }
+
+  /* Mobile (< 768): image stacks above or below the text */
+  @media (max-width: 767px) {
+    .about-block--has-image.about-block--mobile-above .about-block__inner,
+    .about-block--has-image.about-block--mobile-under .about-block__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .about-block--has-image.about-block--mobile-above .about-block__text-inner,
+    .about-block--has-image.about-block--mobile-under .about-block__text-inner {
+      grid-template-columns: 1fr;
+    }
+
+    .about-block--has-image.about-block--mobile-above .about-block__media {
+      grid-row: 1;
+    }
+
+    .about-block--has-image.about-block--mobile-above .about-block__text {
+      grid-row: 2;
+    }
+
+    .about-block--has-image.about-block--mobile-under .about-block__text {
+      grid-row: 1;
+    }
+
+    .about-block--has-image.about-block--mobile-under .about-block__media {
+      grid-row: 2;
+    }
+
+    .about-block--has-image.about-block--mobile-above .about-block__content,
+    .about-block--has-image.about-block--mobile-under .about-block__content {
+      grid-column: 1;
+    }
+
+    .about-block__media figcaption {
+      position: static;
+      margin-top: var(--space-2);
+      padding: 0;
+      color: var(--color-text);
+      background: none;
+      opacity: 1;
+    }
+  }
+</style>
