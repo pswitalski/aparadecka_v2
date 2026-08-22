@@ -4,10 +4,12 @@ import MobileMenu from './MobileMenu.astro';
 import { navLinks } from './links';
 
 const [home, ...links] = navLinks;
+
+const isHome = Astro.url.pathname.replace(/\/+$/, '') === '';
 ---
 
 <header class="site-header">
-	<a class="site-name" href={home.href}>{home.label}</a>
+	<a class:list={['site-name', isHome && 'site-name--active']} href={home.href}>{home.label}</a>
 	<DesktopNav links={links} />
 	<MobileMenu links={links} />
 </header>
@@ -31,8 +33,12 @@ const [home, ...links] = navLinks;
 		font-family: var(--font-special);
 		font-size: var(--font-size-3xl);
 		color: var(--color-text);
-		text-decoration: underline;
+		text-decoration: none;
 		white-space: nowrap;
+	}
+
+	.site-name--active {
+		text-decoration: underline;
 	}
 
 	.site-name:focus-visible {

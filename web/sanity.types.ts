@@ -34,7 +34,6 @@ export type Contact = {
   _updatedAt: string;
   _rev: string;
   title?: string;
-  editorNote?: string;
   email?: SocialLink;
   instagram?: SocialLink;
   facebook?: SocialLink;
@@ -62,8 +61,8 @@ export type AboutBlock = {
       _type: "span";
       _key: string;
     }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
+    style?: "h2" | "h3" | "big" | "normal" | "small";
+    listItem?: "bullet";
     markDefs?: Array<{
       href?: string;
       _type: "link";
@@ -73,6 +72,10 @@ export type AboutBlock = {
     _type: "block";
     _key: string;
   }>;
+  highlighted?: boolean;
+  imagePositionDesktop?: "left" | "right";
+  imagePositionMobile?: "above" | "under";
+  textAlign?: "left" | "center" | "right";
   image?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -363,7 +366,7 @@ export type CollectionByYearQueryResult = {
 
 // Source: ../web/src/lib/queries.ts
 // Variable: aboutQuery
-// Query: *[_type == "about"][0]{  "sections": sections[]{    _key,    _type,    text,    image{      "asset": asset,      alt,      title    }  }}
+// Query: *[_type == "about"][0]{  "sections": sections[]{    _key,    _type,    text,    highlighted,    imagePositionDesktop,    imagePositionMobile,    textAlign,    image{      "asset": asset,      alt,      title    }  }}
 export type AboutQueryResult = {
   sections: Array<{
     _key: string;
@@ -375,8 +378,8 @@ export type AboutQueryResult = {
         _type: "span";
         _key: string;
       }>;
-      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
-      listItem?: "bullet" | "number";
+      style?: "big" | "h2" | "h3" | "normal" | "small";
+      listItem?: "bullet";
       markDefs?: Array<{
         href?: string;
         _type: "link";
@@ -386,6 +389,10 @@ export type AboutQueryResult = {
       _type: "block";
       _key: string;
     }> | null;
+    highlighted: boolean | null;
+    imagePositionDesktop: "left" | "right" | null;
+    imagePositionMobile: "above" | "under" | null;
+    textAlign: "center" | "left" | "right" | null;
     image: {
       asset: SanityImageAssetReference | null;
       alt: string | null;
@@ -419,7 +426,7 @@ declare module "@sanity/client" {
     '*[_type == "home"][0]{\n  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': FeaturedPaintingsQueryResult;
     '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
     '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
-    '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
+    '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    highlighted,\n    imagePositionDesktop,\n    imagePositionMobile,\n    textAlign,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
     '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;
     '*[_type == "site"][0]{\n  siteTitle,\n  description,\n  keywords\n}': SiteQueryResult;
   }

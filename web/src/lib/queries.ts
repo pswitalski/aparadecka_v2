@@ -19,6 +19,10 @@ export const aboutQuery = defineQuery(`*[_type == "about"][0]{
     _key,
     _type,
     text,
+    highlighted,
+    imagePositionDesktop,
+    imagePositionMobile,
+    textAlign,
     image{
       "asset": asset,
       alt,

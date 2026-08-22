@@ -1,14 +1,47 @@
 ---
 import Layout from '../layouts/main.astro';
-import PortableText from '../components/PortableText.astro';
+import AboutSections from '../components/about/AboutSections.astro';
 import { sanityClient } from 'sanity:client';
 import { aboutQuery } from '../lib/queries';
 import type { PortableTextProps } from 'astro-portabletext/types';
 
-const { body } = await sanityClient.fetch<{ body: PortableTextProps['value'] }>(aboutQuery);
+interface AboutImage {
+  asset?: unknown;
+  alt?: string;
+  title?: string;
+}
+
+interface AboutSection {
+  _key?: string;
+  _type?: string;
+  text?: PortableTextProps['value'];
+  highlighted?: boolean;
+  image?: AboutImage;
+}
+
+const { sections } = await sanityClient.fetch<{ sections: AboutSection[] }>(aboutQuery);
 ---
 
 <Layout title="O mnie">
-	<h1>O mnie</h1>
-	{body && <PortableText value={body} />}
+  <div class="about-page">
+    <div class="about-page__inner">
+      <h1 class="visually-hidden">O mnie</h1>
+      {sections?.length ? <AboutSections sections={sections} /> : <p>Brak treści.</p>}
+    </div>
+  </div>
 </Layout>
+
+<style>
+  .about-page {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    background: var(--color-surface);
+    overflow-x: clip;
+  }
+
+  .about-page__inner {
+    max-width: var(--container-width);
+    margin-inline: auto;
+    padding: var(--space-4);
+  }
+</style>
