@@ -1,42 +1,26 @@
 ---
 import PortableText from '../PortableText.astro';
 import { urlForImage } from '../../lib/sanity';
-import type { PortableTextProps } from 'astro-portabletext/types';
-
-interface AboutImage {
-  asset?: unknown;
-  alt?: string;
-  title?: string;
-}
-
-interface AboutSection {
-  _key?: string;
-  _type?: string;
-  text?: PortableTextProps['value'];
-  highlighted?: boolean;
-  image?: AboutImage;
-  imagePositionDesktop?: string;
-  imagePositionMobile?: string;
-  textAlign?: string;
-}
+import type { AboutQueryResult, SanityImageAssetReference } from '../../../sanity.types';
 
 interface Props {
-  sections?: AboutSection[];
+  sections?: NonNullable<AboutQueryResult>['sections'];
 }
 
 const { sections = [] } = Astro.props;
 
-const blocks = sections.map((section) => {
-  const hasImage = Boolean(section.image?.asset);
+const blocks = (sections ?? []).map((section) => {
+  const asset = section.image?.asset ?? null;
+  const hasImage = asset !== null;
   const side = section.imagePositionDesktop === 'right' ? 'right' : 'left';
   const mobilePos = section.imagePositionMobile === 'under' ? 'under' : 'above';
   const textAlign = section.textAlign ?? 'left';
 
-  return { ...section, hasImage, side, mobilePos, textAlign };
+  return { ...section, asset, hasImage, side, mobilePos, textAlign };
 });
 
-function imageSrc(asset: unknown, width: number) {
-  return urlForImage(asset as never).width(width).format('webp').url();
+function imageSrc(asset: SanityImageAssetReference, width: number) {
+  return urlForImage(asset).width(width).format('webp').url();
 }
 ---
 
@@ -57,13 +41,16 @@ function imageSrc(asset: unknown, width: number) {
           <div class="about-block__media">
             <figure>
               <img
-                src={imageSrc(block.image.asset, 800)}
-                srcset={`${imageSrc(block.image.asset, 480)} 480w, ${imageSrc(block.image.asset, 800)} 800w, ${imageSrc(block.image.asset, 1200)} 1200w`}
-                sizes="(min-width: 768px) 400px, 50vw"
+                src={imageSrc(block.asset!, 800)}
+                srcset={`${imageSrc(block.asset!, 480)} 480w, ${imageSrc(block.asset!, 800)} 800w, ${imageSrc(block.asset!, 1200)} 1200w`}
+                sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
                 alt={block.image.alt ?? ''}
+                aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
                 loading="lazy"
               />
-              {block.image.title && <figcaption>{block.image.title}</figcaption>}
+              {block.image.title && (
+                <figcaption id={`about-caption-${block._key}`}>{block.image.title}</figcaption>
+              )}
             </figure>
           </div>
           <div class="about-block__text">
@@ -113,6 +100,68 @@ function imageSrc(asset: unknown, width: number) {
   .about-block__content {
     line-height: 1.6;
     min-width: 0;
+  }
+
+  /* Rich-text typography for About content. :global() is required because
+     the headings/lists/links are rendered by astro-portabletext (a child
+     component), so Astro-scoped selectors can't reach them. Bound to the
+     About-only '.about-block__content' class so nothing leaks elsewhere. */
+  :global(.about-block__content p),
+  :global(.about-block__content ul),
+  :global(.about-block__content ol),
+  :global(.about-block__content li) {
+    font-size: var(--font-size-base);
+  }
+
+  :global(.about-block__content .big) {
+    font-size: var(--font-size-lg);
+  }
+
+  :global(.about-block__content .small) {
+    font-size: var(--font-size-sm);
+  }
+
+  :global(.about-block__content h2) {
+    font-size: var(--font-size-2xl);
+  }
+
+  :global(.about-block__content h3) {
+    font-size: var(--font-size-xl);
+  }
+
+  :global(.about-block__content h4) {
+    font-size: var(--font-size-lg);
+  }
+
+  :global(.about-block__content h5) {
+    font-size: var(--font-size-base);
+  }
+
+  :global(.about-block__content h6) {
+    font-size: var(--font-size-sm);
+  }
+
+  :global(.about-block__content a) {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  :global(.about-block__content a:hover) {
+    text-decoration: underline;
+  }
+
+  :global(.about-block__content ul),
+  :global(.about-block__content ol) {
+    padding-left: var(--space-5);
+  }
+
+  :global(.about-block__content li) {
+    margin-block: var(--space-1);
+  }
+
+  :global(.about-block__content figcaption) {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
   }
 
   /* Text alignment (applies to every block type) */

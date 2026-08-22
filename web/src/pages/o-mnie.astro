@@ -3,23 +3,9 @@ import Layout from '../layouts/main.astro';
 import AboutSections from '../components/about/AboutSections.astro';
 import { sanityClient } from 'sanity:client';
 import { aboutQuery } from '../lib/queries';
-import type { PortableTextProps } from 'astro-portabletext/types';
 
-interface AboutImage {
-  asset?: unknown;
-  alt?: string;
-  title?: string;
-}
-
-interface AboutSection {
-  _key?: string;
-  _type?: string;
-  text?: PortableTextProps['value'];
-  highlighted?: boolean;
-  image?: AboutImage;
-}
-
-const { sections } = await sanityClient.fetch<{ sections: AboutSection[] }>(aboutQuery);
+const data = await sanityClient.fetch(aboutQuery);
+const sections = data?.sections;
 ---
 
 <Layout title="O mnie">

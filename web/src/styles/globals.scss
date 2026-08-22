@@ -27,24 +27,7 @@ figure {
 	margin: 0;
 }
 
-/* Typography base for block tags */
-p,
-ul,
-ol,
-li {
-	font-size: var(--font-size-base);
-}
-
-/* Bigger / smaller text block styles */
-.big {
-	font-size: var(--font-size-lg);
-}
-
-.small {
-	font-size: var(--font-size-sm);
-}
-
-/* Headings */
+/* Headings: type scale (family/weight/line-height apply site-wide) */
 h1,
 h2,
 h3,
@@ -56,28 +39,9 @@ h6 {
 	line-height: 1.2;
 }
 
+/* Page titles */
 h1 {
 	font-size: var(--font-size-4xl);
-}
-
-h2 {
-	font-size: var(--font-size-2xl);
-}
-
-h3 {
-	font-size: var(--font-size-xl);
-}
-
-h4 {
-	font-size: var(--font-size-lg);
-}
-
-h5 {
-	font-size: var(--font-size-base);
-}
-
-h6 {
-	font-size: var(--font-size-sm);
 }
 
 /* Inline emphasis */
@@ -87,36 +51,6 @@ strong {
 
 em {
 	font-style: italic;
-}
-
-/* Links */
-a {
-	color: var(--color-accent);
-	text-decoration: none;
-}
-
-a:hover {
-	text-decoration: underline;
-}
-
-/* Lists */
-ul,
-ol {
-	padding-left: var(--space-5);
-}
-
-li {
-	margin-block: var(--space-1);
-}
-
-/* Images */
-figure {
-	margin: 0;
-}
-
-figcaption {
-	font-size: var(--font-size-sm);
-	color: var(--color-muted);
 }
 
 /* Divider */
