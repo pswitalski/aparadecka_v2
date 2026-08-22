@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@aparadeckav2/web",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@astrojs/react": "^6.0.3",
@@ -31,11 +32,16 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vanilla-extract/vite-plugin": "^5.2.6",
+    "eslint": "^10.9.0",
+    "eslint-plugin-astro": "^3.1.0",
+    "globals": "^17.11.0",
     "sass": "^1.102.0",
-    "typescript": "^5.8"
+    "typescript": "^5.8",
+    "typescript-eslint": "^8.67.0"
   }
 }

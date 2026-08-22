@@ -1,0 +1,10 @@
+npx lint-staged
+
+# Full-project type check for packages with staged changes.
+# (Partial "staged-files-only" checks miss breakage in importers — see dev.to article comments.)
+if git diff --cached --name-only | grep -q '^studio/'; then
+  npm run typecheck --prefix studio
+fi
+if git diff --cached --name-only | grep -q '^web/'; then
+  npm run check --prefix web
+fi
