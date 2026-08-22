@@ -1,3 +1,13 @@
+# Ensure lint tooling is installed in both packages (pre-commit runs their eslint)
+missing=""
+[ -x studio/node_modules/.bin/eslint ] || missing="studio"
+[ -x web/node_modules/.bin/eslint ]    || missing="$missing web"
+if [ -n "$missing" ]; then
+  echo "ESLint not found in:$missing"
+  echo "Run 'npm run install:clean' from the repo root to install tooling + both packages."
+  exit 1
+fi
+
 npx lint-staged
 
 # Full-project type check for packages with staged changes.

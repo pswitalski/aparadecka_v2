@@ -1,8 +1,8 @@
 # Validate branch name: <type>/<kebab-description>, or protected master/stage/prod
 branch="$(git rev-parse --abbrev-ref HEAD)"
-if ! echo "$branch" | grep -qE '^(master|stage|prod)$|^(feat|fix|docs|refactor|chore|ci|test|style|perf|build|release|hotfix)/[a-z0-9-]+$'; then
+if ! echo "$branch" | grep -qE '^(master|stage|prod)$|^(feat|fix|docs|refactor|chore|ci|test|style|perf|build)/[a-z0-9-]+$'; then
   echo "Aborting push: branch '$branch' does not follow <type>/<description> (e.g. feat/my-change)."
-  echo "Allowed types: feat, fix, docs, refactor, chore, ci, test, style, perf, build, release, hotfix. Protected: master, stage, prod."
+  echo "Allowed types: feat, fix, docs, refactor, chore, ci, test, style, perf, build. Protected: master, stage, prod."
   exit 1
 fi
 

@@ -11,9 +11,9 @@ The **About page** is fully editable from the Studio: each section is a CMS bloc
 
 ## Getting started
 
-- Studio: `cd studio && npm i && npm run dev`
-- Web: `cd web && npm i && npm run dev`
-- Tooling/hooks: run `npm install` once at the repository root to set up the Git hooks (Husky).
+- Install everything (root tooling + Git hooks + both packages) with one command:
+  `npm run install:clean`
+- Then run a package: `cd studio && npm run dev` or `cd web && npm run dev`
 
 ## Development conventions
 
@@ -33,7 +33,7 @@ docs/update-readmes
 refactor/styles-tokens
 ```
 
-- Allowed types: `feat`, `fix`, `docs`, `refactor`, `chore`, `ci`, `test`, `style`, `perf`, `build`, `release`, `hotfix`.
+- Allowed types: `feat`, `fix`, `docs`, `refactor`, `chore`, `ci`, `test`, `style`, `perf`, `build`.
 - The long-lived branches `master`, `stage`, and `prod` are exempt.
 - Enforced in `pre-push` — a push from a non-conforming branch is aborted.
 
