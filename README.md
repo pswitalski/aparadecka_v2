@@ -7,6 +7,8 @@ Artist portfolio site built with Astro and Sanity CMS, with a GitHub Actions CI 
 - `studio/` — Sanity Studio (content model + admin UI)
 - `web/` — Astro site (frontend)
 
+The **About page** is fully editable from the Studio: each section is a CMS block with rich text, an optional image, per-block text alignment, and image placement (left/right on desktop, above/under on mobile). See `studio/README.md` (content model) and `web/README.md` (rendering) for details.
+
 ## Getting started
 
 - Studio: `cd studio && npm i && npm run dev`
