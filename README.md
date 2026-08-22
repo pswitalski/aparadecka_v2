@@ -11,8 +11,49 @@ The **About page** is fully editable from the Studio: each section is a CMS bloc
 
 ## Getting started
 
-- Studio: `cd studio && npm i && npm run dev`
-- Web: `cd web && npm i && npm run dev`
+- Install everything (root tooling + Git hooks + both packages) with one command:
+  `npm run install:clean`
+- Then run a package: `cd studio && npm run dev` or `cd web && npm run dev`
+
+## Development conventions
+
+These are enforced automatically by Git hooks (Husky) configured from the root
+`package.json`. To activate the hooks locally, run `npm install` once at the
+repository root (the `prepare` script installs Husky). Studio and web are still
+installed separately as before.
+
+### Branch names
+
+Branches follow `<type>/<description>` in lowercase kebab-case:
+
+```
+feat/about-page
+fix/header-nav
+docs/update-readmes
+refactor/styles-tokens
+```
+
+- Allowed types: `feat`, `fix`, `docs`, `refactor`, `chore`, `ci`, `test`, `style`, `perf`, `build`.
+- The long-lived branches `master`, `stage`, and `prod` are exempt.
+- Enforced in `pre-push` — a push from a non-conforming branch is aborted.
+
+### Commit messages
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org) with a colon:
+
+```
+feat(web): rebuild home page gallery
+fix(studio,web): sync types after schema change
+ci: split web deploy into dedicated workflow
+```
+
+- `type` is required; `scope` in parentheses is optional.
+- Enforced in `commit-msg` via Commitlint — a non-conforming message is rejected.
+
+### Pre-commit / pre-push checks
+
+- `pre-commit`: ESLint on staged files only (via lint-staged), then a full type check for each package that has changes (studio `tsc --noEmit`, web `astro check`).
+- `pre-push`: branch name validated, then a full type check for both packages.
 
 ## Deployment
 
