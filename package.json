@@ -8,14 +8,17 @@
     "check": "npm run typecheck --prefix studio && npm run check --prefix web",
     "deps:install-clean": "npm ci && npm ci --prefix studio && npm ci --prefix web",
     "deps:lock-regenerate": "rm -f package-lock.json studio/package-lock.json web/package-lock.json && npm install --package-lock-only && npm install --package-lock-only --prefix studio && npm install --package-lock-only --prefix web",
-    "deps:bump": "ncu --target semver -u && ncu --target semver -u --cwd studio && ncu --target semver -u --cwd web && npm run deps:lock-regenerate && npm run deps:install-clean"
+    "deps:bump": "ncu --target semver -u && ncu --target semver -u --cwd studio && ncu --target semver -u --cwd web && npm run deps:lock-regenerate && npm run deps:install-clean",
+    "deps:sync-check": "syncpack lint --dependency-types prod,dev",
+    "deps:sync-fix": "syncpack fix --dependency-types prod,dev && npm run deps:lock-regenerate"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
-    "npm-check-updates": "^18.3.1"
+    "npm-check-updates": "^18.3.1",
+    "syncpack": "^15.3.3"
   },
   "lint-staged": {
     "studio/**/*.{ts,tsx,js,jsx,mjs,cjs}": ["studio/node_modules/.bin/eslint --fix"],
