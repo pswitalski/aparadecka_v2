@@ -6,15 +6,16 @@
   "scripts": {
     "prepare": "husky",
     "check": "npm run typecheck --prefix studio && npm run check --prefix web",
-    "install:clean": "npm ci && npm ci --prefix studio && npm ci --prefix web",
-    "lock:regenerate": "rm -f studio/package-lock.json web/package-lock.json && npm install --package-lock-only --prefix studio && npm install --package-lock-only --prefix web",
-    "deps:update": "npm update --prefix studio && npm update --prefix web"
+    "deps:install-clean": "npm ci && npm ci --prefix studio && npm ci --prefix web",
+    "deps:lock-regenerate": "rm -f package-lock.json studio/package-lock.json web/package-lock.json && npm install --package-lock-only && npm install --package-lock-only --prefix studio && npm install --package-lock-only --prefix web",
+    "deps:bump": "ncu --target semver -u && ncu --target semver -u --cwd studio && ncu --target semver -u --cwd web && npm run deps:lock-regenerate && npm run deps:install-clean"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.0"
+    "lint-staged": "^15.5.0",
+    "npm-check-updates": "^18.0.0"
   },
   "lint-staged": {
     "studio/**/*.{ts,tsx,js,jsx,mjs,cjs}": ["studio/node_modules/.bin/eslint --fix"],
