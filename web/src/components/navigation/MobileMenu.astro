@@ -1,30 +1,31 @@
 ---
-import IconButton from '../IconButton.astro';
-import Icon from '../Icon.astro';
-import NavLinks from './NavLinks.astro';
 import type { NavLink } from './links';
 
+import Icon from '../Icon.astro';
+import IconButton from '../IconButton.astro';
+import NavLinks from './NavLinks.astro';
+
 interface Props {
-	links: NavLink[];
 	id?: string;
+	links: NavLink[];
 }
 
-const { links, id = 'mobile-menu' } = Astro.props;
+const { id = 'mobile-menu', links } = Astro.props;
 ---
 
 <div class="menu-toggle-wrap">
 	<IconButton
-		label="Otwórz menu"
-		aria-expanded="false"
 		aria-controls={id}
+		aria-expanded="false"
 		data-menu-toggle
+		label="Otwórz menu"
 	>
 		<Icon name="menu" />
 	</IconButton>
 </div>
 
-<dialog class="mobile-menu" id={id} aria-label="Menu">
-	<IconButton label="Zamknij menu" class="menu-close" data-menu-close>
+<dialog aria-label="Menu" class="mobile-menu" id={id}>
+	<IconButton class="menu-close" data-menu-close label="Zamknij menu">
 		<Icon name="close" />
 	</IconButton>
 	<nav aria-label="Nawigacja mobilna">
@@ -128,9 +129,9 @@ const { links, id = 'mobile-menu' } = Astro.props;
 	}
 </style>
 
-<script is:inline define:vars={{ id }}>
-	const dialog = document.getElementById(id);
-	const toggle = document.querySelector(`[aria-controls="${id}"]`);
+<script is:inline>
+	const dialog = document.querySelector('dialog.mobile-menu');
+	const toggle = dialog ? document.querySelector(`[aria-controls="${dialog.id}"]`) : null;
 
 	if (dialog && toggle) {
 		const closeButton = dialog.querySelector('[data-menu-close]');
