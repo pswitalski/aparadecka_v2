@@ -12,7 +12,7 @@ The **About page** is fully editable from the Studio: each section is a CMS bloc
 ## Getting started
 
 - Install everything (root tooling + Git hooks + both packages) with one command:
-  `npm run install:clean`
+  `npm run deps:install-clean`
 - Then run a package: `cd studio && npm run dev` or `cd web && npm run dev`
 
 ## Development conventions
@@ -54,6 +54,24 @@ ci: split web deploy into dedicated workflow
 
 - `pre-commit`: ESLint on staged files only (via lint-staged), then a full type check for each package that has changes (studio `tsc --noEmit`, web `astro check`).
 - `pre-push`: branch name validated, then a full type check for both packages.
+
+## Dependency management
+
+Dependency scripts live in the root `package.json` and operate across all three
+packages (root tooling, `studio`, and `web`):
+
+- `npm run deps:bump` — bump every dependency to the highest version that still
+  satisfies its declared semver range in each `package.json`, then regenerate the
+  lockfiles and run a clean install. Ends with `package.json` + lock +
+  `node_modules` fully in sync.
+- `npm run deps:lock-regenerate` — rebuild only the lockfiles from the current
+  `package.json` ranges (use after manually editing a `package.json`). Does not
+  touch `node_modules`.
+- `npm run deps:install-clean` — wipe `node_modules` and reinstall exactly what the
+  lockfiles pin (`npm ci` in root, studio, and web).
+
+Typical workflow: run `npm run deps:bump`, review the changes, then commit the
+updated `package.json` and `package-lock.json` files.
 
 ## Deployment
 
