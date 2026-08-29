@@ -10,7 +10,7 @@
     "deps:lock-regenerate": "rm -f package-lock.json studio/package-lock.json web/package-lock.json && npm install --package-lock-only && npm install --package-lock-only --prefix studio && npm install --package-lock-only --prefix web",
     "deps:bump": "ncu --target semver -u && ncu --target semver -u --cwd studio && ncu --target semver -u --cwd web && npm run deps:lock-regenerate && npm run deps:install-clean",
     "deps:sync-check": "syncpack lint --dependency-types prod,dev",
-    "deps:sync-fix": "syncpack fix --dependency-types prod,dev"
+    "deps:sync-fix": "syncpack fix --dependency-types prod,dev && npm run deps:lock-regenerate"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
