@@ -1,0 +1,3 @@
+{
+  "source": ["package.json", "web/package.json", "studio/package.json"]
+}
