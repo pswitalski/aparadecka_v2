@@ -2,8 +2,8 @@ import {defineCliConfig} from 'sanity/cli'
 
 export default defineCliConfig({
   api: {
-    projectId: 'w73pc8ge',
-    dataset: 'production'
+    dataset: 'production',
+    projectId: 'w73pc8ge'
   },
   deployment: {
     appId: 'q5my8gnk3bxcy3xugnga1xf0',
@@ -14,9 +14,9 @@ export default defineCliConfig({
     autoUpdates: true,
   },
   typegen: {
-    path: '../web/src/**/*.{ts,tsx}',
-    schema: 'schema.json',
     generates: '../web/sanity.types.ts',
     overloadClientMethods: true,
+    path: '../web/src/**/*.{ts,tsx}',
+    schema: 'schema.json',
   },
 })

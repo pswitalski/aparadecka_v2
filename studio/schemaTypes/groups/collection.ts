@@ -1,43 +1,44 @@
-import {defineArrayMember, defineField, defineType} from 'sanity'
 import {FolderIcon} from '@sanity/icons/Folder'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+
 import {apiVersion} from '../../apiVersion'
 
 export const collection = defineType({
-  name: 'collection',
-  title: 'Rocznik',
-  type: 'document',
-  icon: FolderIcon,
-  preview: {
-    select: {year: 'year'},
-    prepare: ({year}) => ({title: String(year)}),
-  },
   fields: [
     defineField({
       name: 'year',
-      type: 'number',
       title: 'Rok',
+      type: 'number',
       validation: (rule) =>
         rule.required().integer().min(1900).max(2100).custom(async (year, context) => {
           const client = context.getClient({apiVersion})
           const id = context.document?._id?.replace(/^drafts\./, '')
           const existing = await client.fetch(
             `count(*[_type == "collection" && year == $year && _id != $id])`,
-            {year, id},
+            {id, year},
           )
           return existing === 0 || `Rok ${year} już istnieje`
         }),
     }),
     defineField({
       name: 'thumbnail',
-      type: 'reference',
       title: 'Wyróżniony obraz',
       to: [{type: 'painting'}],
+      type: 'reference',
     }),
     defineField({
       name: 'paintings',
-      type: 'array',
+      of: [defineArrayMember({to: [{type: 'painting'}], type: 'reference'})],
       title: 'Prace',
-      of: [defineArrayMember({type: 'reference', to: [{type: 'painting'}]})],
+      type: 'array',
     }),
   ],
+  icon: FolderIcon,
+  name: 'collection',
+  preview: {
+    prepare: ({year}) => ({title: String(year)}),
+    select: {year: 'year'},
+  },
+  title: 'Rocznik',
+  type: 'document',
 })

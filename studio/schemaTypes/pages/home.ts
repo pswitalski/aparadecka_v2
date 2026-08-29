@@ -1,29 +1,25 @@
-import {defineArrayMember, defineField, defineType} from 'sanity'
 import {HomeIcon} from '@sanity/icons/Home'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 
 export const home = defineType({
-  name: 'home',
-  title: 'Strona główna',
-  type: 'document',
-  icon: HomeIcon,
   fields: [
     defineField({
-      name: 'title',
-      type: 'string',
-      title: 'Tytuł',
-      readOnly: true,
       hidden: true,
       initialValue: 'Strona główna',
+      name: 'title',
+      readOnly: true,
+      title: 'Tytuł',
+      type: 'string',
     }),
     defineField({
-      name: 'featured',
-      type: 'array',
-      title: 'Wyróżnione obrazy',
       description:
         'Strona główna pokazuje galerię obrazów. Pierwszy wybrany obraz jest duży (cały, z marginesami), ' +
         'kolejne 3 to miniatury (przycięte do proporcji 1,4), a dalsze rotują w miejscu miniaturek. ' +
         'Dodaj co najmniej 4 obrazy.',
-      of: [defineArrayMember({type: 'reference', to: [{type: 'painting'}]})],
+      name: 'featured',
+      of: [defineArrayMember({to: [{type: 'painting'}], type: 'reference'})],
+      title: 'Wyróżnione obrazy',
+      type: 'array',
       validation: (Rule) =>
         Rule.custom((value) => {
           if (!value) return true
@@ -34,4 +30,8 @@ export const home = defineType({
         }).warning(),
     }),
   ],
+  icon: HomeIcon,
+  name: 'home',
+  title: 'Strona główna',
+  type: 'document',
 })

@@ -1,13 +1,13 @@
 ---
 interface Props {
-	label: string;
 	class?: string;
+	label: string;
 }
 
-const { label, class: className, ...attrs } = Astro.props;
+const { class: className, label, ...attrs } = Astro.props;
 ---
 
-<button type="button" class:list={['icon-button', className]} aria-label={label} {...attrs}>
+<button aria-label={label} class:list={['icon-button', className]} type="button" {...attrs}>
 	<slot />
 </button>
 

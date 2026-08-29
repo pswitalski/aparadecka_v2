@@ -1,13 +1,14 @@
 // @ts-check
 
-import { loadEnv } from 'vite';
-import { defineConfig } from 'astro/config';
-import sanity from '@sanity/astro';
 import react from '@astrojs/react';
+import sanity from '@sanity/astro';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
+import { defineConfig } from 'astro/config';
+import { loadEnv } from 'vite';
+
 import { apiVersion } from './apiVersion';
 
-const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
+const { PUBLIC_SANITY_DATASET, PUBLIC_SANITY_PROJECT_ID } = loadEnv(
 	process.env.NODE_ENV ?? 'development',
 	process.cwd(),
 	'',
@@ -18,9 +19,9 @@ export default defineConfig({
 	integrations: [
 		react(),
 		sanity({
-			projectId: PUBLIC_SANITY_PROJECT_ID,
-			dataset: PUBLIC_SANITY_DATASET,
 			apiVersion,
+			dataset: PUBLIC_SANITY_DATASET,
+			projectId: PUBLIC_SANITY_PROJECT_ID,
 			useCdn: false,
 		}),
 	],

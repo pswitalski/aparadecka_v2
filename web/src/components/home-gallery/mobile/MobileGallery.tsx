@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay, { type AutoplayType } from 'embla-carousel-autoplay';
-import * as styles from './MobileGallery.css';
+import useEmblaCarousel from 'embla-carousel-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
 import type { GalleryPainting } from '../adapter';
+
+import * as styles from './MobileGallery.css';
 
 interface Props {
 	paintings: GalleryPainting[];
@@ -17,13 +19,13 @@ export default function MobileGallery({ paintings }: Props) {
 		[],
 	);
 	const autoplay = useMemo(
-		() => Autoplay({ delay: AUTOPLAY_INTERVAL, stopOnInteraction: false, playOnInit: true }),
+		() => Autoplay({ delay: AUTOPLAY_INTERVAL, playOnInit: true, stopOnInteraction: false }),
 		[],
 	);
 	const autoplayRef = useRef<AutoplayType | null>(null);
-	const resumeTimer = useRef<number | null>(null);
+	const resumeTimer = useRef<null | number>(null);
 
-	const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' }, reduceMotion ? [] : [autoplay]);
+	const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', loop: true }, reduceMotion ? [] : [autoplay]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 
 	useEffect(() => {
@@ -70,36 +72,36 @@ export default function MobileGallery({ paintings }: Props) {
 				<div className={styles.dots}>
 					{paintings.map((p, i) => (
 						<button
-							key={p.id}
-							type="button"
-							className={i === selectedIndex ? `${styles.dot} ${styles.dotActive}` : styles.dot}
-							aria-label={`Pokaż: ${p.title ?? 'obraz bez tytułu'}`}
 							aria-current={i === selectedIndex}
+							aria-label={`Pokaż: ${p.title ?? 'obraz bez tytułu'}`}
+							className={i === selectedIndex ? `${styles.dot} ${styles.dotActive}` : styles.dot}
+							key={p.id}
 							onClick={() => emblaApi?.scrollTo(i)}
+							type="button"
 						/>
 					))}
 				</div>
 			</div>
-			<p className={styles.title} aria-live="off">
+			<p aria-live="off" className={styles.title}>
 				{active?.caption}
 			</p>
 			<div
 				className={styles.viewport}
-				ref={emblaRef}
+				onPointerCancel={scheduleResume}
 				onPointerDown={stopAutoplay}
 				onPointerUp={scheduleResume}
-				onPointerCancel={scheduleResume}
+				ref={emblaRef}
 			>
 				<div className={styles.container}>
 					{paintings.map((p) => (
 						<div className={styles.slide} key={p.id}>
 							<img
-								src={p.mobile}
-								srcSet={p.srcset}
-								sizes="100vw"
 								alt={p.title ?? ''}
 								className={styles.img}
 								loading="lazy"
+								sizes="100vw"
+								src={p.mobile}
+								srcSet={p.srcset}
 							/>
 						</div>
 					))}

@@ -1,24 +1,25 @@
 ---
-import Layout from '../layouts/main.astro';
 import { sanityClient } from 'sanity:client';
+
+import Layout from '../layouts/main.astro';
 import { contactQuery } from '../lib/queries';
 
 interface SocialLink {
-	label: string | null;
+	label: null | string;
 	url: string;
 }
 
 const contact = await sanityClient.fetch<{
-	email: SocialLink | null;
-	instagram: SocialLink | null;
-	facebook: SocialLink | null;
+	email: null | SocialLink;
+	facebook: null | SocialLink;
+	instagram: null | SocialLink;
 }>(contactQuery);
 
 const links = [
 	{ key: 'email', ...contact.email },
 	{ key: 'instagram', ...contact.instagram },
 	{ key: 'facebook', ...contact.facebook },
-].filter((link): link is { key: string; label: string | null; url: string } => Boolean(link.url));
+].filter((link): link is { key: string; label: null | string; url: string } => Boolean(link.url));
 ---
 
 <Layout title="Kontakt">
