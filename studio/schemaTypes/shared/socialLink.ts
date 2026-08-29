@@ -1,20 +1,20 @@
 import {defineField, defineType} from 'sanity'
 
 export const socialLink = defineType({
-  name: 'socialLink',
-  title: 'Link',
-  type: 'object',
   fields: [
     defineField({
       name: 'label',
-      type: 'string',
       title: 'Tekst',
+      type: 'string',
     }),
     defineField({
       name: 'url',
-      type: 'url',
       title: 'URL',
+      type: 'url',
       validation: (rule) => rule.uri({scheme: ['http', 'https', 'mailto']}),
     }),
   ],
+  name: 'socialLink',
+  title: 'Link',
+  type: 'object',
 })

@@ -5,7 +5,7 @@ interface Props extends BlockProps {
   children?: ReactNode;
 }
 
-export default function BigSmallBlock({ node, children }: Props) {
+export default function BigSmallBlock({ children, node }: Props) {
   const cls = node.style === 'big' ? 'big' : 'small';
   return <p className={cls}>{children}</p>;
 }

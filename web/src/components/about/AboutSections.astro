@@ -1,7 +1,8 @@
 ---
-import PortableText from '../PortableText.astro';
-import { urlForImage } from '../../lib/sanity';
 import type { AboutQueryResult, SanityImageAssetReference } from '../../../sanity.types';
+
+import { urlForImage } from '../../lib/sanity';
+import PortableText from '../PortableText.astro';
 
 interface Props {
   sections?: NonNullable<AboutQueryResult>['sections'];
@@ -16,7 +17,7 @@ const blocks = (sections ?? []).map((section) => {
   const mobilePos = section.imagePositionMobile === 'under' ? 'under' : 'above';
   const textAlign = section.textAlign ?? 'left';
 
-  return { ...section, asset, hasImage, side, mobilePos, textAlign };
+  return { ...section, asset, hasImage, mobilePos, side, textAlign };
 });
 
 function imageSrc(asset: SanityImageAssetReference, width: number) {
@@ -41,12 +42,12 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
           <div class="about-block__media">
             <figure>
               <img
-                src={imageSrc(block.asset!, 800)}
-                srcset={`${imageSrc(block.asset!, 480)} 480w, ${imageSrc(block.asset!, 800)} 800w, ${imageSrc(block.asset!, 1200)} 1200w`}
-                sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
                 alt={block.image.alt ?? ''}
                 aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
                 loading="lazy"
+                sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
+                src={imageSrc(block.asset!, 800)}
+                srcset={`${imageSrc(block.asset!, 480)} 480w, ${imageSrc(block.asset!, 800)} 800w, ${imageSrc(block.asset!, 1200)} 1200w`}
               />
               {block.image.title && (
                 <figcaption id={`about-caption-${block._key}`}>{block.image.title}</figcaption>

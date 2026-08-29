@@ -1,5 +1,6 @@
-import { sanityClient } from 'sanity:client';
 import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
+import { sanityClient } from 'sanity:client';
+
 import { apiVersion } from '../../apiVersion';
 
 export { apiVersion };

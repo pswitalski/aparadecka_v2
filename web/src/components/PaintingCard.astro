@@ -1,14 +1,15 @@
 ---
 import type { Painting } from '../lib/types';
+
 import { urlForImage } from '../lib/sanity';
 
 interface Props {
+	class?: string;
 	painting: Painting;
 	variant?: 'featured' | 'thumb';
-	class?: string;
 }
 
-const { painting, variant = 'thumb', class: className, ...rest } = Astro.props;
+const { class: className, painting, variant = 'thumb', ...rest } = Astro.props;
 
 const imageUrl = painting.mainImage
 	? urlForImage(painting.mainImage).width(600).format('webp').url()
@@ -16,7 +17,7 @@ const imageUrl = painting.mainImage
 ---
 
 <figure class:list={['painting', `painting--${variant}`, className]} {...rest}>
-	{imageUrl && <img src={imageUrl} alt={painting.title ?? ''} loading="lazy" />}
+	{imageUrl && <img alt={painting.title ?? ''} loading="lazy" src={imageUrl} />}
 	{variant === 'thumb' && <figcaption>{painting.title ?? 'Bez tytułu'}</figcaption>}
 </figure>
 

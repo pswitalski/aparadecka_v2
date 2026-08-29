@@ -1,6 +1,7 @@
 ---
-import NavLinks from './NavLinks.astro';
 import type { NavLink } from './links';
+
+import NavLinks from './NavLinks.astro';
 
 interface Props {
 	links: NavLink[];
@@ -9,7 +10,7 @@ interface Props {
 const { links } = Astro.props;
 ---
 
-<nav class="desktop-nav" aria-label="Nawigacja główna">
+<nav aria-label="Nawigacja główna" class="desktop-nav">
 	<NavLinks links={links} orientation="row" />
 </nav>
 

@@ -1,11 +1,13 @@
 ---
-import Layout from '../layouts/main.astro';
+import { sanityClient } from 'sanity:client';
+
+import type { Painting } from '../lib/types';
+
+import { adaptPaintings } from '../components/home-gallery/adapter';
 import DesktopGallery from '../components/home-gallery/desktop/DesktopGallery';
 import MobileGallery from '../components/home-gallery/mobile/MobileGallery';
-import { adaptPaintings } from '../components/home-gallery/adapter';
-import { sanityClient } from 'sanity:client';
+import Layout from '../layouts/main.astro';
 import { featuredPaintingsQuery } from '../lib/queries';
-import type { Painting } from '../lib/types';
 
 const { featuredPaintings } = await sanityClient.fetch<{ featuredPaintings: Painting[] }>(featuredPaintingsQuery);
 
@@ -14,6 +16,6 @@ const paintings = adaptPaintings(featuredPaintings);
 
 <Layout>
 	<h1 class="visually-hidden">Wyróżnione obrazy</h1>
-	<DesktopGallery paintings={paintings} client:media="(min-width: 768px)" />
-	<MobileGallery paintings={paintings} client:media="(max-width: 767px)" />
+	<DesktopGallery client:media="(min-width: 768px)" paintings={paintings} />
+	<MobileGallery client:media="(max-width: 767px)" paintings={paintings} />
 </Layout>

@@ -1,13 +1,15 @@
 ---
-import Layout from '../../layouts/main.astro';
 import { sanityClient } from 'sanity:client';
-import { collectionsQuery } from '../../lib/queries';
-import { urlForImage } from '../../lib/sanity';
+
 import type { Painting } from '../../lib/types';
 
+import Layout from '../../layouts/main.astro';
+import { collectionsQuery } from '../../lib/queries';
+import { urlForImage } from '../../lib/sanity';
+
 interface CollectionItem {
+	thumbnail: null | Painting;
 	year: number;
-	thumbnail: Painting | null;
 }
 
 const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery);
@@ -16,14 +18,14 @@ const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery)
 <Layout title="Portfolio">
 	<h1>Portfolio</h1>
 	<ul class="grid years">
-		{collections.map(({ year, thumbnail }) => (
+		{collections.map(({ thumbnail, year }) => (
 			<li>
 				<a href={`/portfolio/${year}`}>
 					{thumbnail?.mainImage && (
 						<img
-							src={urlForImage(thumbnail.mainImage).width(400).format('webp').url()}
 							alt={thumbnail.title ?? ''}
 							loading="lazy"
+							src={urlForImage(thumbnail.mainImage).width(400).format('webp').url()}
 						/>
 					)}
 					<span>{year}</span>

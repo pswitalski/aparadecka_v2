@@ -1,34 +1,34 @@
-import {defineField, defineType} from 'sanity'
 import {EnvelopeIcon} from '@sanity/icons/Envelope'
+import {defineField, defineType} from 'sanity'
 
 export const contact = defineType({
-  name: 'contact',
-  title: 'Kontakt',
-  type: 'document',
-  icon: EnvelopeIcon,
   fields: [
     defineField({
-      name: 'title',
-      type: 'string',
-      title: 'Tytuł',
-      readOnly: true,
       hidden: true,
       initialValue: 'Kontakt',
+      name: 'title',
+      readOnly: true,
+      title: 'Tytuł',
+      type: 'string',
     }),
     defineField({
       name: 'email',
-      type: 'socialLink',
       title: 'E-mail',
+      type: 'socialLink',
     }),
     defineField({
       name: 'instagram',
-      type: 'socialLink',
       title: 'Instagram',
+      type: 'socialLink',
     }),
     defineField({
       name: 'facebook',
-      type: 'socialLink',
       title: 'Facebook',
+      type: 'socialLink',
     }),
   ],
+  icon: EnvelopeIcon,
+  name: 'contact',
+  title: 'Kontakt',
+  type: 'document',
 })

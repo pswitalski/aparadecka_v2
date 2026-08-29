@@ -1,11 +1,12 @@
 import type {StructureResolver} from 'sanity/structure'
-import {HomeIcon} from '@sanity/icons/Home'
-import {UserIcon} from '@sanity/icons/User'
-import {ThLargeIcon} from '@sanity/icons/ThLarge'
+
+import {CogIcon} from '@sanity/icons/Cog'
 import {EnvelopeIcon} from '@sanity/icons/Envelope'
 import {FolderIcon} from '@sanity/icons/Folder'
+import {HomeIcon} from '@sanity/icons/Home'
 import {ImageIcon} from '@sanity/icons/Image'
-import {CogIcon} from '@sanity/icons/Cog'
+import {ThLargeIcon} from '@sanity/icons/ThLarge'
+import {UserIcon} from '@sanity/icons/User'
 
 export const structure: StructureResolver = (S) => {
   const singleton = (id: string, title: string) =>

@@ -1,31 +1,31 @@
 import { style } from '@vanilla-extract/css';
 
 export const carousel = style({
-	display: 'flex',
-	flexDirection: 'column',
-	/* Full-bleed inside `main` (padding var(--space-4)) and fill the viewport below the
-	   mobile header down to the bottom edge (margin-bottom cancels main's bottom padding). */
-	width: 'calc(100% + 2 * var(--space-4))',
-	marginInline: 'calc(-1 * var(--space-4))',
-	marginBottom: 'calc(-1 * var(--space-4))',
-	backgroundColor: 'var(--color-surface)',
-	height: 'calc(100dvh - var(--header-height-mobile) - var(--space-4))',
-	overflow: 'hidden',
 	'@media': {
 		'(min-width: 768px)': {
 			display: 'none',
 		},
 	},
+	backgroundColor: 'var(--color-surface)',
+	display: 'flex',
+	flexDirection: 'column',
+	height: 'calc(100dvh - var(--header-height-mobile) - var(--space-4))',
+	marginBottom: 'calc(-1 * var(--space-4))',
+	marginInline: 'calc(-1 * var(--space-4))',
+	overflow: 'hidden',
+	/* Full-bleed inside `main` (padding var(--space-4)) and fill the viewport below the
+	   mobile header down to the bottom edge (margin-bottom cancels main's bottom padding). */
+	width: 'calc(100% + 2 * var(--space-4))',
 });
 
 export const dotsBar = style({
-	flex: '0 0 auto',
-	display: 'flex',
-	justifyContent: 'center',
 	alignItems: 'center',
+	backgroundColor: 'var(--color-bg)',
+	display: 'flex',
+	flex: '0 0 auto',
+	justifyContent: 'center',
 	minHeight: 'var(--space-6)',
 	padding: '0 var(--space-4)',
-	backgroundColor: 'var(--color-bg)',
 });
 
 export const dots = style({
@@ -34,14 +34,14 @@ export const dots = style({
 });
 
 export const dot = style({
-	width: 9,
-	height: 9,
-	padding: 0,
+	backgroundColor: '#D9D9D9',
 	border: 0,
 	borderRadius: 0,
-	backgroundColor: '#D9D9D9',
 	cursor: 'pointer',
+	height: 9,
+	padding: 0,
 	transition: 'background-color 200ms ease',
+	width: 9,
 });
 
 export const dotActive = style({
@@ -49,15 +49,15 @@ export const dotActive = style({
 });
 
 export const title = style({
+	backgroundColor: 'var(--color-surface)',
+	color: 'var(--color-text)',
 	flex: '0 0 auto',
-	padding: 'var(--space-3) var(--space-4)',
 	fontFamily: 'var(--font-body)',
 	fontSize: 'var(--font-size-lg)',
 	lineHeight: '100%',
-	color: 'var(--color-text)',
+	padding: 'var(--space-3) var(--space-4)',
 	textAlign: 'center',
 	textWrap: 'balance',
-	backgroundColor: 'var(--color-surface)',
 });
 
 export const viewport = style({
@@ -74,15 +74,15 @@ export const container = style({
 
 export const slide = style({
 	flex: '0 0 100%',
-	minWidth: 0,
 	height: '100%',
+	minWidth: 0,
 	overflow: 'hidden',
 });
 
 export const img = style({
-	width: '100%',
+	display: 'block',
 	height: '100%',
 	objectFit: 'cover',
 	objectPosition: 'center',
-	display: 'block',
+	width: '100%',
 });

@@ -2,24 +2,26 @@
 import '@fontsource/caladea/400.css';
 import '@fontsource/caladea/700.css';
 import '@fontsource/calistoga/400.css';
+
 import '../styles/tokens.scss';
 import '../styles/globals.scss';
 
 import { sanityClient } from 'sanity:client';
-import { siteQuery } from '../lib/queries';
+
 import Navigation from '../components/navigation/Navigation.astro';
+import { siteQuery } from '../lib/queries';
 
 interface Props {
-	title?: string;
 	description?: string;
+	title?: string;
 }
 
-const { title, description } = Astro.props;
+const { description, title } = Astro.props;
 
 const site = await sanityClient.fetch<{
-  siteTitle: string | null;
-  description: string | null;
-  keywords: string[] | null;
+  description: null | string;
+  keywords: null | string[];
+  siteTitle: null | string;
 }>(siteQuery);
 
 const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka – Świtalska';
@@ -31,12 +33,12 @@ const resolvedDescription =
 <html lang="pl">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="description" content={resolvedDescription} />
-		{site?.keywords?.length && <meta name="keywords" content={site.keywords.join(', ')} />}
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
+		<meta content="width=device-width" name="viewport" />
+		<meta content={resolvedDescription} name="description" />
+		{site?.keywords?.length && <meta content={site.keywords.join(', ')} name="keywords" />}
+		<link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+		<link href="/favicon.ico" rel="icon" />
+		<meta content={Astro.generator} name="generator" />
 		<title>{resolvedTitle}</title>
 	</head>
 	<body>

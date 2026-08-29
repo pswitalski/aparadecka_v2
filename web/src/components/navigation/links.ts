@@ -1,11 +1,11 @@
 export interface NavLink {
-	label: string;
 	href: string;
+	label: string;
 }
 
 export const navLinks: (NavLink & { home?: boolean })[] = [
-	{ label: 'Agnieszka Paradecka – Świtalska', href: '/', home: true },
-	{ label: 'Portfolio', href: '/portfolio' },
-	{ label: 'O mnie', href: '/o-mnie' },
-	{ label: 'Kontakt', href: '/kontakt' },
+	{ home: true, href: '/', label: 'Agnieszka Paradecka – Świtalska' },
+	{ href: '/portfolio', label: 'Portfolio' },
+	{ href: '/o-mnie', label: 'O mnie' },
+	{ href: '/kontakt', label: 'Kontakt' },
 ];

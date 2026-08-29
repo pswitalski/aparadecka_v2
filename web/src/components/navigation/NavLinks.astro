@@ -3,7 +3,7 @@ import type { NavLink } from './links';
 
 interface Props {
 	links: NavLink[];
-	orientation?: 'row' | 'column';
+	orientation?: 'column' | 'row';
 }
 
 const { links, orientation = 'column' } = Astro.props;
@@ -21,9 +21,9 @@ const isActive = (href: string) => {
 		return (
 			<li>
 				<a
-					href={link.href}
-					class={active ? 'active' : undefined}
 					aria-current={active ? 'page' : undefined}
+					class={active ? 'active' : undefined}
+					href={link.href}
 				>
 					{link.label}
 				</a>

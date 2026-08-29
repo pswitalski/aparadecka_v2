@@ -1,9 +1,11 @@
 ---
-import Layout from '../../layouts/main.astro';
-import PaintingCard from '../../components/PaintingCard.astro';
 import { sanityClient } from 'sanity:client';
-import { collectionsQuery, collectionByYearQuery } from '../../lib/queries';
+
 import type { Painting } from '../../lib/types';
+
+import PaintingCard from '../../components/PaintingCard.astro';
+import Layout from '../../layouts/main.astro';
+import { collectionByYearQuery, collectionsQuery } from '../../lib/queries';
 
 export async function getStaticPaths() {
 	const collections = await sanityClient.fetch<Array<{ year: number }>>(collectionsQuery);

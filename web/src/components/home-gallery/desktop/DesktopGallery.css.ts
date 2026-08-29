@@ -1,78 +1,79 @@
 import { style } from '@vanilla-extract/css';
+
 import { CLIP_HEIGHT, SIDE_GAP, THUMB_HEIGHT, THUMB_WIDTH } from './geometry';
 
 export const homeGallery = style({
-	width: '100vw',
-	marginInline: 'calc(50% - 50vw)',
-	backgroundColor: 'var(--color-surface)',
-	overflow: 'hidden',
 	'@media': {
 		'(max-width: 767px)': {
 			display: 'none',
 		},
 	},
+	backgroundColor: 'var(--color-surface)',
+	marginInline: 'calc(50% - 50vw)',
+	overflow: 'hidden',
+	width: '100vw',
 });
 
 export const inner = style({
-	position: 'relative',
-	maxWidth: 'var(--container-width)',
 	marginInline: 'auto',
+	maxWidth: 'var(--container-width)',
 	padding: 'var(--space-6) var(--space-4)',
+	position: 'relative',
 });
 
 export const clip = style({
-	position: 'relative',
 	height: CLIP_HEIGHT,
 	overflow: 'hidden',
+	position: 'relative',
 });
 
 export const cell = style({
-	position: 'absolute',
 	overflow: 'hidden',
+	position: 'absolute',
 });
 
 export const bigCell = style({
+	bottom: 0,
 	left: 0,
 	top: 0,
-	bottom: 0,
 	width: `calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px)`,
 });
 
 export const sideCell = style({
+	height: THUMB_HEIGHT,
 	right: 0,
 	width: THUMB_WIDTH,
-	height: THUMB_HEIGHT,
 });
 
 export const item = style({
-	position: 'absolute',
 	overflow: 'hidden',
 	pointerEvents: 'none',
+	position: 'absolute',
 });
 
 export const galleryImg = style({
-	width: '100%',
-	height: '100%',
 	display: 'block',
+	height: '100%',
 	pointerEvents: 'none',
+	width: '100%',
 });
 
 export const bigFrame = style({
-	width: '100%',
-	height: '100%',
-	display: 'flex',
 	alignItems: 'center',
+	display: 'flex',
+	height: '100%',
 	justifyContent: 'center',
 	overflow: 'hidden',
+	width: '100%',
 });
 
 export const bigImg = style({
-	width: 'auto',
 	height: 'auto',
-	maxWidth: '100%',
 	maxHeight: '100%',
+	maxWidth: '100%',
 	objectFit: 'contain',
 	pointerEvents: 'auto',
+	width: 'auto',
 });
 
 export const thumbImg = style({
@@ -81,50 +82,50 @@ export const thumbImg = style({
 });
 
 export const caption = style({
-	position: 'relative',
-	width: `calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px)`,
-	marginTop: 'var(--space-3)',
-	marginInline: 'auto',
-	marginLeft: 0,
+	color: 'var(--color-text)',
 	fontFamily: 'var(--font-body)',
 	fontSize: 'var(--font-size-xl)',
 	lineHeight: '100%',
-	color: 'var(--color-text)',
+	marginInline: 'auto',
+	marginLeft: 0,
+	marginTop: 'var(--space-3)',
+	position: 'relative',
 	textAlign: 'center',
 	textWrap: 'balance',
+	width: `calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px)`,
 });
 
 export const thumbBtn = style({
+	background: 'none',
+	border: 0,
+	cursor: 'pointer',
 	display: 'block',
-	width: '100%',
 	height: '100%',
 	padding: 0,
-	border: 0,
-	background: 'none',
-	textAlign: 'left',
-	cursor: 'pointer',
 	position: 'relative',
+	textAlign: 'left',
+	width: '100%',
 	zIndex: 1,
 });
 
 export const thumbTitle = style({
-	position: 'absolute',
-	left: 0,
-	right: 0,
+	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.5))',
 	bottom: 0,
-	padding: 'var(--space-4) var(--space-3) var(--space-2)',
 	color: '#fff',
 	fontFamily: 'var(--font-body)',
 	fontSize: 'var(--font-size-sm)',
-	textAlign: 'center',
-	textWrap: 'balance',
-	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.5))',
+	left: 0,
 	opacity: 0,
-	transition: 'opacity 200ms ease',
+	padding: 'var(--space-4) var(--space-3) var(--space-2)',
 	pointerEvents: 'none',
+	position: 'absolute',
+	right: 0,
 	selectors: {
 		[`.${thumbBtn}:hover &, .${thumbBtn}:focus-visible &`]: {
 			opacity: 1,
 		},
 	},
+	textAlign: 'center',
+	textWrap: 'balance',
+	transition: 'opacity 200ms ease',
 });

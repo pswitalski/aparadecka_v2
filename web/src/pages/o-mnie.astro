@@ -1,7 +1,8 @@
 ---
-import Layout from '../layouts/main.astro';
-import AboutSections from '../components/about/AboutSections.astro';
 import { sanityClient } from 'sanity:client';
+
+import AboutSections from '../components/about/AboutSections.astro';
+import Layout from '../layouts/main.astro';
 import { aboutQuery } from '../lib/queries';
 
 const data = await sanityClient.fetch(aboutQuery);

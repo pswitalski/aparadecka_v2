@@ -1,8 +1,10 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { staticGeometryOf, THUMB_STEP, toRect, type Rect, type Slot } from './geometry';
-import * as styles from './DesktopGallery.css';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
 import type { GalleryPainting } from '../adapter';
+
+import * as styles from './DesktopGallery.css';
+import { type Rect, type Slot, staticGeometryOf, THUMB_STEP, toRect } from './geometry';
 
 interface Props {
 	paintings: GalleryPainting[];
@@ -25,7 +27,7 @@ export default function DesktopGallery({ paintings }: Props) {
 		() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 		[],
 	);
-	const timerRef = useRef<number | null>(null);
+	const timerRef = useRef<null | number>(null);
 
 	const strip = order.slice(1);
 	const stackStrip = strip.slice(0, strip.length - visibleCount);
@@ -65,21 +67,21 @@ export default function DesktopGallery({ paintings }: Props) {
 	const thumbCellRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const stackCellRefs = useRef<(HTMLDivElement | null)[]>([]);
 	const [layout, setLayout] = useState<{
-		origin: Rect | null;
-		big: Rect | null;
-		thumbs: Rect[];
+		big: null | Rect;
+		origin: null | Rect;
 		stack: Rect[];
-	}>({ origin: null, big: null, thumbs: [], stack: [] });
+		thumbs: Rect[];
+	}>({ big: null, origin: null, stack: [], thumbs: [] });
 
 	useLayoutEffect(() => {
 		const measure = () => {
 			const origin = rootRef.current?.getBoundingClientRect();
 			const big = bigCellRef.current?.getBoundingClientRect();
 			setLayout({
-				origin: origin ? toRect(origin) : null,
 				big: big ? toRect(origin!, big) : null,
-				thumbs: thumbCellRefs.current.map((el) => (el ? toRect(origin!, el.getBoundingClientRect()) : null)).filter(Boolean) as Rect[],
+				origin: origin ? toRect(origin) : null,
 				stack: stackCellRefs.current.map((el) => (el ? toRect(origin!, el.getBoundingClientRect()) : null)).filter(Boolean) as Rect[],
+				thumbs: thumbCellRefs.current.map((el) => (el ? toRect(origin!, el.getBoundingClientRect()) : null)).filter(Boolean) as Rect[],
 			});
 		};
 		measure();
@@ -88,7 +90,7 @@ export default function DesktopGallery({ paintings }: Props) {
 		return () => ro.disconnect();
 	}, [order, total]);
 
-	const rectOf = (slot: Slot): Rect | null => {
+	const rectOf = (slot: Slot): null | Rect => {
 		if (slot.kind === 'big') return layout.big;
 		if (slot.kind === 'thumb') return layout.thumbs[slot.pos] ?? null;
 		return layout.stack[slot.pos] ?? null;
@@ -105,29 +107,29 @@ export default function DesktopGallery({ paintings }: Props) {
 					{stackStrip.map((_, i) => (
 						<div
 							className={`${styles.cell} ${styles.sideCell}`}
-							style={{ top: -((i + 1) * THUMB_STEP) }}
 							key={i}
 							ref={(el) => {
 								stackCellRefs.current[i] = el;
 							}}
+							style={{ top: -((i + 1) * THUMB_STEP) }}
 						/>
 					))}
 					{visibleStrip.map((_, i) => (
 						<div
 							className={`${styles.cell} ${styles.sideCell}`}
-							style={{ top: i * THUMB_STEP }}
 							key={i}
+							onMouseEnter={() => setPaused(true)}
+							onMouseLeave={() => setPaused(false)}
 							ref={(el) => {
 								thumbCellRefs.current[i] = el;
 							}}
-							onMouseEnter={() => setPaused(true)}
-							onMouseLeave={() => setPaused(false)}
+							style={{ top: i * THUMB_STEP }}
 						>
 							<button
-								type="button"
-								className={styles.thumbBtn}
 								aria-label={`Pokaż: ${paintings[visibleStrip[i]].title ?? 'obraz bez tytułu'}`}
+								className={styles.thumbBtn}
 								onClick={() => select(visibleStrip[i])}
+								type="button"
 							>
 								<span className={styles.thumbTitle}>{paintings[visibleStrip[i]].title ?? 'Bez tytułu'}</span>
 							</button>
@@ -143,20 +145,20 @@ export default function DesktopGallery({ paintings }: Props) {
 						const staticGeom = staticGeometryOf(slot);
 						return (
 							<motion.div
-								key={paintings[idx].id}
+								animate={
+									rect
+										? { height: rect.height, left: rect.left, top: rect.top, width: rect.width }
+										: undefined
+								}
 								className={styles.item}
+								initial={false}
+								key={paintings[idx].id}
 								style={{
+									height: staticGeom.height,
 									left: staticGeom.left,
 									top: staticGeom.top,
 									width: staticGeom.width,
-									height: staticGeom.height,
 								}}
-								initial={false}
-								animate={
-									rect
-										? { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
-										: undefined
-								}
 								transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
 							>
 								{isBig ? (
@@ -166,18 +168,18 @@ export default function DesktopGallery({ paintings }: Props) {
 										onMouseLeave={() => setPaused(false)}
 									>
 										<motion.img
-											src={paintings[idx].image}
 											alt={paintings[idx].title ?? ''}
 											className={`${styles.galleryImg} ${styles.bigImg}`}
 											loading="lazy"
+											src={paintings[idx].image}
 										/>
 									</div>
 								) : (
 									<motion.img
-										src={paintings[idx].image}
 										alt={paintings[idx].title ?? ''}
 										className={`${styles.galleryImg} ${styles.thumbImg}`}
 										loading="lazy"
+										src={paintings[idx].image}
 									/>
 								)}
 							</motion.div>
@@ -185,7 +187,7 @@ export default function DesktopGallery({ paintings }: Props) {
 					})}
 				</div>
 
-				<p className={styles.caption} aria-live="off">
+				<p aria-live="off" className={styles.caption}>
 					{big?.caption}
 				</p>
 			</div>
