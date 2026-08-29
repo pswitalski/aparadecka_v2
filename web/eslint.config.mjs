@@ -5,11 +5,19 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default [
-  {ignores: ['dist', '.astro', 'node_modules']},
+  {ignores: ['dist', '.astro', 'node_modules', 'sanity.types.ts']},
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   perfectionist.configs['recommended-natural'],
+  {
+    rules: {
+      // These reorder module-level declarations alphabetically, which can
+      // introduce TDZ ReferenceErrors (const used before its definition).
+      'perfectionist/sort-modules': 'off',
+      'perfectionist/sort-variable-declarations': 'off',
+    },
+  },
   {
     languageOptions: {
       globals: {
