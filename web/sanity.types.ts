@@ -14,313 +14,34 @@
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
-export type About = {
-  _createdAt: string;
+// Source: schema.json
+export type Site = {
   _id: string;
-  _rev: string;
-  _type: "about";
+  _type: "site";
+  _createdAt: string;
   _updatedAt: string;
-  sections?: Array<
-    AboutBlock & {
-      _key: string;
-    }
-  >;
+  _rev: string;
   title?: string;
+  siteTitle?: string;
+  description?: string;
+  keywords?: Array<string>;
 };
-
-export type AboutBlock = {
-  _type: "aboutBlock";
-  highlighted?: boolean;
-  image?: {
-    _type: "image";
-    alt?: string;
-    asset?: SanityImageAssetReference;
-    crop?: SanityImageCrop;
-    hotspot?: SanityImageHotspot;
-    media?: unknown;
-    title?: string;
-  };
-  imagePositionDesktop?: "left" | "right";
-  imagePositionMobile?: "above" | "under";
-  text?: Array<{
-    _key: string;
-    _type: "block";
-    children?: Array<{
-      _key: string;
-      _type: "span";
-      marks?: Array<string>;
-      text?: string;
-    }>;
-    level?: number;
-    listItem?: "bullet";
-    markDefs?: Array<{
-      _key: string;
-      _type: "link";
-      href?: string;
-    }>;
-    style?: "big" | "h2" | "h3" | "normal" | "small";
-  }>;
-  textAlign?: "center" | "left" | "right";
-};
-
-// Source: ../web/src/lib/queries.ts
-// Variable: aboutQuery
-// Query: *[_type == "about"][0]{  "sections": sections[]{    _key,    _type,    text,    highlighted,    imagePositionDesktop,    imagePositionMobile,    textAlign,    image{      "asset": asset,      alt,      title    }  }}
-export type AboutQueryResult = null | {
-  sections: Array<{
-    _key: string;
-    _type: "aboutBlock";
-    highlighted: boolean | null;
-    image: null | {
-      alt: null | string;
-      asset: null | SanityImageAssetReference;
-      title: null | string;
-    };
-    imagePositionDesktop: "left" | "right" | null;
-    imagePositionMobile: "above" | "under" | null;
-    text: Array<{
-      _key: string;
-      _type: "block";
-      children?: Array<{
-        _key: string;
-        _type: "span";
-        marks?: Array<string>;
-        text?: string;
-      }>;
-      level?: number;
-      listItem?: "bullet";
-      markDefs?: Array<{
-        _key: string;
-        _type: "link";
-        href?: string;
-      }>;
-      style?: "big" | "h2" | "h3" | "normal" | "small";
-    }> | null;
-    textAlign: "center" | "left" | "right" | null;
-  }> | null;
-};
-
-export type AllSanitySchemaTypes =
-  | About
-  | AboutBlock
-  | Collection
-  | Contact
-  | Geopoint
-  | Home
-  | Painting
-  | PaintingReference
-  | SanityAssetSourceData
-  | SanityFileAsset
-  | SanityImageAsset
-  | SanityImageAssetReference
-  | SanityImageCrop
-  | SanityImageDimensions
-  | SanityImageHotspot
-  | SanityImageMetadata
-  | SanityImagePalette
-  | SanityImagePaletteSwatch
-  | Site
-  | Slug
-  | SocialLink;
-
-export type Collection = {
-  _createdAt: string;
-  _id: string;
-  _rev: string;
-  _type: "collection";
-  _updatedAt: string;
-  paintings?: Array<
-    PaintingReference & {
-      _key: string;
-    }
-  >;
-  thumbnail?: PaintingReference;
-  year?: number;
-};
-
-// Source: ../web/src/lib/queries.ts
-// Variable: collectionByYearQuery
-// Query: *[_type == "collection" && year == $year][0]{  year,  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }}
-export type CollectionByYearQueryResult = null | {
-  paintings: Array<{
-    _id: string;
-    dimensions: null | string;
-    mainImage: null | {
-      _type: "image";
-      asset?: SanityImageAssetReference;
-      crop?: SanityImageCrop;
-      hotspot?: SanityImageHotspot;
-      media?: unknown;
-    };
-    medium: null | string;
-    support: null | string;
-    title: null | string;
-    year: null | number;
-  }> | null;
-  year: null | number;
-};
-
-// Source: ../web/src/lib/queries.ts
-// Variable: collectionsQuery
-// Query: *[_type == "collection"] | order(year desc){  year,  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }}
-export type CollectionsQueryResult = Array<{
-  thumbnail: null | {
-    _id: string;
-    dimensions: null | string;
-    mainImage: null | {
-      _type: "image";
-      asset?: SanityImageAssetReference;
-      crop?: SanityImageCrop;
-      hotspot?: SanityImageHotspot;
-      media?: unknown;
-    };
-    medium: null | string;
-    support: null | string;
-    title: null | string;
-    year: null | number;
-  };
-  year: null | number;
-}>;
 
 export type Contact = {
-  _createdAt: string;
   _id: string;
-  _rev: string;
   _type: "contact";
+  _createdAt: string;
   _updatedAt: string;
+  _rev: string;
+  title?: string;
   email?: SocialLink;
-  facebook?: SocialLink;
   instagram?: SocialLink;
-  title?: string;
+  facebook?: SocialLink;
 };
 
-// Source: ../web/src/lib/queries.ts
-// Variable: contactQuery
-// Query: *[_type == "contact"][0]{  email,  instagram,  facebook}
-export type ContactQueryResult = null | {
-  email: null | SocialLink;
-  facebook: null | SocialLink;
-  instagram: null | SocialLink;
-};
-
-// Source: ../web/src/lib/queries.ts
-// Variable: featuredPaintingsQuery
-// Query: *[_type == "home"][0]{  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }}
-export type FeaturedPaintingsQueryResult = null | {
-  featuredPaintings: Array<{
-    _id: string;
-    dimensions: null | string;
-    mainImage: null | {
-      _type: "image";
-      asset?: SanityImageAssetReference;
-      crop?: SanityImageCrop;
-      hotspot?: SanityImageHotspot;
-      media?: unknown;
-    };
-    medium: null | string;
-    support: null | string;
-    title: null | string;
-    year: null | number;
-  }> | null;
-};
-
-export type Geopoint = {
-  _type: "geopoint";
-  alt?: number;
-  lat?: number;
-  lng?: number;
-};
-
-export type Home = {
-  _createdAt: string;
-  _id: string;
-  _rev: string;
-  _type: "home";
-  _updatedAt: string;
-  featured?: Array<
-    PaintingReference & {
-      _key: string;
-    }
-  >;
-  title?: string;
-};
-
-export type Painting = {
-  _createdAt: string;
-  _id: string;
-  _rev: string;
-  _type: "painting";
-  _updatedAt: string;
-  dimensions?: string;
-  mainImage?: {
-    _type: "image";
-    asset?: SanityImageAssetReference;
-    crop?: SanityImageCrop;
-    hotspot?: SanityImageHotspot;
-    media?: unknown;
-  };
-  medium?: string;
-  support?: string;
-  title?: string;
-  year?: number;
-};
-
-export type PaintingReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "painting";
-};
-
-export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
-  id?: string;
-  name?: string;
-  url?: string;
-};
-
-export type SanityFileAsset = {
-  _createdAt: string;
-  _id: string;
-  _rev: string;
-  _type: "sanity.fileAsset";
-  _updatedAt: string;
-  altText?: string;
-  assetId?: string;
-  description?: string;
-  extension?: string;
+export type SocialLink = {
+  _type: "socialLink";
   label?: string;
-  mimeType?: string;
-  originalFilename?: string;
-  path?: string;
-  sha1hash?: string;
-  size?: number;
-  source?: SanityAssetSourceData;
-  title?: string;
-  uploadId?: string;
-  url?: string;
-};
-
-export type SanityImageAsset = {
-  _createdAt: string;
-  _id: string;
-  _rev: string;
-  _type: "sanity.imageAsset";
-  _updatedAt: string;
-  altText?: string;
-  assetId?: string;
-  description?: string;
-  extension?: string;
-  label?: string;
-  metadata?: SanityImageMetadata;
-  mimeType?: string;
-  originalFilename?: string;
-  path?: string;
-  sha1hash?: string;
-  size?: number;
-  source?: SanityAssetSourceData;
-  title?: string;
-  uploadId?: string;
   url?: string;
 };
 
@@ -331,50 +52,125 @@ export type SanityImageAssetReference = {
   [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
+export type AboutBlock = {
+  _type: "aboutBlock";
+  text?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "h2" | "h3" | "big" | "normal" | "small";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  highlighted?: boolean;
+  imagePositionDesktop?: "left" | "right";
+  imagePositionMobile?: "above" | "under";
+  textAlign?: "left" | "center" | "right";
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    title?: string;
+    _type: "image";
+  };
+};
+
+export type About = {
+  _id: string;
+  _type: "about";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  sections?: Array<
+    {
+      _key: string;
+    } & AboutBlock
+  >;
+};
+
 export type SanityImageCrop = {
   _type: "sanity.imageCrop";
+  top?: number;
   bottom?: number;
   left?: number;
   right?: number;
-  top?: number;
-};
-
-export type SanityImageDimensions = {
-  _type: "sanity.imageDimensions";
-  aspectRatio?: number;
-  height?: number;
-  width?: number;
 };
 
 export type SanityImageHotspot = {
   _type: "sanity.imageHotspot";
-  height?: number;
-  width?: number;
   x?: number;
   y?: number;
+  height?: number;
+  width?: number;
 };
 
-export type SanityImageMetadata = {
-  _type: "sanity.imageMetadata";
-  blurHash?: string;
-  dimensions?: SanityImageDimensions;
-  hasAlpha?: boolean;
-  isOpaque?: boolean;
-  location?: Geopoint;
-  lqip?: string;
-  palette?: SanityImagePalette;
-  thumbHash?: string;
+export type PaintingReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "painting";
 };
 
-export type SanityImagePalette = {
-  _type: "sanity.imagePalette";
-  darkMuted?: SanityImagePaletteSwatch;
-  darkVibrant?: SanityImagePaletteSwatch;
-  dominant?: SanityImagePaletteSwatch;
-  lightMuted?: SanityImagePaletteSwatch;
-  lightVibrant?: SanityImagePaletteSwatch;
-  muted?: SanityImagePaletteSwatch;
-  vibrant?: SanityImagePaletteSwatch;
+export type Home = {
+  _id: string;
+  _type: "home";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  featured?: Array<
+    {
+      _key: string;
+    } & PaintingReference
+  >;
+};
+
+export type Collection = {
+  _id: string;
+  _type: "collection";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  year?: number;
+  thumbnail?: PaintingReference;
+  paintings?: Array<
+    {
+      _key: string;
+    } & PaintingReference
+  >;
+};
+
+export type Painting = {
+  _id: string;
+  _type: "painting";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  year?: number;
+  medium?: string;
+  support?: string;
+  dimensions?: string;
+  mainImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
 };
 
 export type SanityImagePaletteSwatch = {
@@ -385,26 +181,93 @@ export type SanityImagePaletteSwatch = {
   title?: string;
 };
 
-// Source: schema.json
-export type Site = {
-  _createdAt: string;
-  _id: string;
-  _rev: string;
-  _type: "site";
-  _updatedAt: string;
-  description?: string;
-  keywords?: Array<string>;
-  siteTitle?: string;
-  title?: string;
+export type SanityImagePalette = {
+  _type: "sanity.imagePalette";
+  darkMuted?: SanityImagePaletteSwatch;
+  lightVibrant?: SanityImagePaletteSwatch;
+  darkVibrant?: SanityImagePaletteSwatch;
+  vibrant?: SanityImagePaletteSwatch;
+  dominant?: SanityImagePaletteSwatch;
+  lightMuted?: SanityImagePaletteSwatch;
+  muted?: SanityImagePaletteSwatch;
 };
 
-// Source: ../web/src/lib/queries.ts
-// Variable: siteQuery
-// Query: *[_type == "site"][0]{  siteTitle,  description,  keywords}
-export type SiteQueryResult = null | {
-  description: null | string;
-  keywords: Array<string> | null;
-  siteTitle: null | string;
+export type SanityImageDimensions = {
+  _type: "sanity.imageDimensions";
+  height?: number;
+  width?: number;
+  aspectRatio?: number;
+};
+
+export type SanityImageMetadata = {
+  _type: "sanity.imageMetadata";
+  location?: Geopoint;
+  dimensions?: SanityImageDimensions;
+  palette?: SanityImagePalette;
+  lqip?: string;
+  blurHash?: string;
+  thumbHash?: string;
+  hasAlpha?: boolean;
+  isOpaque?: boolean;
+};
+
+export type SanityFileAsset = {
+  _id: string;
+  _type: "sanity.fileAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  originalFilename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  altText?: string;
+  sha1hash?: string;
+  extension?: string;
+  mimeType?: string;
+  size?: number;
+  assetId?: string;
+  uploadId?: string;
+  path?: string;
+  url?: string;
+  source?: SanityAssetSourceData;
+};
+
+export type SanityAssetSourceData = {
+  _type: "sanity.assetSourceData";
+  name?: string;
+  id?: string;
+  url?: string;
+};
+
+export type SanityImageAsset = {
+  _id: string;
+  _type: "sanity.imageAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  originalFilename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  altText?: string;
+  sha1hash?: string;
+  extension?: string;
+  mimeType?: string;
+  size?: number;
+  assetId?: string;
+  uploadId?: string;
+  path?: string;
+  url?: string;
+  metadata?: SanityImageMetadata;
+  source?: SanityAssetSourceData;
+};
+
+export type Geopoint = {
+  _type: "geopoint";
+  lat?: number;
+  lng?: number;
+  alt?: number;
 };
 
 export type Slug = {
@@ -413,21 +276,158 @@ export type Slug = {
   source?: string;
 };
 
-export type SocialLink = {
-  _type: "socialLink";
-  label?: string;
-  url?: string;
-};
+export type AllSanitySchemaTypes =
+  | Site
+  | Contact
+  | SocialLink
+  | SanityImageAssetReference
+  | AboutBlock
+  | About
+  | SanityImageCrop
+  | SanityImageHotspot
+  | PaintingReference
+  | Home
+  | Collection
+  | Painting
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageMetadata
+  | SanityFileAsset
+  | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint
+  | Slug;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: featuredPaintingsQuery
+// Query: *[_type == "home"][0]{  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }}
+export type FeaturedPaintingsQueryResult = {
+  featuredPaintings: Array<{
+    _id: string;
+    title: string | null;
+    year: number | null;
+    medium: string | null;
+    support: string | null;
+    dimensions: string | null;
+    mainImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  }> | null;
+} | null;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: collectionsQuery
+// Query: *[_type == "collection"] | order(year desc){  year,  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }}
+export type CollectionsQueryResult = Array<{
+  year: number | null;
+  thumbnail: {
+    _id: string;
+    title: string | null;
+    year: number | null;
+    medium: string | null;
+    support: string | null;
+    dimensions: string | null;
+    mainImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
+}>;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: collectionByYearQuery
+// Query: *[_type == "collection" && year == $year][0]{  year,  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }}
+export type CollectionByYearQueryResult = {
+  year: number | null;
+  paintings: Array<{
+    _id: string;
+    title: string | null;
+    year: number | null;
+    medium: string | null;
+    support: string | null;
+    dimensions: string | null;
+    mainImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  }> | null;
+} | null;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: aboutQuery
+// Query: *[_type == "about"][0]{  "sections": sections[]{    _key,    _type,    text,    highlighted,    imagePositionDesktop,    imagePositionMobile,    textAlign,    image{      "asset": asset,      alt,      title    }  }}
+export type AboutQueryResult = {
+  sections: Array<{
+    _key: string;
+    _type: "aboutBlock";
+    text: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "big" | "h2" | "h3" | "normal" | "small";
+      listItem?: "bullet";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+    highlighted: boolean | null;
+    imagePositionDesktop: "left" | "right" | null;
+    imagePositionMobile: "above" | "under" | null;
+    textAlign: "center" | "left" | "right" | null;
+    image: {
+      asset: SanityImageAssetReference | null;
+      alt: string | null;
+      title: string | null;
+    } | null;
+  }> | null;
+} | null;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: contactQuery
+// Query: *[_type == "contact"][0]{  email,  instagram,  facebook}
+export type ContactQueryResult = {
+  email: SocialLink | null;
+  instagram: SocialLink | null;
+  facebook: SocialLink | null;
+} | null;
+
+// Source: ../web/src/lib/queries.ts
+// Variable: siteQuery
+// Query: *[_type == "site"][0]{  siteTitle,  description,  keywords}
+export type SiteQueryResult = {
+  siteTitle: string | null;
+  description: string | null;
+  keywords: Array<string> | null;
+} | null;
 
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    highlighted,\n    imagePositionDesktop,\n    imagePositionMobile,\n    textAlign,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
-    '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
-    '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
-    '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;
     '*[_type == "home"][0]{\n  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': FeaturedPaintingsQueryResult;
+    '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
+    '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
+    '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    highlighted,\n    imagePositionDesktop,\n    imagePositionMobile,\n    textAlign,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
+    '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;
     '*[_type == "site"][0]{\n  siteTitle,\n  description,\n  keywords\n}': SiteQueryResult;
   }
 }
