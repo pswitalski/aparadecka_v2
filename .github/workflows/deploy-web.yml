@@ -28,6 +28,7 @@ jobs:
     steps:
       - name: Resolve branch
         id: branch
+        working-directory: .
         run: echo "BRANCH=${{ github.event.client_payload.branch || github.event.inputs.branch || 'master' }}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4.4.0
