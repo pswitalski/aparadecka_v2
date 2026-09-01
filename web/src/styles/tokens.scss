@@ -49,10 +49,10 @@
 
 	/* Breakpoints */
 	/* Runtime value for JS (read via getComputedStyle) — derived from
-	   $breakpoints.nav in _breakpoints.scss (single source of truth).
+	   $breakpoints.mobile in _breakpoints.scss (single source of truth).
 	   CSS custom properties can't be used in media queries, so components
 	   use the min-width/max-width mixins instead. */
-	--breakpoint-nav: #{map.get(breakpoints.$breakpoints, nav)};
+	--breakpoint-mobile: #{map.get(breakpoints.$breakpoints, mobile)};
 
 	/* Focus */
 	--focus-ring-width: 2px;

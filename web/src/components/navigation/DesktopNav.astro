@@ -17,8 +17,8 @@ const { links } = Astro.props;
 <style lang="scss">
 	@use '../../styles/breakpoints';
 
-	/* Below $breakpoints.nav — desktop nav is hidden */
-	@include breakpoints.max-width(nav) {
+	/* Below $breakpoints.mobile — desktop nav is hidden */
+	@include breakpoints.max-width(mobile) {
 		.desktop-nav {
 			display: none;
 		}

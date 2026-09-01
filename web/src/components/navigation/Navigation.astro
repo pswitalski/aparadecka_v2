@@ -46,8 +46,8 @@ const isHome = Astro.url.pathname.replace(/\/+$/, '') === '';
 		outline-offset: var(--focus-ring-offset);
 	}
 
-	/* Below $breakpoints.nav — mobile header height + nav font size */
-	@include breakpoints.max-width(nav) {
+	/* Below $breakpoints.mobile — mobile header height + nav font size */
+	@include breakpoints.max-width(mobile) {
 		.site-header {
 			height: var(--header-height-mobile);
 		}

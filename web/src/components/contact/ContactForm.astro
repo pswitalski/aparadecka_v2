@@ -176,8 +176,28 @@
 		clip-path: polygon(0 0, 0 100%, 100% 100%);
 	}
 
+	/* Tablet: bigger desktop-style envelope (more room), flap apex kept inside the section */
+	@include breakpoints.max-width(tablet) {
+		.contact-form {
+			--figure-mt: 112px;
+			--env-gap-top: 88px;
+			--flap-h: 197px;
+			--flap-above: 109px;
+			--fold-top: 98px;
+
+			--field-top: 36px;
+			--field-h: 40px;
+			--label-gap: 11px;
+			--field-gap: 20px;
+			--textarea-h: 72px;
+			--submit-h: 44px;
+			--submit-gap: 18px;
+			--card-pad-b: 24px;
+		}
+	}
+
 	/* Phone: compact envelope over a slim fold, larger touch targets */
-	@include breakpoints.max-width(nav) {
+	@include breakpoints.max-width(mobile) {
 		.contact-form {
 			--figure-mt: 105px;
 
@@ -185,8 +205,8 @@
 			--env-overhang-r: 18px;
 			--env-overhang-b: 10px;
 			--env-gap-top: 140px;
-			--flap-h: 213px;
-			--flap-above: 72px;
+			--flap-h: 192px;
+			--flap-above: 52px;
 
 			--card-left: 11px;
 			--card-w: min(calc(100vw - 64px), 352px);

@@ -78,7 +78,7 @@ const links = (
 		.contact-page__grid {
 			flex-direction: column;
 			align-items: center;
-			gap: 56px;
+			gap: 36px;
 			padding: 24px var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
 			min-height: calc(100vh - var(--header-height));
 			min-height: calc(100dvh - var(--header-height));
@@ -86,12 +86,12 @@ const links = (
 
 		.contact-page__grid > :global(.social-links) {
 			margin-top: auto;
-			margin-bottom: 32px;
+			margin-bottom: 12px;
 		}
 	}
 
 	/* Phone: the header is shorter, so re-measure the viewport fill */
-	@include breakpoints.max-width(nav) {
+	@include breakpoints.max-width(mobile) {
 		.contact-page__grid {
 			min-height: calc(100vh - var(--header-height-mobile));
 			min-height: calc(100dvh - var(--header-height-mobile));

@@ -50,8 +50,8 @@ const { id = 'mobile-menu', links } = Astro.props;
 		background-color: var(--color-panel);
 	}
 
-	/* Below $breakpoints.nav — mobile menu is active */
-	@include breakpoints.max-width(nav) {
+	/* Below $breakpoints.mobile — mobile menu is active */
+	@include breakpoints.max-width(mobile) {
 		.menu-toggle-wrap {
 			display: block;
 		}
@@ -129,8 +129,8 @@ const { id = 'mobile-menu', links } = Astro.props;
 		}
 	}
 
-	/* At/above $breakpoints.nav — mobile menu is hidden */
-	@include breakpoints.min-width(nav) {
+	/* At/above $breakpoints.mobile — mobile menu is hidden */
+	@include breakpoints.min-width(mobile) {
 		.menu-toggle-wrap,
 		.mobile-menu {
 			display: none;
@@ -224,7 +224,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 		});
 
 		const breakpoint = Number.parseInt(
-			getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-nav'),
+			getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-mobile'),
 			10,
 		);
 		const desktopQuery = window.matchMedia(`(min-width: ${Number.isNaN(breakpoint) ? 768 : breakpoint}px)`);
