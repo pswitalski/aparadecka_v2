@@ -1,7 +1,8 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 import type { NavLink } from './links';
 
-import Icon from '../Icon.astro';
 import IconButton from '../IconButton.astro';
 import NavLinks from './NavLinks.astro';
 
@@ -20,13 +21,13 @@ const { id = 'mobile-menu', links } = Astro.props;
 		data-menu-toggle
 		label="Otwórz menu"
 	>
-		<Icon name="menu" />
+		<Icon height={12} name="menu" width={25} />
 	</IconButton>
 </div>
 
 <dialog aria-label="Menu" class="mobile-menu" id={id}>
 	<IconButton class="menu-close" data-menu-close label="Zamknij menu">
-		<Icon name="close" />
+		<Icon height={26.25} name="close" width={26.25} />
 	</IconButton>
 	<nav aria-label="Nawigacja mobilna">
 		<NavLinks links={links} />
