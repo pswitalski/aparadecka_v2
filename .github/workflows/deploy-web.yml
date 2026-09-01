@@ -31,6 +31,20 @@ jobs:
         working-directory: .
         run: echo "BRANCH=${{ github.event.client_payload.branch || github.event.inputs.branch || 'master' }}" >> "$GITHUB_OUTPUT"
 
+      - name: Report deploy started
+        working-directory: .
+        env:
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+        run: |
+          if [ -z "$SANITY_API_TOKEN" ]; then echo "Skipping status report (no SANITY_API_TOKEN)"; exit 0; fi
+          BRANCH="${{ steps.branch.outputs.BRANCH }}"
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:"in_progress",startedAt:$now,updatedAt:$now}}]}')"
+          curl -sS -X POST "https://w73pc8ge.api.sanity.io/v2021-06-07/data/mutate/production" \
+            -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data-binary "$PAYLOAD"
+
       - uses: actions/checkout@v4.4.0
         with:
           ref: ${{ steps.branch.outputs.BRANCH }}
@@ -64,3 +78,27 @@ jobs:
         env:
           DEPLOYMENT_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
         run: echo "Deployed to $DEPLOYMENT_URL"
+
+      - name: Report deploy result
+        if: always()
+        working-directory: .
+        env:
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+        run: |
+          if [ -z "$SANITY_API_TOKEN" ]; then echo "Skipping status report (no SANITY_API_TOKEN)"; exit 0; fi
+          BRANCH="${{ steps.branch.outputs.BRANCH }}"
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          RUN_URL="https://github.com/pswitalski/aparadecka_v2/actions/runs/${{ github.run_id }}"
+          STATUS="failed"
+          MESSAGE="The deploy workflow failed. Check GitHub Actions: ${RUN_URL}"
+          DEPLOY_URL=""
+          if [ "${{ steps.deploy.outcome }}" = "success" ]; then
+            STATUS="success"
+            DEPLOY_URL="${{ steps.deploy.outputs.pages-deployment-alias-url }}"
+            MESSAGE=""
+          fi
+          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg status "$STATUS" --arg message "$MESSAGE" --arg deployUrl "$DEPLOY_URL" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:$status,message:$message,deployUrl:$deployUrl,updatedAt:$now}}]}')"
+          curl -sS -X POST "https://w73pc8ge.api.sanity.io/v2021-06-07/data/mutate/production" \
+            -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data-binary "$PAYLOAD"
