@@ -35,10 +35,10 @@ const links = (
 ---
 
 <Layout title="Kontakt">
-	<section class="kontakt">
-		<div class="kontakt__inner">
+	<section class="contact-page">
+		<div class="contact-page__inner">
 			<h1 class="visually-hidden">Kontakt</h1>
-			<div class="kontakt__grid">
+			<div class="contact-page__grid">
 				<ContactForm />
 				{links.length > 0 && <SocialLinks links={links} />}
 			</div>
@@ -49,7 +49,7 @@ const links = (
 <style lang="scss">
 	@use '../styles/breakpoints';
 
-	.kontakt {
+	.contact-page {
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
 		margin-top: calc(-1 * var(--space-4));
@@ -57,24 +57,44 @@ const links = (
 		overflow-x: clip;
 	}
 
-	.kontakt__inner {
+	.contact-page__inner {
 		max-width: var(--container-width);
 		margin-inline: auto;
 	}
 
-	.kontakt__grid {
+	.contact-page__grid {
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
 		padding: 24px var(--space-4) 46px;
 	}
 
-	@include breakpoints.max-width(nav) {
-		.kontakt__grid {
+	/* Tablet (and below): stack the section, fill the viewport, anchor icons to the bottom */
+	@include breakpoints.max-width(tablet) {
+		.contact-page {
+			margin-bottom: calc(-1 * var(--space-4));
+		}
+
+		.contact-page__grid {
 			flex-direction: column;
 			align-items: center;
 			gap: 56px;
-			padding: 24px var(--space-4) 40px;
+			padding: 24px var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
+			min-height: calc(100vh - var(--header-height));
+			min-height: calc(100dvh - var(--header-height));
+		}
+
+		.contact-page__grid > :global(.social-links) {
+			margin-top: auto;
+			margin-bottom: 32px;
+		}
+	}
+
+	/* Phone: the header is shorter, so re-measure the viewport fill */
+	@include breakpoints.max-width(nav) {
+		.contact-page__grid {
+			min-height: calc(100vh - var(--header-height-mobile));
+			min-height: calc(100dvh - var(--header-height-mobile));
 		}
 	}
 </style>

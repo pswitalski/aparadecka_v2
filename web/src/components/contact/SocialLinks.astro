@@ -33,17 +33,25 @@ const { links } = Astro.props;
 		gap: 22px;
 	}
 
-	/* Mobile: centred row of icons, no labels */
-	@include breakpoints.max-width(nav) {
+	/* Tablet/mobile: centred row of icons, no labels */
+	@include breakpoints.max-width(tablet) {
 		.social-links {
-			--social-size: 63px;
-			--social-icon: 38px;
+			--social-size: 68px;
+			--social-icon: 40px;
 			--social-bg: #d9d9d9;
 
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
 			gap: 50px;
+		}
+	}
+
+	/* Phone: slightly smaller icons */
+	@include breakpoints.max-width(nav) {
+		.social-links {
+			--social-size: 63px;
+			--social-icon: 38px;
 		}
 	}
 </style>

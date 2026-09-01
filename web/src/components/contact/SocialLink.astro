@@ -88,8 +88,8 @@ const resolvedLabel = label ?? key;
 		outline-offset: var(--focus-ring-offset);
 	}
 
-	/* Labels are hidden below the mobile breakpoint (icons-only row) */
-	@include breakpoints.max-width(nav) {
+	/* Labels are hidden below the tablet breakpoint (icons-only row) */
+	@include breakpoints.max-width(tablet) {
 		.social-link__label {
 			display: none;
 		}

@@ -47,6 +47,7 @@
 	--card-w: 631px;
 
 	--fold-top: 98px;
+	--fold-width: 50%;
 
 	--field-w: 272px;
 	--field-right: 40px;
@@ -169,13 +170,13 @@
 		position: absolute;
 		left: calc(-1 * var(--card-left));
 		top: var(--fold-top);
-		width: 50%;
+		width: var(--fold-width);
 		height: calc(100% - var(--fold-top) + var(--env-overhang-b));
 		background-color: var(--env-bg);
 		clip-path: polygon(0 0, 0 100%, 100% 100%);
 	}
 
-	/* Mobile: smaller envelope figure, right-aligned compact form, scaled fold */
+	/* Phone: compact envelope over a slim fold, larger touch targets */
 	@include breakpoints.max-width(nav) {
 		.contact-form {
 			--figure-mt: 105px;
@@ -188,20 +189,21 @@
 			--flap-above: 60px;
 
 			--card-left: 11px;
-			--card-w: 333px;
+			--card-w: min(calc(100vw - 64px), 352px);
 
 			--fold-top: 7px;
+			--fold-width: 32%;
 
-			--field-w: 168px;
+			--field-w: 65%;
 			--field-right: 12px;
-			--field-top: 20px;
-			--field-h: 34px;
+			--field-top: 22px;
+			--field-h: 40px;
 			--label-gap: 6px;
 			--field-gap: 12px;
-			--textarea-h: 52px;
-			--submit-h: 36px;
-			--submit-gap: 12px;
-			--card-pad-b: 14px;
+			--textarea-h: 60px;
+			--submit-h: 46px;
+			--submit-gap: 14px;
+			--card-pad-b: 16px;
 		}
 	}
 </style>
