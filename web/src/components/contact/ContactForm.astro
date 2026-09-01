@@ -1,0 +1,207 @@
+<section class="contact-form">
+	<div class="contact-form__figure">
+		<span aria-hidden="true" class="contact-form__flap"></span>
+		<div class="contact-form__envelope"></div>
+		<div class="contact-form__card">
+			<form action="#" class="contact-form__form">
+				<div class="contact-form__field">
+					<label for="imie">Imię</label>
+					<input id="imie" name="imie" type="text" />
+				</div>
+				<div class="contact-form__field">
+					<label for="nazwisko">Nazwisko</label>
+					<input id="nazwisko" name="nazwisko" type="text" />
+				</div>
+				<div class="contact-form__field">
+					<label for="email">E-mail</label>
+					<input id="email" name="email" type="email" />
+				</div>
+				<div class="contact-form__field">
+					<label for="wiadomosc">Wiadomość</label>
+					<textarea id="wiadomosc" name="wiadomosc"></textarea>
+				</div>
+				<button class="contact-form__submit" type="submit">Wyślij</button>
+			</form>
+			<span aria-hidden="true" class="contact-form__fold"></span>
+		</div>
+	</div>
+</section>
+
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
+.contact-form {
+	/* Envelope figure — card auto-sizes, envelope sits behind, flap on top */
+	--figure-mt: 121px; /* pushes card down so the flap apex sits inside the band */
+
+	--env-bg: #d9d9d9;
+	--env-edge-shadow: inset -28px -5px 0 #d3d3d3;
+	--env-overhang-r: 30px;
+	--env-overhang-b: 20px;
+
+	--env-gap-top: 88px; /* envelope body top below the card top */
+	--flap-h: 197px;
+	--flap-above: 109px; /* flap apex above the card top */
+
+	--card-left: 20px;
+	--card-w: 631px;
+
+	--fold-top: 98px;
+
+	--field-w: 272px;
+	--field-right: 40px;
+	--field-top: 44px;
+	--field-h: 40px;
+	--label-gap: 13px;
+	--field-gap: 25px;
+	--textarea-h: 80px;
+	--submit-h: 40px;
+	--submit-gap: 25px;
+	--card-pad-b: 27px;
+}
+
+.contact-form__figure {
+	position: relative;
+	margin-top: var(--figure-mt);
+	width: calc(var(--card-left) + var(--card-w) + var(--env-overhang-r));
+}
+
+	.contact-form__envelope {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: var(--env-gap-top);
+		bottom: calc(-1 * var(--env-overhang-b));
+		background-color: var(--env-bg);
+		box-shadow: var(--env-edge-shadow);
+	}
+
+	/* Open flap: triangle whose base spans the envelope top, apex above the card */
+	.contact-form__flap {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: calc(-1 * var(--flap-above));
+		height: var(--flap-h);
+		background-color: #e3dddd;
+		clip-path: polygon(50% 0, 0 100%, 100% 100%);
+	}
+
+	.contact-form__card {
+		position: relative;
+		margin-left: var(--card-left);
+		width: var(--card-w);
+		background-color: #ffffff;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+	}
+
+	.contact-form__form {
+		width: var(--field-w);
+		margin-left: auto;
+		margin-right: var(--field-right);
+		padding-top: var(--field-top);
+		padding-bottom: var(--card-pad-b);
+
+		font-family: var(--font-sans);
+	}
+
+	.contact-form__field {
+		margin-bottom: var(--field-gap);
+	}
+
+	.contact-form__field label {
+		display: block;
+		margin-bottom: var(--label-gap);
+		font-size: 0.8125rem;
+		line-height: 1.2;
+		color: var(--color-text);
+	}
+
+	.contact-form__field input,
+	.contact-form__field textarea {
+		width: 100%;
+		border: 1px solid #ececec;
+		border-radius: 5px;
+		color: var(--color-text);
+		background-color: #ffffff;
+		font-family: inherit;
+		font-size: 0.875rem;
+	}
+
+	.contact-form__field input {
+		height: var(--field-h);
+		padding: 0 var(--space-3);
+	}
+
+	.contact-form__field textarea {
+		height: var(--textarea-h);
+		padding: var(--space-3);
+		resize: vertical;
+	}
+
+	.contact-form__field input:focus-visible,
+	.contact-form__field textarea:focus-visible {
+		outline: var(--focus-ring-width) solid var(--color-accent);
+		outline-offset: var(--focus-ring-offset);
+	}
+
+	.contact-form__submit {
+		display: block;
+		width: 100%;
+		height: var(--submit-h);
+		margin-top: var(--submit-gap);
+		border: 0;
+		border-radius: 7px;
+		background-color: #2c2c2c;
+		color: #ffffff;
+		font-family: inherit;
+		font-size: 1rem;
+		cursor: pointer;
+	}
+
+	.contact-form__submit:focus-visible {
+		outline: var(--focus-ring-width) solid var(--color-accent);
+		outline-offset: var(--focus-ring-offset);
+	}
+
+	/* Fold: big triangle draped over the card's lower-left, down to the envelope bottom */
+	.contact-form__fold {
+		position: absolute;
+		left: calc(-1 * var(--card-left));
+		top: var(--fold-top);
+		width: 50%;
+		height: calc(100% - var(--fold-top) + var(--env-overhang-b));
+		background-color: var(--env-bg);
+		clip-path: polygon(0 0, 0 100%, 100% 100%);
+	}
+
+	/* Mobile: smaller envelope figure, right-aligned compact form, scaled fold */
+	@include breakpoints.max-width(nav) {
+		.contact-form {
+			--figure-mt: 105px;
+
+			--env-edge-shadow: inset -18px -5px 0 #d3d3d3;
+			--env-overhang-r: 18px;
+			--env-overhang-b: 12px;
+			--env-gap-top: 6px;
+			--flap-h: 66px;
+			--flap-above: 60px;
+
+			--card-left: 11px;
+			--card-w: 333px;
+
+			--fold-top: 7px;
+
+			--field-w: 168px;
+			--field-right: 12px;
+			--field-top: 20px;
+			--field-h: 34px;
+			--label-gap: 6px;
+			--field-gap: 12px;
+			--textarea-h: 52px;
+			--submit-h: 36px;
+			--submit-gap: 12px;
+			--card-pad-b: 14px;
+		}
+	}
+</style>

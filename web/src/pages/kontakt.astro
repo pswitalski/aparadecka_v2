@@ -1,12 +1,20 @@
 ---
 import { sanityClient } from 'sanity:client';
 
+import ContactForm from '../components/contact/ContactForm.astro';
+import SocialLinks from '../components/contact/SocialLinks.astro';
 import Layout from '../layouts/main.astro';
 import { contactQuery } from '../lib/queries';
+
+type SocialKey = 'email' | 'facebook' | 'instagram';
 
 interface SocialLink {
 	label: null | string;
 	url: string;
+}
+
+interface ContactLink extends SocialLink {
+	key: SocialKey;
 }
 
 const contact = await sanityClient.fetch<{
@@ -15,35 +23,58 @@ const contact = await sanityClient.fetch<{
 	instagram: null | SocialLink;
 }>(contactQuery);
 
-const links = [
-	{ key: 'email', ...contact.email },
-	{ key: 'instagram', ...contact.instagram },
-	{ key: 'facebook', ...contact.facebook },
-].filter((link): link is { key: string; label: null | string; url: string } => Boolean(link.url));
+const links = (
+	[
+		{ key: 'email', ...contact.email },
+		{ key: 'instagram', ...contact.instagram },
+		{ key: 'facebook', ...contact.facebook },
+	] as Array<ContactLink | Record<string, unknown>>
+)
+	.filter((link): link is ContactLink => Boolean((link as ContactLink).url))
+	.map(({ key, label, url }) => ({ key, label, url }));
 ---
 
 <Layout title="Kontakt">
-	<h1>Kontakt</h1>
-	{links.length > 0 ? (
-		<ul class="links">
-			{links.map((link) => (
-				<li>
-					<a href={link.url}>{link.label ?? link.key}</a>
-				</li>
-			))}
-		</ul>
-	) : null}
+	<section class="kontakt">
+		<div class="kontakt__inner">
+			<h1 class="visually-hidden">Kontakt</h1>
+			<div class="kontakt__grid">
+				<ContactForm />
+				{links.length > 0 && <SocialLinks links={links} />}
+			</div>
+		</div>
+	</section>
 </Layout>
 
-<style>
-	.links {
-		list-style: none;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-2);
+<style lang="scss">
+	@use '../styles/breakpoints';
+
+	.kontakt {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		margin-top: calc(-1 * var(--space-4));
+		background: var(--color-surface);
+		overflow-x: clip;
 	}
-	.links a {
-		color: var(--color-accent);
+
+	.kontakt__inner {
+		max-width: var(--container-width);
+		margin-inline: auto;
+	}
+
+	.kontakt__grid {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		padding: 24px var(--space-4) 46px;
+	}
+
+	@include breakpoints.max-width(nav) {
+		.kontakt__grid {
+			flex-direction: column;
+			align-items: center;
+			gap: 56px;
+			padding: 24px var(--space-4) 40px;
+		}
 	}
 </style>
