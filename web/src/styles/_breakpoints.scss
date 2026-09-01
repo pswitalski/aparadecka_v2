@@ -1,8 +1,8 @@
 @use 'sass:map';
 
 $breakpoints: (
-	nav: 768px,
-	// More breakpoints (from Figma) will be added during the design phase
+	mobile: 768px,
+	tablet: 1025px,
 );
 
 // min-width(name): styles at/above the breakpoint (min-width)

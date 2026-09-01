@@ -1,7 +1,8 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 import type { NavLink } from './links';
 
-import Icon from '../Icon.astro';
 import IconButton from '../IconButton.astro';
 import NavLinks from './NavLinks.astro';
 
@@ -20,13 +21,13 @@ const { id = 'mobile-menu', links } = Astro.props;
 		data-menu-toggle
 		label="Otwórz menu"
 	>
-		<Icon name="menu" />
+		<Icon height={12} name="menu" width={25} />
 	</IconButton>
 </div>
 
 <dialog aria-label="Menu" class="mobile-menu" id={id}>
 	<IconButton class="menu-close" data-menu-close label="Zamknij menu">
-		<Icon name="close" />
+		<Icon height={26.25} name="close" width={26.25} />
 	</IconButton>
 	<nav aria-label="Nawigacja mobilna">
 		<NavLinks links={links} />
@@ -49,8 +50,8 @@ const { id = 'mobile-menu', links } = Astro.props;
 		background-color: var(--color-panel);
 	}
 
-	/* Below $breakpoints.nav — mobile menu is active */
-	@include breakpoints.max-width(nav) {
+	/* Below $breakpoints.mobile — mobile menu is active */
+	@include breakpoints.max-width(mobile) {
 		.menu-toggle-wrap {
 			display: block;
 		}
@@ -128,8 +129,8 @@ const { id = 'mobile-menu', links } = Astro.props;
 		}
 	}
 
-	/* At/above $breakpoints.nav — mobile menu is hidden */
-	@include breakpoints.min-width(nav) {
+	/* At/above $breakpoints.mobile — mobile menu is hidden */
+	@include breakpoints.min-width(mobile) {
 		.menu-toggle-wrap,
 		.mobile-menu {
 			display: none;
@@ -223,7 +224,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 		});
 
 		const breakpoint = Number.parseInt(
-			getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-nav'),
+			getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-mobile'),
 			10,
 		);
 		const desktopQuery = window.matchMedia(`(min-width: ${Number.isNaN(breakpoint) ? 768 : breakpoint}px)`);

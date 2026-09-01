@@ -5,8 +5,10 @@
 	/* Typography */
 	--font-body: 'Caladea', Georgia, 'Times New Roman', serif;
 	--font-special: 'Calistoga', 'Caladea', Georgia, 'Times New Roman', serif;
+	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-	--font-size-xs: 0.75rem;
+	--font-size-xxs: 0.75rem;
+	--font-size-xs: 0.8125rem;
 	--font-size-sm: 0.875rem;
 	--font-size-base: 1rem;
 	--font-size-lg: 1.125rem;
@@ -48,10 +50,10 @@
 
 	/* Breakpoints */
 	/* Runtime value for JS (read via getComputedStyle) — derived from
-	   $breakpoints.nav in _breakpoints.scss (single source of truth).
+	   $breakpoints.mobile in _breakpoints.scss (single source of truth).
 	   CSS custom properties can't be used in media queries, so components
 	   use the min-width/max-width mixins instead. */
-	--breakpoint-nav: #{map.get(breakpoints.$breakpoints, nav)};
+	--breakpoint-mobile: #{map.get(breakpoints.$breakpoints, mobile)};
 
 	/* Focus */
 	--focus-ring-width: 2px;

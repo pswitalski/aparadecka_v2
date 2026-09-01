@@ -3,6 +3,7 @@
 import react from '@astrojs/react';
 import sanity from '@sanity/astro';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
+import icon from 'astro-icon';
 import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 
@@ -24,6 +25,7 @@ export default defineConfig({
 			projectId: PUBLIC_SANITY_PROJECT_ID,
 			useCdn: false,
 		}),
+		icon(),
 	],
 	vite: {
 		plugins: [vanillaExtractPlugin()],

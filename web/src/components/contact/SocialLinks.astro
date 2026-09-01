@@ -1,0 +1,57 @@
+---
+import type { Props as SocialLinkProps } from './SocialLink.astro';
+
+import SocialLink from './SocialLink.astro';
+
+interface Props {
+	links: SocialLinkProps[];
+}
+
+const { links } = Astro.props;
+---
+
+<div class="social-links">
+	{links.map((link) => (
+		<SocialLink {...link} />
+	))}
+</div>
+
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
+	.social-links {
+		/* Desktop column of circular links, right aligned */
+		--social-size: 74px;
+		--social-icon: 44px;
+		--social-bg: #d9d9d9;
+		--social-label-font: var(--font-size-base);
+		--social-label-height: calc(var(--social-size) * 0.68);
+
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 22px;
+	}
+
+	/* Tablet/mobile: centred row of icons, no labels */
+	@include breakpoints.max-width(tablet) {
+		.social-links {
+			--social-size: 68px;
+			--social-icon: 40px;
+			--social-bg: #d9d9d9;
+
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			gap: 50px;
+		}
+	}
+
+	/* Phone: slightly smaller icons */
+	@include breakpoints.max-width(mobile) {
+		.social-links {
+			--social-size: 63px;
+			--social-icon: 38px;
+		}
+	}
+</style>
