@@ -7,6 +7,8 @@ on:
         description: Branch to deploy
         required: true
         default: master
+  repository_dispatch:
+    types: [content-rebuild]
 
 permissions:
   contents: read
@@ -24,9 +26,13 @@ jobs:
       run:
         working-directory: web
     steps:
+      - name: Resolve branch
+        id: branch
+        run: echo "BRANCH=${{ github.event.client_payload.branch || github.event.inputs.branch || 'master' }}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4.4.0
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ steps.branch.outputs.BRANCH }}
 
       - uses: actions/setup-node@v4.4.0
         with:
@@ -49,7 +55,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=aparadecka-v2 --branch=${{ github.event.inputs.branch }}
+          command: pages deploy dist --project-name=aparadecka-v2 --branch=${{ steps.branch.outputs.BRANCH }}
           workingDirectory: web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
