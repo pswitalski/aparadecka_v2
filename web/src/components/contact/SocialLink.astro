@@ -10,11 +10,12 @@ export interface Props {
 const { key, label, url } = Astro.props;
 
 const resolvedLabel = label ?? key;
+const externalAttrs = url.startsWith('http') ? { rel: 'noopener noreferrer', target: '_blank' } : {};
 ---
 
 <span class="social-link">
 	<span aria-hidden="true" class="social-link__label">{resolvedLabel}</span>
-	<a class="social-link__icon" href={url}>
+	<a class="social-link__icon" href={url} {...externalAttrs}>
 		<Icon name={key} />
 		<span class="visually-hidden">{resolvedLabel}</span>
 	</a>
