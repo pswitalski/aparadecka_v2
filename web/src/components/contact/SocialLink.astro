@@ -1,0 +1,97 @@
+---
+import { Icon } from 'astro-icon/components';
+
+export interface Props {
+	key: 'email' | 'facebook' | 'instagram';
+	label: null | string;
+	url: string;
+}
+
+const { key, label, url } = Astro.props;
+
+const resolvedLabel = label ?? key;
+---
+
+<span class="social-link">
+	<span aria-hidden="true" class="social-link__label">{resolvedLabel}</span>
+	<a class="social-link__icon" href={url}>
+		<Icon name={key} />
+		<span class="visually-hidden">{resolvedLabel}</span>
+	</a>
+</span>
+
+<style lang="scss">
+	@use '../../styles/breakpoints';
+
+	.social-link {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.social-link__icon {
+		position: relative;
+		z-index: 1;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--social-size);
+		height: var(--social-size);
+		border-radius: 50%;
+		background-color: var(--social-bg);
+		color: var(--color-text);
+		text-decoration: none;
+
+		svg {
+			width: var(--social-icon);
+			height: var(--social-icon);
+		}
+	}
+
+	/* Label pill: sits flush behind the circle, slides out to the left on hover.
+	   Default offset is small so the pill never extends past the circle's right edge. */
+	.social-link__label {
+		position: absolute;
+		right: calc(100% - 12px);
+		top: 50%;
+		z-index: 0;
+		height: var(--social-label-height);
+		display: inline-flex;
+		align-items: center;
+		padding: 0 var(--space-5);
+		background-color: var(--social-bg);
+		color: var(--color-text);
+		font-family: var(--font-body);
+		font-size: var(--social-label-font);
+		font-weight: var(--font-weight-bold);
+		line-height: 1;
+		white-space: nowrap;
+		opacity: 0;
+		transform: translate(18px, -50%);
+		visibility: hidden;
+		pointer-events: none;
+		transition:
+			transform 240ms ease,
+			opacity 240ms ease,
+			visibility 240ms ease;
+	}
+
+	.social-link:hover .social-link__label,
+	.social-link:focus-within .social-link__label {
+		transform: translate(0, -50%);
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.social-link__icon:focus-visible {
+		outline: var(--focus-ring-width) solid var(--color-accent);
+		outline-offset: var(--focus-ring-offset);
+	}
+
+	/* Labels are hidden below the mobile breakpoint (icons-only row) */
+	@include breakpoints.max-width(nav) {
+		.social-link__label {
+			display: none;
+		}
+	}
+</style>
