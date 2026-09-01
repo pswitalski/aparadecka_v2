@@ -1,3 +1,4 @@
+import {deployTrigger} from './deployTrigger'
 import {collection} from './groups/collection'
 import {painting} from './groups/painting'
 import {about, aboutBlock} from './pages/about'
@@ -15,4 +16,5 @@ export const schemaTypes = [
   aboutBlock,
   contact,
   site,
+  deployTrigger,
 ]
