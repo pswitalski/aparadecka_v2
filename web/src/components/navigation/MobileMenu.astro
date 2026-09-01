@@ -57,28 +57,32 @@ const { id = 'mobile-menu', links } = Astro.props;
 
 		.mobile-menu {
 			position: fixed;
-			top: auto;
+			top: 0;
 			right: 0;
-			bottom: 0;
-			left: auto;
-			width: min(320px, 80vw);
-			height: 100dvh;
+			bottom: auto;
+			left: 0;
+			width: 100%;
+			max-width: 100%;
+			margin: 0;
+			height: auto;
 			max-height: 100dvh;
-			transform: translateX(100%);
+			overflow-y: auto;
+			padding: var(--space-4) 0 var(--space-5);
+			transform: translateY(-100%);
 			transition: transform var(--nav-transition);
 		}
 
 		.mobile-menu[open] {
-			transform: translateX(0);
+			transform: translateY(0);
 		}
 
 		.mobile-menu[open].is-closing {
-			transform: translateX(100%);
+			transform: translateY(-100%);
 		}
 
 		@starting-style {
 			.mobile-menu[open] {
-				transform: translateX(100%);
+				transform: translateY(-100%);
 			}
 		}
 
@@ -103,8 +107,24 @@ const { id = 'mobile-menu', links } = Astro.props;
 
 		:global(.menu-close) {
 			position: absolute;
-			top: var(--space-4);
-			right: var(--space-4);
+			top: calc((var(--header-height-mobile) - 40px) / 2);
+			right: 12px;
+		}
+
+		:global(.mobile-menu nav) {
+			margin-top: var(--space-7);
+		}
+
+		:global(.mobile-menu nav a) {
+			display: block;
+			text-align: center;
+			padding: 0 var(--space-4);
+			text-decoration: none;
+		}
+
+		:global(.mobile-menu nav a.active) {
+			background-color: var(--color-bg);
+			text-decoration: none;
 		}
 	}
 
@@ -129,15 +149,15 @@ const { id = 'mobile-menu', links } = Astro.props;
 	}
 </style>
 
-<script is:inline>
-	const dialog = document.querySelector('dialog.mobile-menu');
+<script>
+	const dialog = document.querySelector<HTMLDialogElement>('dialog.mobile-menu');
 	const toggle = dialog ? document.querySelector(`[aria-controls="${dialog.id}"]`) : null;
 
 	if (dialog && toggle) {
 		const closeButton = dialog.querySelector('[data-menu-close]');
 		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-		const setOpenState = (open) => {
+		const setOpenState = (open: boolean) => {
 			toggle.setAttribute('aria-expanded', String(open));
 			toggle.setAttribute('aria-label', open ? 'Zamknij menu' : 'Otwórz menu');
 			document.documentElement.classList.toggle('is-menu-open', open);
@@ -167,7 +187,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 				dialog.close();
 			};
 
-			const onTransitionEnd = (event) => {
+			const onTransitionEnd = (event: TransitionEvent) => {
 				if (event.propertyName === 'transform' && dialog.classList.contains('is-closing')) {
 					finish();
 				}
@@ -187,13 +207,13 @@ const { id = 'mobile-menu', links } = Astro.props;
 
 		closeButton?.addEventListener('click', closeMenu);
 
-		dialog.addEventListener('click', (event) => {
+		dialog.addEventListener('click', (event: MouseEvent) => {
 			if (event.target === dialog) {
 				closeMenu();
 			}
 		});
 
-		dialog.addEventListener('cancel', (event) => {
+		dialog.addEventListener('cancel', (event: Event) => {
 			event.preventDefault();
 			closeMenu();
 		});
