@@ -23,7 +23,11 @@ export default defineConfig({
     newDocumentOptions: (prev) =>
       prev.filter((template) => {
         const schemaType = (template as {schemaType?: string}).schemaType
-        return !singletonTypes.includes(schemaType ?? '') && schemaType !== 'deploy.trigger'
+        return (
+          !singletonTypes.includes(schemaType ?? '') &&
+          schemaType !== 'deploy.trigger' &&
+          schemaType !== 'painting'
+        )
       }),
   },
 

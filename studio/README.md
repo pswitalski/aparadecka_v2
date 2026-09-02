@@ -4,8 +4,8 @@ Standalone Sanity Studio for the artist portfolio.
 
 ## Schema
 
-- `painting` — artwork (title, year, medium, support, dimensions, mainImage)
-- `collection` — yearly group of paintings (unique year, thumbnail, paintings)
+- `painting` — artwork (title, medium, support, dimensions, mainImage). Created only inside a year collection.
+- `collection` — yearly group (year collection) of paintings (unique year, thumbnail, paintings). The single place where paintings are added; a painting's year is the collection it lives in.
 - `home`, `about`, `contact` — page singletons (locked: fixed IDs, no duplicates/delete)
 - `socialLink` — shared link object (label + url)
 
@@ -20,7 +20,7 @@ Each About block = text + optional image + layout options:
 - `imagePositionDesktop` — image on the left or right of the text (side-by-side, image column capped at ~30%)
 - `imagePositionMobile` — image above or under the text (stacked on mobile)
 
-Studio structure is grouped by page: Home · About · Portfolio (Collections + Paintings) · Contact.
+Studio structure is grouped by page: Home · About · Portfolio (Collections) · Contact.
 
 ## Commands
 

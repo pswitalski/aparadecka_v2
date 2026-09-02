@@ -13,11 +13,18 @@ export const home = defineType({
     }),
     defineField({
       description:
-        'Strona główna pokazuje galerię obrazów. Pierwszy wybrany obraz jest duży (cały, z marginesami), ' +
+        'Strona główna pokazuje galerię obrazów. Można wybrać tylko obrazy, które zostały wcześniej dodane do roczników w Portfolio. ' +
+        'Pierwszy wybrany obraz jest duży (cały, z marginesami), ' +
         'kolejne 3 to miniatury (przycięte do proporcji 1,4), a dalsze rotują w miejscu miniaturek. ' +
         'Dodaj co najmniej 4 obrazy.',
       name: 'featured',
-      of: [defineArrayMember({to: [{type: 'painting'}], type: 'reference'})],
+      of: [
+        defineArrayMember({
+          options: {disableNew: true},
+          to: [{type: 'painting'}],
+          type: 'reference',
+        }),
+      ],
       title: 'Wyróżnione obrazy',
       type: 'array',
       validation: (Rule) =>
