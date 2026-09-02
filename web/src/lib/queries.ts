@@ -1,17 +1,25 @@
 import { defineQuery } from 'groq';
 
 export const featuredPaintingsQuery = defineQuery(`*[_type == "home"][0]{
-  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }
+  "featuredPaintings": featured[]->{
+    _id,
+    title,
+    medium,
+    support,
+    dimensions,
+    mainImage,
+    "year": *[_type == "collection" && references(^._id)][0].year
+  }
 }`);
 
 export const collectionsQuery = defineQuery(`*[_type == "collection"] | order(year desc){
   year,
-  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }
+  "thumbnail": thumbnail->{ _id, title, medium, support, dimensions, mainImage }
 }`);
 
 export const collectionByYearQuery = defineQuery(`*[_type == "collection" && year == $year][0]{
   year,
-  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }
+  "paintings": paintings[]->{ _id, title, medium, support, dimensions, mainImage }
 }`);
 
 export const aboutQuery = defineQuery(`*[_type == "about"][0]{

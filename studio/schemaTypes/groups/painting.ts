@@ -10,12 +10,6 @@ export const painting = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'year',
-      title: 'Rok',
-      type: 'number',
-      validation: (rule) => rule.integer().min(1900).max(2100),
-    }),
-    defineField({
       name: 'medium',
       title: 'Technika',
       type: 'string',

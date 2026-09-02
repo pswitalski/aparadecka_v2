@@ -4,7 +4,6 @@ import {CogIcon} from '@sanity/icons/Cog'
 import {EnvelopeIcon} from '@sanity/icons/Envelope'
 import {FolderIcon} from '@sanity/icons/Folder'
 import {HomeIcon} from '@sanity/icons/Home'
-import {ImageIcon} from '@sanity/icons/Image'
 import {ThLargeIcon} from '@sanity/icons/ThLarge'
 import {UserIcon} from '@sanity/icons/User'
 
@@ -59,17 +58,8 @@ export const structure: StructureResolver = (S) => {
                   S.documentList()
                     .schemaType('collection')
                     .id('collection')
-                    .filter('_type == "collection"'),
-                ),
-              S.listItem()
-                .id('painting')
-                .title('Obrazy')
-                .icon(ImageIcon)
-                .child(
-                  S.documentList()
-                    .schemaType('painting')
-                    .id('painting')
-                    .filter('_type == "painting"'),
+                    .filter('_type == "collection"')
+                    .defaultOrdering([{direction: 'desc', field: 'year'}]),
                 ),
             ]),
         ),
