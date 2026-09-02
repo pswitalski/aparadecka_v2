@@ -15,6 +15,29 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type DeployRun = {
+  _id: string;
+  _type: "deploy.run";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  branch?: string;
+  status?: "in_progress" | "success" | "failed";
+  message?: string;
+  deployUrl?: string;
+  startedAt?: string;
+  updatedAt?: string;
+};
+
+export type DeployTrigger = {
+  _id: string;
+  _type: "deploy.trigger";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  branch?: string;
+};
+
 export type Site = {
   _id: string;
   _type: "site";
@@ -159,8 +182,8 @@ export type Painting = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  title?: string;
   year?: number;
+  title?: string;
   medium?: string;
   support?: string;
   dimensions?: string;
@@ -277,6 +300,8 @@ export type Slug = {
 };
 
 export type AllSanitySchemaTypes =
+  | DeployRun
+  | DeployTrigger
   | Site
   | Contact
   | SocialLink
@@ -301,12 +326,11 @@ export type AllSanitySchemaTypes =
 
 // Source: ../web/src/lib/queries.ts
 // Variable: featuredPaintingsQuery
-// Query: *[_type == "home"][0]{  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }}
+// Query: *[_type == "home"][0]{  "featuredPaintings": featured[]->{    _id,    title,    medium,    support,    dimensions,    mainImage,    "year": *[_type == "collection" && references(^._id)][0].year  }}
 export type FeaturedPaintingsQueryResult = {
   featuredPaintings: Array<{
     _id: string;
     title: string | null;
-    year: number | null;
     medium: string | null;
     support: string | null;
     dimensions: string | null;
@@ -317,18 +341,18 @@ export type FeaturedPaintingsQueryResult = {
       crop?: SanityImageCrop;
       _type: "image";
     } | null;
+    year: number | null;
   }> | null;
 } | null;
 
 // Source: ../web/src/lib/queries.ts
 // Variable: collectionsQuery
-// Query: *[_type == "collection"] | order(year desc){  year,  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }}
+// Query: *[_type == "collection"] | order(year desc){  year,  "thumbnail": thumbnail->{ _id, title, medium, support, dimensions, mainImage }}
 export type CollectionsQueryResult = Array<{
   year: number | null;
   thumbnail: {
     _id: string;
     title: string | null;
-    year: number | null;
     medium: string | null;
     support: string | null;
     dimensions: string | null;
@@ -344,13 +368,12 @@ export type CollectionsQueryResult = Array<{
 
 // Source: ../web/src/lib/queries.ts
 // Variable: collectionByYearQuery
-// Query: *[_type == "collection" && year == $year][0]{  year,  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }}
+// Query: *[_type == "collection" && year == $year][0]{  year,  "paintings": paintings[]->{ _id, title, medium, support, dimensions, mainImage }}
 export type CollectionByYearQueryResult = {
   year: number | null;
   paintings: Array<{
     _id: string;
     title: string | null;
-    year: number | null;
     medium: string | null;
     support: string | null;
     dimensions: string | null;
@@ -423,9 +446,9 @@ export type SiteQueryResult = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '*[_type == "home"][0]{\n  "featuredPaintings": featured[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': FeaturedPaintingsQueryResult;
-    '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
-    '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, year, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
+    '*[_type == "home"][0]{\n  "featuredPaintings": featured[]->{\n    _id,\n    title,\n    medium,\n    support,\n    dimensions,\n    mainImage,\n    "year": *[_type == "collection" && references(^._id)][0].year\n  }\n}': FeaturedPaintingsQueryResult;
+    '*[_type == "collection"] | order(year desc){\n  year,\n  "thumbnail": thumbnail->{ _id, title, medium, support, dimensions, mainImage }\n}': CollectionsQueryResult;
+    '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, medium, support, dimensions, mainImage }\n}': CollectionByYearQueryResult;
     '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    highlighted,\n    imagePositionDesktop,\n    imagePositionMobile,\n    textAlign,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
     '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;
     '*[_type == "site"][0]{\n  siteTitle,\n  description,\n  keywords\n}': SiteQueryResult;
