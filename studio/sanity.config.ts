@@ -3,6 +3,7 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 
 import {schemaTypes} from './schemaTypes'
+import {deleteCollectionAction} from './schemaTypes/documentActions/deleteCollectionAction'
 import {deployToProdAction, deployToStageAction} from './schemaTypes/documentActions/deployActions'
 import {structure} from './schemaTypes/structure'
 
@@ -16,9 +17,13 @@ export default defineConfig({
         context.schemaType && singletonTypes.includes(context.schemaType)
           ? prev.filter(({action}) => !['delete', 'duplicate', 'unpublish'].includes(action ?? ''))
           : prev
+      const collectionActions =
+        context.schemaType === 'collection'
+          ? base.map((action) => (action.action === 'delete' ? deleteCollectionAction : action))
+          : base
       return context.schemaType && context.schemaType !== 'deploy.trigger'
-        ? [...base, deployToStageAction, deployToProdAction]
-        : base
+        ? [...collectionActions, deployToStageAction, deployToProdAction]
+        : collectionActions
     },
     newDocumentOptions: (prev) =>
       prev.filter((template) => {
