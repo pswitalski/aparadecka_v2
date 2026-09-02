@@ -2,6 +2,7 @@ import {FolderIcon} from '@sanity/icons/Folder'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 import {apiVersion} from '../../apiVersion'
+import {PaintingsArrayInput} from '../components/PaintingsArrayInput'
 
 export const collection = defineType({
   fields: [
@@ -38,6 +39,7 @@ export const collection = defineType({
       type: 'reference',
     }),
     defineField({
+      components: {input: PaintingsArrayInput},
       description:
         'Obrazy tego rocznika. Każdy obraz należy tylko do jednego rocznika — zmiana rocznika odbywa się na obrazie (pole „Rocznik”).',
       name: 'paintings',

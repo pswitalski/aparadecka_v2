@@ -20,7 +20,10 @@ export const home = defineType({
       name: 'featured',
       of: [
         defineArrayMember({
-          options: {disableNew: true},
+          options: {
+            disableNew: true,
+            filter: 'count(*[_type == "collection" && references(^._id)]) > 0',
+          },
           to: [{type: 'painting'}],
           type: 'reference',
         }),

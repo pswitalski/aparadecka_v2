@@ -1,7 +1,7 @@
 import { defineQuery } from 'groq';
 
 export const featuredPaintingsQuery = defineQuery(`*[_type == "home"][0]{
-  "featuredPaintings": featured[]->{
+  "featuredPaintings": (featured[]->{
     _id,
     title,
     medium,
@@ -9,7 +9,7 @@ export const featuredPaintingsQuery = defineQuery(`*[_type == "home"][0]{
     dimensions,
     mainImage,
     "year": *[_type == "collection" && references(^._id)][0].year
-  }
+  })[defined(year)]
 }`);
 
 export const collectionsQuery = defineQuery(`*[_type == "collection"] | order(year desc){
