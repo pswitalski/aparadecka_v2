@@ -12,23 +12,28 @@ export const collection = defineType({
       validation: (rule) =>
         rule.required().integer().min(1900).max(2100).custom(async (year, context) => {
           const client = context.getClient({apiVersion})
-          const id = context.document?._id?.replace(/^drafts\./, '')
+          const id = context.document?._id?.replace(/^drafts\./, '') ?? ''
+          const ownIds = [id, `drafts.${id}`]
           const existing = await client.fetch(
-            `count(*[_type == "collection" && year == $year && _id != $id])`,
-            {id, year},
+            `count(*[_type == "collection" && year == $year && !(_id in $ownIds)])`,
+            {ownIds, year},
           )
           return existing === 0 || `Rok ${year} już istnieje`
         }),
     }),
     defineField({
       name: 'thumbnail',
+      options: {
+        filter: '_type == "painting" && _id in $paintings',
+        filterParams: {paintings: 'paintings[]._ref'},
+      },
       title: 'Wyróżniony obraz',
       to: [{type: 'painting'}],
       type: 'reference',
     }),
     defineField({
       description:
-        'Tu dodaje się obrazy dla tego roku. Każdy obraz należy tylko do jednego rocznika — jego rok wynika z rocznika, w którym się znajduje.',
+        'Obrazy tego rocznika. Każdy obraz należy tylko do jednego rocznika — zmiana rocznika odbywa się na obrazie (pole „Rocznik”).',
       name: 'paintings',
       of: [defineArrayMember({to: [{type: 'painting'}], type: 'reference'})],
       title: 'Prace',

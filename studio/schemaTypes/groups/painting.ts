@@ -1,8 +1,17 @@
 import {ImageIcon} from '@sanity/icons/Image'
 import {defineField, defineType} from 'sanity'
 
+import {YearSelectInput} from '../components/YearSelectInput'
+
 export const painting = defineType({
   fields: [
+    defineField({
+      components: {input: YearSelectInput},
+      description: 'Rocznik, do którego należy obraz. Zmiana przenosi obraz między rocznikami.',
+      name: 'year',
+      title: 'Rocznik',
+      type: 'number',
+    }),
     defineField({
       name: 'title',
       title: 'Tytuł',
