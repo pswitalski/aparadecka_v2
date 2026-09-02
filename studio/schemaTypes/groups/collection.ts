@@ -24,8 +24,14 @@ export const collection = defineType({
     defineField({
       name: 'thumbnail',
       options: {
-        filter: '_type == "painting" && _id in $paintings',
-        filterParams: {paintings: 'paintings[]._ref'},
+        filter: ({document}) => ({
+          filter: '_type == "painting" && _id in $refs',
+          params: {
+            refs: ((document.paintings as Array<{_ref?: string}> | undefined) ?? [])
+              .map((item) => item._ref)
+              .filter((ref): ref is string => Boolean(ref)),
+          },
+        }),
       },
       title: 'Wyróżniony obraz',
       to: [{type: 'painting'}],
@@ -50,7 +56,7 @@ export const collection = defineType({
             .filter((r): r is string => Boolean(r))
           if (refs.length === 0) return true
           const duplicates = await client.fetch(
-            `count(*[_type == "collection" && !(_id in $ownIds) && references($refs)])`,
+            `count(*[_type == "collection" && !(_id in $ownIds) && count(paintings[_ref in $refs]) > 0])`,
             {ownIds, refs},
           )
           return duplicates === 0 || 'Ten obraz został już dodany do innego rocznika'
