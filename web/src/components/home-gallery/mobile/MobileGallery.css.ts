@@ -9,8 +9,8 @@ export const carousel = style({
 	backgroundColor: 'var(--color-surface)',
 	display: 'flex',
 	flexDirection: 'column',
-	height: 'calc(100dvh - var(--header-height-mobile) - var(--space-4))',
-	marginBottom: 'calc(-1 * var(--space-4))',
+	height: 'calc(100dvh - var(--header-height-mobile))',
+	marginBottom: 'var(--space-0)',
 	marginInline: 'calc(-1 * var(--space-4))',
 	overflow: 'hidden',
 	/* Full-bleed inside `main` (padding var(--space-4)) and fill the viewport below the
