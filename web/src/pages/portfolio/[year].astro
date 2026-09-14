@@ -39,7 +39,7 @@ const paintings = collection?.paintings ?? [];
 		display: flex;
 		justify-content: flex-end;
 		margin-inline: calc(50% - 50vw);
-		padding: var(--space-3) var(--space-4);
+		padding: var(--space-3) max(var(--space-4), calc((100vw - var(--container-width)) / 2 + var(--space-4)));
 	}
 
 	.page-heading h1 {
