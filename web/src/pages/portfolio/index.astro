@@ -16,47 +16,58 @@ const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery)
 ---
 
 <Layout title="Portfolio">
-	<ul class="years">
-		{collections.map(({ featuredPainting, year }) => (
-			<li class="year-card">
-				<a href={`/portfolio/${year}`}>
-					{featuredPainting?.mainImage ? (
-						<span class="year-card__image-wrap">
-							<img
-								alt={featuredPainting.title ?? `Praca z ${year}`}
-								decoding="async"
-								loading="lazy"
-							sizes="(min-width: 1025px) 62vw, 50vw"
-								src={urlForImage(featuredPainting.mainImage).width(1200).height(800).fit('crop').format('webp').url()}
-								srcset={[480, 720, 960, 1200]
-									.map(
-										(width) =>
-											`${urlForImage(featuredPainting.mainImage!).width(width).height(Math.round(width / 1.5)).fit('crop').format('webp').url()} ${width}w`,
-									)
-									.join(', ')}
-							/>
-							<span class="year-card__year">{year}</span>
-						</span>
-					) : (
-						<span aria-hidden="true" class="year-card__image-wrap year-card__image-wrap--empty">
-							<span>{year}</span>
-						</span>
-					)}
-				</a>
-			</li>
-		))}
-	</ul>
+	<div class="portfolio-wrapper">
+		<ul class="years">
+			{collections.map(({ featuredPainting, year }) => (
+				<li class="year-card">
+					<a href={`/portfolio/${year}`}>
+						{featuredPainting?.mainImage ? (
+							<span class="year-card__image-wrap">
+								<img
+									alt={featuredPainting.title ?? `Praca z ${year}`}
+									decoding="async"
+									loading="lazy"
+								sizes="(min-width: 1025px) 62vw, 50vw"
+									src={urlForImage(featuredPainting.mainImage).width(1200).height(800).fit('crop').format('webp').url()}
+									srcset={[480, 720, 960, 1200]
+										.map(
+											(width) =>
+												`${urlForImage(featuredPainting.mainImage!).width(width).height(Math.round(width / 1.5)).fit('crop').format('webp').url()} ${width}w`,
+										)
+										.join(', ')}
+								/>
+								<span class="year-card__year">{year}</span>
+							</span>
+						) : (
+							<span aria-hidden="true" class="year-card__image-wrap year-card__image-wrap--empty">
+								<span>{year}</span>
+							</span>
+						)}
+					</a>
+				</li>
+			))}
+		</ul>
+	</div>
 </Layout>
 
 <style lang="scss">
+	.portfolio-wrapper {
+		background: var(--color-surface);
+		margin-inline: calc(50% - 50vw);
+	}
+
 	.years {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: var(--space-5);
 		list-style: none;
-		margin-inline: calc(50% - 50vw);
 		padding: clamp(var(--space-5), 7vw, var(--space-7));
-		background: var(--color-surface);
+		max-width: var(--container-width);
+
+		@media (min-width: 1025px) {
+			margin: 0 auto;
+			padding: clamp(var(--space-5), 7vw, var(--space-7)) var(--space-4);
+		}
 	}
 
 	.year-card a {

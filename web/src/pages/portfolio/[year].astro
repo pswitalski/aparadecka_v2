@@ -89,6 +89,17 @@ const paintings = collection?.paintings ?? [];
 		padding-top: var(--space-5);
 	}
 
+	@media (min-width: 1025px) {
+		.paintings :global(.painting) {
+			padding-block: var(--space-5);
+		}
+
+		.paintings :global(.painting--detail figcaption) {
+			grid-column: 1;
+			grid-row: 1;
+		}
+	}
+
 	@media (max-width: 1024px) {
 		.page-heading {
 			align-items: center;

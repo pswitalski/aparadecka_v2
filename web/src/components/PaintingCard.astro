@@ -100,10 +100,13 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 
 	.painting--detail img {
 		display: block;
-		height: clamp(320px, 34vw, 560px);
 		max-width: 100%;
 		object-fit: contain;
 		width: 100%;
+
+		@media (min-width: 1025px) {
+			max-height: 560px;
+		}
 	}
 
 	.painting--detail .painting__image-button {
