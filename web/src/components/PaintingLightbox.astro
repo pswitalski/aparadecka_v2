@@ -1,0 +1,157 @@
+---
+---
+
+<dialog aria-label="Powiększony obraz" class="painting-lightbox" data-painting-lightbox>
+	<div class="painting-lightbox__surface">
+		<button aria-label="Zamknij powiększenie" class="painting-lightbox__close" data-lightbox-close type="button">
+			<span aria-hidden="true">×</span>
+		</button>
+		<figure class="painting-lightbox__figure">
+			<img alt="" data-lightbox-image decoding="async" />
+			<figcaption data-lightbox-caption></figcaption>
+		</figure>
+	</div>
+</dialog>
+
+<style lang="scss">
+	.painting-lightbox {
+		background: transparent;
+		border: 0;
+		color: var(--color-bg);
+		height: 100dvh;
+		max-height: none;
+		max-width: none;
+		padding: 0;
+		width: 100vw;
+	}
+
+	.painting-lightbox::backdrop {
+		background: rgba(0, 0, 0, 0.86);
+	}
+
+	.painting-lightbox__surface {
+		height: 100%;
+		position: relative;
+		width: 100%;
+	}
+
+	.painting-lightbox__figure {
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		justify-content: center;
+		margin: 0;
+		padding: var(--space-7) clamp(4rem, 10vw, 10rem) var(--space-6);
+		height: 100%;
+		width: 100%;
+	}
+
+	.painting-lightbox__figure img {
+		display: block;
+		max-height: calc(100dvh - 8rem);
+		max-width: 100%;
+		object-fit: contain;
+		width: auto;
+	}
+
+	.painting-lightbox__figure figcaption {
+		font-size: var(--font-size-lg);
+		line-height: 1.2;
+		max-width: 44rem;
+		text-align: center;
+		text-wrap: balance;
+	}
+
+	.painting-lightbox button {
+		background: transparent;
+		border: 0;
+		color: inherit;
+		cursor: pointer;
+		font-family: inherit;
+		position: absolute;
+		z-index: 1;
+	}
+
+	.painting-lightbox button:focus-visible {
+		outline: var(--focus-ring-width) solid currentColor;
+		outline-offset: var(--focus-ring-offset);
+	}
+
+	.painting-lightbox__close {
+		font-size: 2rem;
+		right: var(--space-5);
+		top: var(--space-4);
+	}
+
+	@media (max-width: 767px) {
+		.painting-lightbox__figure {
+			padding-inline: var(--space-4);
+		}
+
+		.painting-lightbox__figure img {
+			max-height: calc(100dvh - 9rem);
+		}
+
+		.painting-lightbox__close {
+			right: var(--space-3);
+			top: var(--space-2);
+		}
+
+	}
+</style>
+
+<script>
+	const dialog = document.querySelector<HTMLDialogElement>('[data-painting-lightbox]');
+
+	if (dialog) {
+		const image = dialog.querySelector<HTMLImageElement>('[data-lightbox-image]');
+		const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]');
+		const closeButton = dialog.querySelector<HTMLButtonElement>('[data-lightbox-close]');
+		const surface = dialog.querySelector<HTMLElement>('.painting-lightbox__surface');
+		const figure = dialog.querySelector<HTMLElement>('.painting-lightbox__figure');
+		const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-lightbox-trigger]'));
+		let activeTrigger: HTMLButtonElement | null = null;
+
+		const update = (index: number) => {
+			const trigger = triggers[index];
+			if (!trigger || !image || !caption) return;
+
+			activeTrigger = trigger;
+			image.src = trigger.dataset.lightboxSrc ?? '';
+			image.alt = trigger.dataset.lightboxAlt ?? '';
+			caption.textContent = trigger.dataset.lightboxCaption ?? '';
+		};
+
+		const open = (index: number) => {
+			dialog.showModal();
+			update(index);
+			closeButton?.focus();
+		};
+
+		const close = () => {
+			if (!dialog.open) return;
+			dialog.close();
+			activeTrigger?.focus();
+		};
+
+		triggers.forEach((trigger, index) => {
+			trigger.addEventListener('click', () => open(index));
+		});
+
+		closeButton?.addEventListener('click', close);
+
+		surface?.addEventListener('click', (event) => {
+			if (event.target === surface) close();
+		});
+
+		figure?.addEventListener('click', (event) => {
+			if (event.target === figure) close();
+		});
+
+		dialog.addEventListener('cancel', (event) => {
+			event.preventDefault();
+			close();
+		});
+	}
+</script>

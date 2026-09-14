@@ -8,7 +8,7 @@ import { collectionsQuery } from '../../lib/queries';
 import { urlForImage } from '../../lib/sanity';
 
 interface CollectionItem {
-	thumbnail: null | Painting;
+	featuredPainting: null | Painting;
 	year: number;
 }
 
@@ -16,38 +16,146 @@ const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery)
 ---
 
 <Layout title="Portfolio">
-	<h1>Portfolio</h1>
-	<ul class="grid years">
-		{collections.map(({ thumbnail, year }) => (
-			<li>
-				<a href={`/portfolio/${year}`}>
-					{thumbnail?.mainImage && (
-						<img
-							alt={thumbnail.title ?? ''}
-							loading="lazy"
-							src={urlForImage(thumbnail.mainImage).width(400).format('webp').url()}
-						/>
-					)}
-					<span>{year}</span>
-				</a>
-			</li>
-		))}
-	</ul>
+	<div class="portfolio-wrapper">
+		<ul class="years">
+			{collections.map(({ featuredPainting, year }) => (
+				<li class="year-card">
+					<a href={`/portfolio/${year}`}>
+						{featuredPainting?.mainImage ? (
+							<span class="year-card__image-wrap">
+								<img
+									alt={featuredPainting.title ?? `Praca z ${year}`}
+									decoding="async"
+									loading="lazy"
+								sizes="(min-width: 1025px) 62vw, 50vw"
+									src={urlForImage(featuredPainting.mainImage).width(1200).height(800).fit('crop').format('webp').url()}
+									srcset={[480, 720, 960, 1200]
+										.map(
+											(width) =>
+												`${urlForImage(featuredPainting.mainImage!).width(width).height(Math.round(width / 1.5)).fit('crop').format('webp').url()} ${width}w`,
+										)
+										.join(', ')}
+								/>
+								<span class="year-card__year">{year}</span>
+							</span>
+						) : (
+							<span aria-hidden="true" class="year-card__image-wrap year-card__image-wrap--empty">
+								<span>{year}</span>
+							</span>
+						)}
+					</a>
+				</li>
+			))}
+		</ul>
+	</div>
 </Layout>
 
-<style>
+<style lang="scss">
+	.portfolio-wrapper {
+		background: var(--color-surface);
+		margin-inline: calc(50% - 50vw);
+	}
+
 	.years {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--space-5);
 		list-style: none;
-		padding: 0;
+		padding: clamp(var(--space-5), 7vw, var(--space-7));
+		max-width: var(--container-width);
+
+		@media (min-width: 1025px) {
+			margin: 0 auto;
+			padding: clamp(var(--space-5), 7vw, var(--space-7)) var(--space-4);
+		}
 	}
-	.years a {
-		font-family: var(--font-special);
+
+	.year-card a {
+		color: inherit;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		text-decoration: none;
-		color: var(--color-text);
 	}
-	.years img {
+
+	.year-card__image-wrap {
+		background: var(--color-surface);
 		display: block;
-		width: 100%;
+		justify-self: center;
+		max-width: 1100px;
+		position: relative;
+		width: min(100%, 1100px);
+	}
+
+	.year-card__image-wrap img {
+		aspect-ratio: 1;
+		display: block;
 		height: auto;
+		object-fit: cover;
+		width: 100%;
+	}
+
+	.year-card__year {
+		align-items: center;
+		background: rgba(255, 255, 255, 0.72);
+		color: var(--color-text);
+		display: flex;
+		font-family: var(--font-special);
+		font-size: clamp(var(--font-size-3xl), 6vw, var(--font-size-5xl));
+		inset: 0;
+		justify-content: center;
+		opacity: 0;
+		position: absolute;
+		transition: opacity 180ms ease;
+	}
+
+	.year-card__image-wrap--empty {
+		align-items: center;
+		aspect-ratio: 1;
+		display: flex;
+		font-family: var(--font-special);
+		font-size: var(--font-size-3xl);
+		justify-content: center;
+	}
+
+	@media (min-width: 1025px) {
+		.year-card a:hover .year-card__year,
+		.year-card a:focus-visible .year-card__year {
+			opacity: 1;
+		}
+
+		.year-card a:focus-visible {
+			outline: var(--focus-ring-width) solid var(--color-accent);
+			outline-offset: var(--focus-ring-offset);
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.years {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: var(--space-6) var(--space-4);
+		}
+
+		.year-card__year {
+			align-items: center;
+			background: transparent;
+			font-size: var(--font-size-2xl);
+			justify-content: center;
+			opacity: 1;
+			padding: var(--space-2) var(--space-1) 0;
+			position: static;
+			text-shadow: none;
+		}
+	}
+
+	@media (max-width: 767px) {
+		.years {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.year-card__year {
+			transition: none;
+		}
 	}
 </style>

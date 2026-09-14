@@ -6,19 +6,65 @@ import { urlForImage } from '../lib/sanity';
 interface Props {
 	class?: string;
 	painting: Painting;
-	variant?: 'featured' | 'thumb';
+	showYear?: boolean;
+	variant?: 'detail' | 'featured' | 'thumb';
+	year?: number;
 }
 
-const { class: className, painting, variant = 'thumb', ...rest } = Astro.props;
+const { class: className, painting, showYear = false, variant = 'thumb', year, ...rest } = Astro.props;
 
-const imageUrl = painting.mainImage
-	? urlForImage(painting.mainImage).width(600).format('webp').url()
-	: null;
+const imageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(1600).fit('max').format('webp').url() : null;
+const fullImageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(2400).fit('max').format('webp').url() : null;
+const imageSrcSet = painting.mainImage
+	? [640, 960, 1280, 1600].map((width) => `${urlForImage(painting.mainImage!).width(width).fit('max').format('webp').url()} ${width}w`).join(', ')
+	: undefined;
+const details = [painting.medium, painting.support, painting.dimensions].filter(Boolean).join(', ');
+const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytułu', details].filter(Boolean).join(' ');
 ---
 
 <figure class:list={['painting', `painting--${variant}`, className]} {...rest}>
-	{imageUrl && <img alt={painting.title ?? ''} loading="lazy" src={imageUrl} />}
-	{variant === 'thumb' && <figcaption>{painting.title ?? 'Bez tytułu'}</figcaption>}
+	{imageUrl && (
+		variant === 'detail' ? (
+			<button
+				aria-label={`Powiększ obraz: ${painting.title ?? 'bez tytułu'}`}
+				class="painting__image-button"
+				data-lightbox-alt={painting.title ?? 'Obraz'}
+				data-lightbox-caption={lightboxCaption}
+				data-lightbox-src={fullImageUrl ?? imageUrl}
+				data-lightbox-trigger
+				type="button"
+			>
+				<img
+					alt={painting.title ?? 'Obraz'}
+					decoding="async"
+					loading="eager"
+					sizes="(min-width: 1025px) 70vw, 100vw"
+					src={imageUrl}
+					srcset={imageSrcSet}
+				/>
+			</button>
+		) : (
+			<img
+				alt={painting.title ?? 'Obraz'}
+				decoding="async"
+				loading="lazy"
+				sizes="(min-width: 768px) 25vw, 50vw"
+				src={imageUrl}
+				srcset={imageSrcSet}
+			/>
+		)
+	)}
+	{variant === 'detail' ? (
+		<figcaption>
+			{showYear && (year ?? painting.year) && <span class="painting__year">{year ?? painting.year}</span>}
+			<span class="painting__caption-content">
+				<strong>{painting.title ?? 'Bez tytułu'}</strong>
+				{details && <span>{details}</span>}
+			</span>
+		</figcaption>
+	) : (
+		variant === 'thumb' && <figcaption>{painting.title ?? 'Bez tytułu'}</figcaption>
+	)}
 </figure>
 
 <style lang="scss">
@@ -43,6 +89,79 @@ const imageUrl = painting.mainImage
 		height: auto;
 		object-fit: contain;
 		pointer-events: auto;
+	}
+
+	.painting--detail {
+		display: grid;
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+		column-gap: clamp(var(--space-5), 6vw, var(--space-7));
+		align-items: stretch;
+	}
+
+	.painting--detail img {
+		display: block;
+		max-width: 100%;
+		object-fit: contain;
+		width: 100%;
+
+		@media (min-width: 1025px) {
+			max-height: 560px;
+		}
+	}
+
+	.painting--detail .painting__image-button {
+		background: transparent;
+		border: 0;
+		cursor: zoom-in;
+		display: block;
+		grid-column: 2;
+		grid-row: 1;
+		padding: 0;
+		width: 100%;
+	}
+
+	.painting--detail .painting__image-button:focus-visible {
+		outline: var(--focus-ring-width) solid var(--color-accent);
+		outline-offset: var(--focus-ring-offset);
+	}
+
+	.painting--detail figcaption {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		grid-column: 1;
+		grid-row: 1;
+		justify-self: stretch;
+		justify-content: flex-end;
+		text-align: left;
+	}
+
+	.painting--detail .painting__caption-content {
+		display: grid;
+		gap: var(--space-2);
+	}
+
+	.painting--detail figcaption strong {
+		font-family: var(--font-special);
+		font-size: var(--font-size-2xl);
+		font-weight: 400;
+	}
+
+	.painting--detail .painting__caption-content span {
+		font-size: var(--font-size-lg);
+		line-height: 1.25;
+	}
+
+	.painting__year {
+		font-family: var(--font-special);
+		font-size: var(--font-size-5xl);
+		margin-bottom: auto;
+	}
+
+	@media (min-width: 1025px) {
+		.painting--detail figcaption {
+			text-align: right;
+		}
 	}
 
 	/* Thumb — fixed 1.4 ratio, centered crop */
@@ -87,6 +206,36 @@ const imageUrl = painting.mainImage
 	@media (prefers-reduced-motion: reduce) {
 		.painting--thumb figcaption {
 			transition: none;
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.painting--detail {
+			grid-template-columns: 1fr;
+			gap: var(--space-3);
+		}
+
+		.painting--detail img,
+		.painting--detail figcaption,
+		.painting--detail .painting__image-button {
+			grid-column: 1;
+			grid-row: auto;
+		}
+
+		.painting--detail img {
+			height: auto;
+		}
+
+		.painting--detail figcaption {
+			text-align: center;
+		}
+
+		.painting__year {
+			font-size: var(--font-size-3xl);
+		}
+
+		.painting--detail .painting__year {
+			display: none;
 		}
 	}
 </style>

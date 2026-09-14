@@ -4,6 +4,7 @@ import { sanityClient } from 'sanity:client';
 import type { Painting } from '../../lib/types';
 
 import PaintingCard from '../../components/PaintingCard.astro';
+import PaintingLightbox from '../../components/PaintingLightbox.astro';
 import Layout from '../../layouts/main.astro';
 import { collectionByYearQuery, collectionsQuery } from '../../lib/queries';
 
@@ -14,14 +15,122 @@ export async function getStaticPaths() {
 
 const { year } = Astro.params;
 
-const { paintings } = await sanityClient.fetch<{ paintings: Painting[] }>(collectionByYearQuery, {
+const collection = await sanityClient.fetch<null | { paintings: Painting[]; year: number }>(collectionByYearQuery, {
 	year: Number(year),
 });
+const paintings = collection?.paintings ?? [];
 ---
 
 <Layout title={`Rocznik ${year}`}>
-	<h1>Rocznik {year}</h1>
-	<div class="grid">
-		{(paintings ?? []).map((painting) => <PaintingCard painting={painting} />)}
-	</div>
+	<header class="page-heading">
+		<a class="back-link" href="/portfolio">← Portfolio</a>
+		<h1>{year}</h1>
+	</header>
+	<section aria-label={`Prace z roku ${year}`} class="paintings">
+		{paintings.map((painting, index) => (
+			<PaintingCard class={index === 0 ? 'painting--first' : undefined} painting={painting} showYear={index === 0} variant="detail" year={Number(year)} />
+		))}
+	</section>
+	<PaintingLightbox />
 </Layout>
+
+<style lang="scss">
+	.page-heading {
+		align-items: center;
+		background: var(--color-bg);
+		display: flex;
+		justify-content: flex-end;
+		margin-inline: calc(50% - 50vw);
+		padding: var(--space-3) max(var(--space-4), calc((100vw - var(--container-width)) / 2 + var(--space-4)));
+	}
+
+	.page-heading h1 {
+		display: none;
+	}
+
+	.page-heading h1 {
+		font-size: clamp(var(--font-size-4xl), 6vw, var(--font-size-5xl));
+	}
+
+	.page-heading p {
+		color: var(--color-muted);
+	}
+
+	.back-link {
+		color: var(--color-text);
+		font-size: var(--font-size-lg);
+		text-decoration: none;
+		width: fit-content;
+	}
+
+	.back-link:hover,
+	.back-link:focus-visible {
+		text-decoration: underline;
+	}
+
+	.paintings {
+		background: var(--color-bg);
+		display: grid;
+		gap: var(--space-4);
+		margin-inline: calc(50% - 50vw);
+		padding: var(--space-0);
+	}
+
+	.paintings :global(.painting) {
+		background: var(--color-surface);
+		margin-inline: auto;
+		max-width: none;
+		padding-block: clamp(var(--space-6), 8vw, 7rem);
+		padding-inline: max(var(--space-4), calc((100vw - 1100px) / 2));
+		width: 100%;
+	}
+
+	.paintings :global(.painting--first) {
+		padding-top: var(--space-5);
+	}
+
+	@media (min-width: 1025px) {
+		.paintings :global(.painting) {
+			padding-block: var(--space-5);
+		}
+
+		.paintings :global(.painting--detail figcaption) {
+			grid-column: 1;
+			grid-row: 1;
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.page-heading {
+			align-items: center;
+			background: var(--color-bg);
+			display: flex;
+			justify-content: space-between;
+			padding: var(--space-3) var(--space-4);
+		}
+
+		.page-heading h1 {
+			display: block;
+			color: var(--color-text);
+			font-size: var(--font-size-2xl);
+			order: -1;
+		}
+
+		.page-heading .back-link {
+			font-size: var(--font-size-lg);
+		}
+
+		.paintings {
+			padding-top: 0;
+		}
+
+		.paintings :global(.painting) {
+			padding-inline: var(--space-4);
+			padding-block: var(--space-6);
+		}
+
+		.paintings :global(.painting--first) {
+			padding-top: var(--space-5);
+		}
+	}
+</style>

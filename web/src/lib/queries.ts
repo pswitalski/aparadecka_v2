@@ -14,12 +14,15 @@ export const featuredPaintingsQuery = defineQuery(`*[_type == "home"][0]{
 
 export const collectionsQuery = defineQuery(`*[_type == "collection"] | order(year desc){
   year,
-  "thumbnail": thumbnail->{ _id, title, medium, support, dimensions, mainImage }
+  "featuredPainting": coalesce(
+    thumbnail->{ _id, title, medium, support, dimensions, mainImage },
+    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }
+  )
 }`);
 
 export const collectionByYearQuery = defineQuery(`*[_type == "collection" && year == $year][0]{
   year,
-  "paintings": paintings[]->{ _id, title, medium, support, dimensions, mainImage }
+  "paintings": paintings[]->{ _id, title, medium, support, dimensions, year, mainImage }
 }`);
 
 export const aboutQuery = defineQuery(`*[_type == "about"][0]{
