@@ -6,19 +6,32 @@ import { urlForImage } from '../lib/sanity';
 interface Props {
 	class?: string;
 	painting: Painting;
-	variant?: 'featured' | 'thumb';
+	variant?: 'detail' | 'featured' | 'thumb';
 }
 
 const { class: className, painting, variant = 'thumb', ...rest } = Astro.props;
 
-const imageUrl = painting.mainImage
-	? urlForImage(painting.mainImage).width(600).format('webp').url()
-	: null;
+const imageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(1600).fit('max').format('webp').url() : null;
+const imageSrcSet = painting.mainImage
+	? [640, 960, 1280, 1600].map((width) => `${urlForImage(painting.mainImage!).width(width).fit('max').format('webp').url()} ${width}w`).join(', ')
+	: undefined;
+const caption = [painting.title ? `„${painting.title}”` : 'Bez tytułu', painting.medium, painting.support, painting.dimensions]
+	.filter(Boolean)
+	.join(', ');
 ---
 
 <figure class:list={['painting', `painting--${variant}`, className]} {...rest}>
-	{imageUrl && <img alt={painting.title ?? ''} loading="lazy" src={imageUrl} />}
-	{variant === 'thumb' && <figcaption>{painting.title ?? 'Bez tytułu'}</figcaption>}
+	{imageUrl && (
+		<img
+			alt={painting.title ?? 'Obraz'}
+			decoding="async"
+			loading={variant === 'detail' ? 'eager' : 'lazy'}
+			sizes={variant === 'detail' ? '(min-width: 1025px) 70vw, 100vw' : '(min-width: 768px) 25vw, 50vw'}
+			src={imageUrl}
+			srcset={imageSrcSet}
+		/>
+	)}
+	{(variant === 'thumb' || variant === 'detail') && <figcaption>{variant === 'detail' ? caption : painting.title ?? 'Bez tytułu'}</figcaption>}
 </figure>
 
 <style lang="scss">
@@ -43,6 +56,26 @@ const imageUrl = painting.mainImage
 		height: auto;
 		object-fit: contain;
 		pointer-events: auto;
+	}
+
+	.painting--detail {
+		display: grid;
+		gap: var(--space-3);
+	}
+
+	.painting--detail img {
+		display: block;
+		height: auto;
+		max-height: 78dvh;
+		max-width: 100%;
+		object-fit: contain;
+		width: auto;
+	}
+
+	.painting--detail figcaption {
+		font-size: var(--font-size-lg);
+		line-height: 1.2;
+		text-align: center;
 	}
 
 	/* Thumb — fixed 1.4 ratio, centered crop */

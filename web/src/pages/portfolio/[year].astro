@@ -14,14 +14,82 @@ export async function getStaticPaths() {
 
 const { year } = Astro.params;
 
-const { paintings } = await sanityClient.fetch<{ paintings: Painting[] }>(collectionByYearQuery, {
+const collection = await sanityClient.fetch<null | { paintings: Painting[]; year: number }>(collectionByYearQuery, {
 	year: Number(year),
 });
+const paintings = collection?.paintings ?? [];
 ---
 
 <Layout title={`Rocznik ${year}`}>
-	<h1>Rocznik {year}</h1>
-	<div class="grid">
-		{(paintings ?? []).map((painting) => <PaintingCard painting={painting} />)}
-	</div>
+	<header class="page-heading">
+		<a class="back-link" href="/portfolio">← Portfolio</a>
+		<h1 id="year-heading">{year}</h1>
+		<p>{paintings.length} {paintings.length === 1 ? 'praca' : 'prac'}</p>
+	</header>
+	<section aria-labelledby="year-heading" class="paintings">
+		{paintings.map((painting, index) => (
+			<PaintingCard class={index === 0 ? 'painting--first' : undefined} painting={painting} variant="detail" />
+		))}
+	</section>
 </Layout>
+
+<style lang="scss">
+	.page-heading {
+		display: grid;
+		gap: var(--space-2);
+		margin-bottom: var(--space-7);
+	}
+
+	.page-heading h1 {
+		font-size: clamp(var(--font-size-4xl), 6vw, var(--font-size-5xl));
+	}
+
+	.page-heading p {
+		color: var(--color-muted);
+	}
+
+	.back-link {
+		color: var(--color-text);
+		font-size: var(--font-size-sm);
+		text-decoration: none;
+		width: fit-content;
+	}
+
+	.back-link:hover,
+	.back-link:focus-visible {
+		text-decoration: underline;
+	}
+
+	.paintings {
+		display: grid;
+		gap: clamp(var(--space-7), 10vw, 9rem);
+		justify-items: center;
+	}
+
+	.paintings :global(.painting) {
+		width: min(100%, 980px);
+	}
+
+	.paintings :global(.painting--first) {
+		margin-top: var(--space-4);
+	}
+
+	@media (min-width: 1025px) {
+		.page-heading {
+			grid-template-columns: 1fr auto;
+			align-items: end;
+		}
+
+		.page-heading .back-link {
+			grid-column: 1 / -1;
+		}
+
+		.page-heading h1 {
+			grid-column: 1;
+		}
+
+		.page-heading p {
+			grid-column: 2;
+		}
+	}
+</style>
