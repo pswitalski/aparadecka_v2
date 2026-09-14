@@ -4,6 +4,7 @@ import { sanityClient } from 'sanity:client';
 import type { Painting } from '../../lib/types';
 
 import PaintingCard from '../../components/PaintingCard.astro';
+import PaintingLightbox from '../../components/PaintingLightbox.astro';
 import Layout from '../../layouts/main.astro';
 import { collectionByYearQuery, collectionsQuery } from '../../lib/queries';
 
@@ -30,6 +31,7 @@ const paintings = collection?.paintings ?? [];
 			<PaintingCard class={index === 0 ? 'painting--first' : undefined} painting={painting} showYear={index === 0} variant="detail" year={Number(year)} />
 		))}
 	</section>
+	<PaintingLightbox />
 </Layout>
 
 <style lang="scss">
