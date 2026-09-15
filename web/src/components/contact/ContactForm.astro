@@ -3,25 +3,33 @@
 		<span aria-hidden="true" class="contact-form__flap"></span>
 		<div class="contact-form__envelope"></div>
 		<div class="contact-form__card">
-			<form action="#" class="contact-form__form" onsubmit="return false">
+			<form class="contact-form__form">
 				<div class="contact-form__field">
 					<label for="imie">Imię</label>
-					<input id="imie" name="imie" type="text" />
+					<input id="imie" maxlength="100" name="name" required type="text" />
 				</div>
 				<div class="contact-form__field">
 					<label for="nazwisko">Nazwisko</label>
-					<input id="nazwisko" name="nazwisko" type="text" />
+					<input id="nazwisko" maxlength="100" name="surname" required type="text" />
 				</div>
 				<div class="contact-form__field">
 					<label for="email">E-mail</label>
-					<input id="email" name="email" type="email" />
+					<input id="email" maxlength="254" name="email" required type="email" />
 				</div>
 				<div class="contact-form__field">
 					<label for="wiadomosc">Wiadomość</label>
-					<textarea id="wiadomosc" name="wiadomosc"></textarea>
+					<textarea id="wiadomosc" maxlength="2000" name="message" required></textarea>
+				</div>
+				<div class="contact-form__error" hidden role="alert"></div>
+				<div aria-hidden="true" style="position:absolute;left:-9999px">
+					<label for="website">Website</label>
+					<input autocomplete="off" id="website" name="website" tabindex="-1" type="text" />
 				</div>
 				<button class="contact-form__submit" type="submit">Wyślij</button>
 			</form>
+			<div class="contact-form__success" hidden>
+				<p>Dziękuję za wiadomość!</p>
+			</div>
 			<span aria-hidden="true" class="contact-form__fold"></span>
 		</div>
 	</div>
@@ -167,9 +175,33 @@
 	cursor: pointer;
 }
 
+.contact-form__submit:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
 .contact-form__submit:focus-visible {
 	outline: var(--focus-ring-width) solid var(--color-accent);
 	outline-offset: var(--focus-ring-offset);
+}
+
+.contact-form__error {
+	color: var(--color-error);
+	font-family: var(--font-sans);
+	font-size: var(--font-size-xs);
+	margin-bottom: var(--space-2);
+}
+
+.contact-form__success {
+	padding: var(--space-4);
+	text-align: center;
+	font-family: var(--font-sans);
+	font-size: var(--font-size-base);
+}
+
+.contact-form__field input:user-invalid,
+.contact-form__field textarea:user-invalid {
+	border-color: var(--color-error);
 }
 
 /* Fold: big triangle draped over the card's lower-left, down to the envelope bottom */
@@ -240,3 +272,48 @@
 	}
 }
 </style>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('.contact-form__form')
+	const successEl = document.querySelector<HTMLElement>('.contact-form__success')
+	const errorEl = document.querySelector<HTMLElement>('.contact-form__error')
+	const submitBtn = form?.querySelector<HTMLButtonElement>('.contact-form__submit')
+
+	if (form && successEl && errorEl && submitBtn) {
+		const originalText = submitBtn.textContent
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault()
+			errorEl.hidden = true
+
+			const data = Object.fromEntries(new FormData(form))
+
+			submitBtn.disabled = true
+			submitBtn.textContent = 'Wysyłanie...'
+
+			try {
+				const res = await fetch('/api/contact', {
+					body: JSON.stringify(data),
+				headers: {'Content-Type': 'application/json'},
+				method: 'POST',
+				})
+
+				const json = (await res.json()) as {error?: string; ok: boolean;}
+
+				if (json.ok) {
+					form.hidden = true
+					successEl.hidden = false
+				} else {
+					errorEl.textContent = json.error || 'Wystąpił błąd. Spróbuj ponownie.'
+					errorEl.hidden = false
+				}
+			} catch {
+				errorEl.textContent = 'Brak połączenia. Spróbuj ponownie.'
+				errorEl.hidden = false
+			} finally {
+				submitBtn.disabled = false
+				submitBtn.textContent = originalText
+			}
+		})
+	}
+</script>
