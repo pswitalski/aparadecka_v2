@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@cloudflare/workers-types": "^5.20260915.1",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
