@@ -1,5 +1,6 @@
 plans
 studio/schema.json
 .agent-screenshots
+.commandcode
 node_modules/
 /.husky/_

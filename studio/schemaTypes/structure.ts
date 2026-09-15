@@ -74,6 +74,17 @@ export const structure: StructureResolver = (S) => {
               .title('Kontakt')
               .icon(EnvelopeIcon)
               .child(singleton('contact', 'Kontakt')),
+            S.listItem()
+              .id('contactMessages')
+              .title('Wiadomości')
+              .icon(EnvelopeIcon)
+              .child(
+                S.documentList()
+                  .schemaType('contactMessage')
+                  .id('contactMessages')
+                  .filter('_type == "contactMessage"')
+                  .defaultOrdering([{direction: 'desc', field: 'createdAt'}]),
+              ),
           ]),
         ),
       S.listItem()
