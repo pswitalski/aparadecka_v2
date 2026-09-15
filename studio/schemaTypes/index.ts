@@ -1,3 +1,4 @@
+import {contactMessage} from './contactMessage'
 import {deployRun} from './deployRun'
 import {deployTrigger} from './deployTrigger'
 import {collection} from './groups/collection'
@@ -16,6 +17,7 @@ export const schemaTypes = [
   about,
   aboutBlock,
   contact,
+  contactMessage,
   site,
   deployTrigger,
   deployRun,
