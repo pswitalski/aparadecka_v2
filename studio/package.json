@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^7.0.0",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "eslint": "^10.9.1",
     "eslint-plugin-perfectionist": "^5.10.1",
