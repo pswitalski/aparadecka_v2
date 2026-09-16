@@ -4,6 +4,7 @@ import type { PortableTextProps } from 'astro-portabletext/types';
 import { PortableText as PortableTextInternal } from 'astro-portabletext';
 
 import BigSmallBlock from './BigSmallBlock.tsx';
+import BoldMark from './BoldMark.astro';
 import PortableTextImage from './PortableTextImage.astro';
 
 const { value } = Astro.props as { value: PortableTextProps['value'] };
@@ -12,6 +13,11 @@ const components = {
 	block: {
 		big: BigSmallBlock,
 		small: BigSmallBlock,
+	},
+	// The Studio's `bold` decorator is not one of astro-portabletext's built-in
+	// marks (it knows `strong`), so without this it renders as a bare <span>.
+	mark: {
+		bold: BoldMark,
 	},
 	type: {
 		image: PortableTextImage,

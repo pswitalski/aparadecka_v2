@@ -1,5 +1,18 @@
-@use 'breakpoints';
-@use 'sass:map';
+/*
+ * Design tokens — the single source of truth for both apps.
+ *
+ * Imported by the Astro site (web/src/layouts/main.astro) and by the Sanity
+ * Studio editor (studio/schemaTypes/components/AboutTextRendering.tsx), so the
+ * editor resolves the same token values the published page uses.
+ *
+ * Declared on :root because components across the site read these outside of
+ * any single wrapper. None of these names are used by Sanity UI, so loading
+ * them in the Studio adds values without affecting its own styling.
+ *
+ * The one value that cannot live here is the breakpoint: it is derived from the
+ * SCSS map and emitted from web/src/styles/globals.scss, because media queries
+ * cannot use custom properties and SCSS cannot inline a plain CSS file.
+ */
 
 :root {
 	/* Typography */
@@ -49,13 +62,6 @@
 	--grid-min: 280px;
 	--header-height: 166px;
 	--header-height-mobile: 82px;
-
-	/* Breakpoints */
-	/* Runtime value for JS (read via getComputedStyle) — derived from
-	   $breakpoints.mobile in _breakpoints.scss (single source of truth).
-	   CSS custom properties can't be used in media queries, so components
-	   use the min-width/max-width mixins instead. */
-	--breakpoint-mobile: #{map.get(breakpoints.$breakpoints, mobile)};
 
 	/* Focus */
 	--focus-ring-width: 2px;

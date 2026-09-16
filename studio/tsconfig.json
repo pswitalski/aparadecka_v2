@@ -5,6 +5,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "noUncheckedSideEffectImports": true,
     "forceConsistentCasingInFileNames": true,
     "module": "Preserve",
     "moduleDetection": "force",

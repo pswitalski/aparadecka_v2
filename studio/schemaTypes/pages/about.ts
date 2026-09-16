@@ -3,7 +3,15 @@ import {ItalicIcon} from '@sanity/icons/Italic'
 import {UserIcon} from '@sanity/icons/User'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-import {makeTextStyle} from '../components/TextStylePreview'
+import {
+  BigTextStyle,
+  BoldDecorator,
+  Heading2Style,
+  Heading3Style,
+  ItalicDecorator,
+  NormalTextStyle,
+  SmallTextStyle,
+} from '../components/AboutTextRendering'
 
 export const aboutBlock = defineType({
   fields: [
@@ -21,7 +29,7 @@ export const aboutBlock = defineType({
                     title: 'URL',
                     type: 'url',
                     validation: (rule) =>
-                      rule.uri({scheme: ['http', 'https', 'mailto']}),
+                      rule.required().uri({scheme: ['http', 'https', 'mailto']}),
                   },
                 ],
                 name: 'link',
@@ -30,20 +38,18 @@ export const aboutBlock = defineType({
               },
             ],
             decorators: [
-              {icon: BoldIcon, title: 'Pogrubienie', value: 'bold'},
-              {icon: ItalicIcon, title: 'Kursywa', value: 'em'},
+              {component: BoldDecorator, icon: BoldIcon, title: 'Pogrubienie', value: 'bold'},
+              {component: ItalicDecorator, icon: ItalicIcon, title: 'Kursywa', value: 'em'},
             ],
           },
           styles: [
-            {title: 'Nagłówek 2', value: 'h2'},
-            {title: 'Nagłówek 3', value: 'h3'},
-            {component: makeTextStyle('18px'), title: 'Większy tekst', value: 'big'},
-            {
-              component: makeTextStyle('16px'),
-              title: 'Standardowy tekst',
-              value: 'normal',
-            },
-            {component: makeTextStyle('14px'), title: 'Mniejszy tekst', value: 'small'},
+            // Must stay first: Sanity uses the first defined style as the
+            // default for new blocks, so this makes Enter create a paragraph.
+            {component: NormalTextStyle, title: 'Standardowy tekst', value: 'normal'},
+            {component: BigTextStyle, title: 'Większy tekst', value: 'big'},
+            {component: SmallTextStyle, title: 'Mniejszy tekst', value: 'small'},
+            {component: Heading2Style, title: 'Nagłówek 2', value: 'h2'},
+            {component: Heading3Style, title: 'Nagłówek 3', value: 'h3'},
           ],
           type: 'block',
         }),

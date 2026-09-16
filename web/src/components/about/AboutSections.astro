@@ -56,7 +56,7 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
           </div>
           <div class="about-block__text">
             <div class="about-block__text-inner">
-              <div class="about-block__content">
+              <div class="about-block__content rich-text">
                 {block.text && <PortableText value={block.text} />}
               </div>
             </div>
@@ -75,7 +75,7 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
         <div class="about-block__inner">
           <div class="about-block__text">
             <div class="about-block__text-inner">
-              <div class="about-block__content">
+              <div class="about-block__content rich-text">
                 {block.text && <PortableText value={block.text} />}
               </div>
             </div>
@@ -99,70 +99,7 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
   }
 
   .about-block__content {
-    line-height: 1.6;
     min-width: 0;
-  }
-
-  /* Rich-text typography for About content. :global() is required because
-     the headings/lists/links are rendered by astro-portabletext (a child
-     component), so Astro-scoped selectors can't reach them. Bound to the
-     About-only '.about-block__content' class so nothing leaks elsewhere. */
-  :global(.about-block__content p),
-  :global(.about-block__content ul),
-  :global(.about-block__content ol),
-  :global(.about-block__content li) {
-    font-size: var(--font-size-base);
-  }
-
-  :global(.about-block__content .big) {
-    font-size: var(--font-size-lg);
-  }
-
-  :global(.about-block__content .small) {
-    font-size: var(--font-size-sm);
-  }
-
-  :global(.about-block__content h2) {
-    font-size: var(--font-size-2xl);
-  }
-
-  :global(.about-block__content h3) {
-    font-size: var(--font-size-xl);
-  }
-
-  :global(.about-block__content h4) {
-    font-size: var(--font-size-lg);
-  }
-
-  :global(.about-block__content h5) {
-    font-size: var(--font-size-base);
-  }
-
-  :global(.about-block__content h6) {
-    font-size: var(--font-size-sm);
-  }
-
-  :global(.about-block__content a) {
-    color: var(--color-accent);
-    text-decoration: none;
-  }
-
-  :global(.about-block__content a:hover) {
-    text-decoration: underline;
-  }
-
-  :global(.about-block__content ul),
-  :global(.about-block__content ol) {
-    padding-left: var(--space-5);
-  }
-
-  :global(.about-block__content li) {
-    margin-block: var(--space-1);
-  }
-
-  :global(.about-block__content figcaption) {
-    font-size: var(--font-size-sm);
-    color: var(--color-muted);
   }
 
   /* Text alignment (applies to every block type) */

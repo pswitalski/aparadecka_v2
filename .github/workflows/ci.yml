@@ -30,9 +30,11 @@ jobs:
           filters: |
             studio:
               - 'studio/**'
+              - 'shared/**'
               - '.github/**'
             web:
               - 'web/**'
+              - 'shared/**'
               - '.github/**'
 
   sync-deps:
