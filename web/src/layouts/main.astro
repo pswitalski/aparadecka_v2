@@ -38,8 +38,11 @@ const resolvedDescription =
 		<meta content="width=device-width" name="viewport" />
 		<meta content={resolvedDescription} name="description" />
 		{site?.keywords?.length && <meta content={site.keywords.join(', ')} name="keywords" />}
-		<link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+		<link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
+		<link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
+		<link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
 		<link href="/favicon.ico" rel="icon" />
+		<link href="/site.webmanifest" rel="manifest" />
 		<meta content={Astro.generator} name="generator" />
 		<title>{resolvedTitle}</title>
 	</head>
