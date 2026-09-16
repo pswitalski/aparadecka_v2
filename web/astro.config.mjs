@@ -29,5 +29,12 @@ export default defineConfig({
 	],
 	vite: {
 		plugins: [vanillaExtractPlugin()],
+		server: {
+			fs: {
+				// `shared/rich-text.css` lives at the repo root, which is outside
+				// Vite's default serving allow list (the workspace root is web/).
+				allow: ['..'],
+			},
+		},
 	},
 });

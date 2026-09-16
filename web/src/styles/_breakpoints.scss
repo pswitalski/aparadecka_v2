@@ -5,6 +5,10 @@ $breakpoints: (
 	tablet: 1025px,
 );
 
+// This module emits no CSS of its own: it is @use'd by components for the
+// mixins below. The `--breakpoint-mobile` custom property that exposes `mobile`
+// to client-side JS is emitted once from globals.scss, which the layout imports.
+
 // min-width(name): styles at/above the breakpoint (min-width)
 @mixin min-width($name) {
 	@media (min-width: map.get($breakpoints, $name)) {

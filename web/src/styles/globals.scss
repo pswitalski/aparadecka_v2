@@ -1,3 +1,18 @@
+@use 'breakpoints';
+@use 'sass:map';
+
+/*
+ * Exposes the SCSS-owned breakpoint to client-side JS. Sass has to own the value
+ * (media queries cannot use custom properties) and _breakpoints.scss is a
+ * no-output helper module, so the bridge lives here, where it is emitted exactly
+ * once. Read by MobileMenu via getComputedStyle(document.documentElement).
+ *
+ * Every other design token lives in shared/tokens.css.
+ */
+:root {
+	--breakpoint-mobile: #{map.get(breakpoints.$breakpoints, mobile)};
+}
+
 *,
 *::before,
 *::after {

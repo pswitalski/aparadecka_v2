@@ -1,0 +1,104 @@
+/*
+ * Rich-text typography — the single source of truth for the "O mnie" text.
+ *
+ * Imported by both the Astro site (web/src/layouts/main.astro) and the Sanity
+ * Studio editor (studio/schemaTypes/components/AboutTextRendering.tsx), so what
+ * an editor sees matches what is published.
+ *
+ * Every rule is scoped to `.rich-text` so it can never leak into the rest of
+ * the site or into the Sanity UI.
+ *
+ * Token values come from shared/tokens.css, which both apps import, so there
+ * are no literal fallbacks here to drift out of sync with the design tokens.
+ */
+
+.rich-text {
+	font-family: var(--font-body);
+	font-size: var(--font-size-base);
+	line-height: 1.6;
+	/* No `color` here on purpose: the site inherits it from `body`
+	   (globals.scss), and the Sanity editor inherits it from the Studio theme.
+	   Hard-coding a value would break the editor in dark mode. */
+}
+
+.rich-text :is(h1, h2, h3, h4, h5, h6) {
+	margin: 0;
+	font-family: var(--font-special);
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.rich-text :is(p, ul, ol) {
+	margin: 0;
+	font-size: var(--font-size-base);
+}
+
+/*
+ * A blank line typed in the editor is stored as an empty block. The editor
+ * keeps a <br> inside it, so it looks like a line there, but the published
+ * markup is a bare empty element that collapses to zero height. `1lh` gives it
+ * back exactly one line (the `em` is a fallback for browsers without `lh`).
+ */
+.rich-text :is(p, h1, h2, h3, h4, h5, h6):empty {
+	min-height: 1em;
+	min-height: 1lh;
+}
+
+.rich-text li {
+	margin-block: var(--space-1);
+	font-size: var(--font-size-base);
+}
+
+.rich-text :is(ul, ol) {
+	padding-left: var(--space-5);
+}
+
+.rich-text h2 {
+	font-size: var(--font-size-2xl);
+}
+
+.rich-text h3 {
+	font-size: var(--font-size-xl);
+}
+
+.rich-text h4 {
+	font-size: var(--font-size-lg);
+}
+
+.rich-text h5 {
+	font-size: var(--font-size-base);
+}
+
+.rich-text h6 {
+	font-size: var(--font-size-sm);
+}
+
+.rich-text .big {
+	font-size: var(--font-size-lg);
+}
+
+.rich-text .small {
+	font-size: var(--font-size-sm);
+}
+
+.rich-text strong {
+	font-weight: var(--font-weight-bold);
+}
+
+.rich-text em {
+	font-style: italic;
+}
+
+.rich-text a {
+	color: var(--color-accent);
+	text-decoration: none;
+}
+
+.rich-text a:hover {
+	text-decoration: underline;
+}
+
+.rich-text figcaption {
+	font-size: var(--font-size-sm);
+	color: var(--color-muted);
+}
