@@ -32,13 +32,6 @@ export const cell = style({
 	position: 'absolute',
 });
 
-export const bigCell = style({
-	bottom: 0,
-	left: 0,
-	top: 0,
-	width: `calc(100% - ${THUMB_WIDTH}px - ${SIDE_GAP}px)`,
-});
-
 export const sideCell = style({
 	height: THUMB_HEIGHT,
 	right: 0,

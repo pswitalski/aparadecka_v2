@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { GalleryPainting } from '../adapter';
 
 import * as styles from './DesktopGallery.css';
-import { type Rect, type Slot, staticGeometryOf, THUMB_STEP, toRect } from './geometry';
+import { pixelGeometryOf, type Slot, staticGeometryOf, THUMB_STEP } from './geometry';
 
 interface Props {
 	paintings: GalleryPainting[];
@@ -61,40 +61,18 @@ export default function DesktopGallery({ paintings }: Props) {
 		});
 	};
 
-	// ---- measure skeleton cells to get slot geometry ----
+	// ---- measure the clip once; every slot rect is derived from its width ----
 	const rootRef = useRef<HTMLDivElement>(null);
-	const bigCellRef = useRef<HTMLDivElement>(null);
-	const thumbCellRefs = useRef<(HTMLDivElement | null)[]>([]);
-	const stackCellRefs = useRef<(HTMLDivElement | null)[]>([]);
-	const [layout, setLayout] = useState<{
-		big: null | Rect;
-		origin: null | Rect;
-		stack: Rect[];
-		thumbs: Rect[];
-	}>({ big: null, origin: null, stack: [], thumbs: [] });
+	const [clipWidth, setClipWidth] = useState<null | number>(null);
 
 	useLayoutEffect(() => {
-		const measure = () => {
-			const origin = rootRef.current?.getBoundingClientRect();
-			const big = bigCellRef.current?.getBoundingClientRect();
-			setLayout({
-				big: big ? toRect(origin!, big) : null,
-				origin: origin ? toRect(origin) : null,
-				stack: stackCellRefs.current.map((el) => (el ? toRect(origin!, el.getBoundingClientRect()) : null)).filter(Boolean) as Rect[],
-				thumbs: thumbCellRefs.current.map((el) => (el ? toRect(origin!, el.getBoundingClientRect()) : null)).filter(Boolean) as Rect[],
-			});
-		};
+		const measure = () => setClipWidth(rootRef.current?.clientWidth ?? null);
+
 		measure();
 		const ro = new ResizeObserver(measure);
 		if (rootRef.current) ro.observe(rootRef.current);
 		return () => ro.disconnect();
-	}, [order, total]);
-
-	const rectOf = (slot: Slot): null | Rect => {
-		if (slot.kind === 'big') return layout.big;
-		if (slot.kind === 'thumb') return layout.thumbs[slot.pos] ?? null;
-		return layout.stack[slot.pos] ?? null;
-	};
+	}, []);
 
 	if (paintings.length === 0) return null;
 
@@ -102,27 +80,13 @@ export default function DesktopGallery({ paintings }: Props) {
 		<section className={styles.homeGallery} data-home-gallery>
 			<div className={styles.inner}>
 				<div className={styles.clip} ref={rootRef}>
-					{/* skeleton cells define slot geometry (invisible, just for measurement + hover) */}
-					<div className={`${styles.cell} ${styles.bigCell}`} ref={bigCellRef} />
-					{stackStrip.map((_, i) => (
-						<div
-							className={`${styles.cell} ${styles.sideCell}`}
-							key={i}
-							ref={(el) => {
-								stackCellRefs.current[i] = el;
-							}}
-							style={{ top: -((i + 1) * THUMB_STEP) }}
-						/>
-					))}
+					{/* visible thumbnail cells: hover-pause regions + the click targets */}
 					{visibleStrip.map((_, i) => (
 						<div
 							className={`${styles.cell} ${styles.sideCell}`}
 							key={i}
 							onMouseEnter={() => setPaused(true)}
 							onMouseLeave={() => setPaused(false)}
-							ref={(el) => {
-								thumbCellRefs.current[i] = el;
-							}}
 							style={{ top: i * THUMB_STEP }}
 						>
 							<button
@@ -140,25 +104,18 @@ export default function DesktopGallery({ paintings }: Props) {
 					{order.map((idx) => {
 						const slot = slotOf.get(idx);
 						if (!slot) return null;
-						const rect = rectOf(slot);
+						const hasGeometry = clipWidth !== null;
+						const rect = hasGeometry ? pixelGeometryOf(slot, clipWidth) : null;
 						const isBig = slot.kind === 'big';
-						const staticGeom = staticGeometryOf(slot);
 						return (
 							<motion.div
-								animate={
-									rect
-										? { height: rect.height, left: rect.left, top: rect.top, width: rect.width }
-										: undefined
-								}
+								animate={rect ?? undefined}
 								className={styles.item}
-								initial={false}
-								key={paintings[idx].id}
-								style={{
-									height: staticGeom.height,
-									left: staticGeom.left,
-									top: staticGeom.top,
-									width: staticGeom.width,
-								}}
+								data-painting-item
+								data-slot={slot.kind}
+								initial={rect ?? false}
+								key={hasGeometry ? paintings[idx].id : `${paintings[idx].id}-ssr`}
+								style={hasGeometry ? undefined : staticGeometryOf(slot)}
 								transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
 							>
 								{isBig ? (
