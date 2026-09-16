@@ -36,8 +36,12 @@
 /*
  * A blank line typed in the editor is stored as an empty block. The editor
  * keeps a <br> inside it, so it looks like a line there, but the published
- * markup is a bare empty element that collapses to zero height. `1lh` gives it
- * back exactly one line (the `em` is a fallback for browsers without `lh`).
+ * markup is a bare empty element that collapses to zero height. `lh` gives it
+ * back exactly one line.
+ *
+ * `em` is a fallback for browsers without `lh`: the web build's minifier prunes
+ * it when every target already supports `lh` (so the shipped rule is often just
+ * `min-height: 1lh`), while the Studio bundle keeps both.
  */
 .rich-text :is(p, h1, h2, h3, h4, h5, h6):empty {
 	min-height: 1em;

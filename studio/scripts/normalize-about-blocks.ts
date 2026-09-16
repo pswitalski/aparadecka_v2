@@ -15,6 +15,8 @@
  */
 import {getCliClient} from 'sanity/cli'
 
+import {apiVersion} from '../apiVersion'
+
 const APPLY = process.env.APPLY === '1'
 const DOC_IDS = ['about']
 
@@ -37,7 +39,7 @@ type Block = {
   style?: string
 }
 
-const client = getCliClient({apiVersion: '2026-08-15'})
+const client = getCliClient({apiVersion})
 
 function randomKey(): string {
   let out = ''
