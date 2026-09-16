@@ -19,4 +19,15 @@ export default defineCliConfig({
     path: '../web/src/**/*.{ts,tsx}',
     schema: 'schema.json',
   },
+  /**
+   * The Studio preview imports `shared/rich-text.css` from the repo root, which
+   * sits outside Vite's default serving allow list (the workspace root is the
+   * studio folder). Add the parent directory so dev and preview can serve it.
+   */
+  vite: (config) => {
+    config.server ??= {}
+    config.server.fs ??= {}
+    config.server.fs.allow = [...(config.server.fs.allow ?? []), '..']
+    return config
+  },
 })
