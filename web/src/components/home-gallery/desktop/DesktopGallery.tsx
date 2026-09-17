@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { GalleryPainting } from '../adapter';
 
 import * as styles from './DesktopGallery.css';
-import { pixelGeometryOf, type Slot, staticGeometryOf, THUMB_STEP } from './geometry';
+import { pixelGeometryOf, SIDE_GAP, type Slot, staticGeometryOf, THUMB_STEP, THUMB_WIDTH } from './geometry';
 
 interface Props {
 	paintings: GalleryPainting[];
@@ -12,6 +12,11 @@ interface Props {
 
 const INTERVAL = 5000;
 const VISIBLE = 3;
+/* The big slot is the clip width minus the thumbnail column, and the clip is the content box
+   of `main` (max-width 1200px, 1rem inline padding). Sizing the file against this keeps the
+   hero from being upscaled on a 2x screen; the thumbnails share the same srcset so the element
+   never swaps files as it morphs between slots. */
+const GALLERY_SIZES = `calc(min(100vw, 1200px) - 2rem - ${THUMB_WIDTH + SIDE_GAP}px)`;
 
 export default function DesktopGallery({ paintings }: Props) {
 	const total = paintings.length;
@@ -129,7 +134,9 @@ export default function DesktopGallery({ paintings }: Props) {
 											className={`${styles.galleryImg} ${styles.bigImg}`}
 											fetchPriority="high"
 											loading="eager"
+											sizes={GALLERY_SIZES}
 											src={paintings[idx].image}
+											srcSet={paintings[idx].desktopSrcset}
 										/>
 									</div>
 								) : (
@@ -137,7 +144,9 @@ export default function DesktopGallery({ paintings }: Props) {
 										alt={paintings[idx].title ?? ''}
 										className={`${styles.galleryImg} ${styles.thumbImg}`}
 										loading="lazy"
+										sizes={GALLERY_SIZES}
 										src={paintings[idx].image}
+										srcSet={paintings[idx].desktopSrcset}
 									/>
 								)}
 							</motion.div>

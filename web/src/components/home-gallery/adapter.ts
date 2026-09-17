@@ -4,6 +4,7 @@ import { imageSrcSet, imageUrl } from '../../lib/sanity';
 
 export interface GalleryPainting {
 	caption: string;
+	desktopSrcset: string;
 	id: string;
 	image: string;
 	mobile: string;
@@ -22,10 +23,11 @@ const MOBILE_SRCSET_WIDTHS = [412, 640, 800, 960, 1120, 1280];
 export function adaptPaintings(paintings: null | Painting[] | undefined): GalleryPainting[] {
 	return (paintings ?? []).map((p) => ({
 		caption: buildCaption(p),
+		// The big slot and the thumbnails are one persistent element that morphs between them,
+		// so a per-slot file would swap the image mid-animation. Both use the same srcset, sized
+		// against the big slot, and the browser picks once from `sizes` and the pixel ratio.
+		desktopSrcset: p.mainImage ? imageSrcSet(p.mainImage) : '',
 		id: p._id,
-		// Desktop thumbnails reuse the full-size `image` (1200w): each painting is a single
-		// persistent element that morphs between the thumb and big slots, so it needs the
-		// full-resolution source.
 		image: p.mainImage ? imageUrl(p.mainImage, { width: IMAGE_WIDTH }) : '',
 		mobile: p.mainImage ? imageUrl(p.mainImage, { ratio: CAROUSEL_RATIO, width: MOBILE_WIDTH }) : '',
 		srcset: p.mainImage ? imageSrcSet(p.mainImage, { ratio: CAROUSEL_RATIO, widths: MOBILE_SRCSET_WIDTHS }) : '',
