@@ -13,6 +13,8 @@ interface CollectionItem {
 }
 
 const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery);
+/* The grid is three columns on desktop, so two rows — six cards — are on screen at
+   a typical desktop height. Those load eagerly; the rest stay lazy. */
 const EAGER_CARDS = 6;
 ---
 

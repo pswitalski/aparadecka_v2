@@ -9,6 +9,8 @@ interface Props {
 }
 
 const { sections = [] } = Astro.props;
+/* Picture blocks are 300–450px tall, so at a typical window height the second one is
+   already partly on screen. Those load eagerly; the rest stay lazy. */
 const EAGER_IMAGES = 2;
 
 let imageIndex = 0;

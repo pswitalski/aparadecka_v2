@@ -261,7 +261,10 @@ const { id = 'mobile-menu', links } = Astro.props;
 				if (navigating) return;
 				navigating = true;
 
-				closeMenu(() => window.location.assign(link.href));
+				closeMenu(() => {
+					navigating = false;
+					window.location.assign(link.href);
+				});
 			});
 		});
 

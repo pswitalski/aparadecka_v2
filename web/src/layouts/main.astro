@@ -58,7 +58,14 @@ const resolvedDescription =
 	description ?? site?.description ?? 'Agnieszka Paradecka - Świtalska - Portfolio';
 
 const speculationRules = JSON.stringify({
-	prefetch: [{ eagerness: 'moderate', source: 'document', where: { href_matches: '/*' } }],
+	prefetch: [
+		{
+			eagerness: 'moderate',
+			source: 'document',
+			/* Same-origin documents, excluding anything with a query string. */
+			where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/*\\?*' } }] },
+		},
+	],
 });
 ---
 

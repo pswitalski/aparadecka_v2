@@ -150,13 +150,15 @@
 			if (sourceImage) sourceImage.style.viewTransitionName = PAINTING_NAME;
 		};
 
-		const clearNames = () => {
+		const clearNames = (expect = session) => {
+			if (expect !== session) return;
+
 			if (image) image.style.viewTransitionName = '';
 			if (sourceImage) sourceImage.style.viewTransitionName = '';
 			sourceImage = null;
 		};
 
-		const show = (index: number) => {
+		const show = (index: number, withName = true) => {
 			const trigger = triggers[index];
 			if (!trigger) return;
 
@@ -173,15 +175,15 @@
 			if (caption) caption.textContent = trigger.dataset.lightboxCaption ?? '';
 
 			dialog.showModal();
-			takeName();
+			if (withName) takeName();
 
 			closeButton?.focus();
 			upgrade(fullSrc);
 		};
 
-		const hide = () => {
+		const hide = (withName = true) => {
 			dialog.close();
-			giveNameBack();
+			if (withName) giveNameBack();
 
 			activeTrigger?.focus();
 		};
@@ -191,25 +193,43 @@
 			const cardImage = trigger?.closest('.painting')?.querySelector('img') ?? null;
 
 			if (!trigger || !canTransition || reduceMotion.matches) {
-				show(index);
+				show(index, false);
 				clearNames();
 				return;
 			}
 
+			if (sourceImage && sourceImage !== cardImage) {
+				sourceImage.style.removeProperty('view-transition-name');
+			}
 			cardImage?.style.setProperty('view-transition-name', PAINTING_NAME);
-			document.startViewTransition(() => show(index));
+
+			const openingSession = session + 1;
+
+			document
+				.startViewTransition(() => show(index))
+				.finished.catch(() => {})
+				.finally(() => {
+					if (session === openingSession && !dialog.open) {
+						cardImage?.style.removeProperty('view-transition-name');
+					}
+				});
 		};
 
 		const close = () => {
 			if (!dialog.open) return;
 
 			if (!canTransition || reduceMotion.matches) {
-				hide();
+				hide(false);
 				clearNames();
 				return;
 			}
 
-			document.startViewTransition(() => hide()).finished.finally(clearNames);
+			const closingSession = session;
+
+			document
+				.startViewTransition(() => hide())
+				.finished.catch(() => {})
+				.finally(() => clearNames(closingSession));
 		};
 
 		triggers.forEach((trigger, index) => {
