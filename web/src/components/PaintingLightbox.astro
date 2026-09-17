@@ -15,7 +15,7 @@
 
 <style lang="scss">
 	.painting-lightbox {
-		background: transparent;
+		background: rgba(0, 0, 0, 0.86);
 		border: 0;
 		color: var(--color-bg);
 		height: 100dvh;
@@ -26,7 +26,7 @@
 	}
 
 	.painting-lightbox::backdrop {
-		background: rgba(0, 0, 0, 0.86);
+		background: transparent;
 	}
 
 	.painting-lightbox__surface {
@@ -111,32 +111,111 @@
 		const surface = dialog.querySelector<HTMLElement>('.painting-lightbox__surface');
 		const figure = dialog.querySelector<HTMLElement>('.painting-lightbox__figure');
 		const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-lightbox-trigger]'));
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const canTransition = typeof document.startViewTransition === 'function';
+
+		const PAINTING_NAME = 'lightbox-painting';
+
 		let activeTrigger: HTMLButtonElement | null = null;
+		let sourceImage: HTMLImageElement | null = null;
+		let session = 0;
 
-		const update = (index: number) => {
+		const warm = (trigger: HTMLButtonElement) => {
+			const src = trigger.closest('.painting')?.querySelector('img')?.currentSrc;
+			if (image && src) image.src = src;
+		};
+
+		const upgrade = (fullSrc: string) => {
+			if (!image || !fullSrc) return;
+
+			const mine = session;
+			const preload = new Image();
+			preload.src = fullSrc;
+			preload
+				.decode()
+				.then(() => {
+					if (dialog.open && mine === session) image.src = fullSrc;
+				})
+				.catch(() => {});
+		};
+
+		const takeName = () => {
+			if (sourceImage) sourceImage.style.viewTransitionName = '';
+			if (image) image.style.viewTransitionName = PAINTING_NAME;
+		};
+
+		const giveNameBack = () => {
+			if (image) image.style.viewTransitionName = '';
+			if (sourceImage) sourceImage.style.viewTransitionName = PAINTING_NAME;
+		};
+
+		const clearNames = () => {
+			if (image) image.style.viewTransitionName = '';
+			if (sourceImage) sourceImage.style.viewTransitionName = '';
+			sourceImage = null;
+		};
+
+		const show = (index: number) => {
 			const trigger = triggers[index];
-			if (!trigger || !image || !caption) return;
+			if (!trigger) return;
 
+			session += 1;
 			activeTrigger = trigger;
-			image.src = trigger.dataset.lightboxSrc ?? '';
-			image.alt = trigger.dataset.lightboxAlt ?? '';
-			caption.textContent = trigger.dataset.lightboxCaption ?? '';
+			sourceImage = trigger.closest('.painting')?.querySelector('img') ?? null;
+
+			const fullSrc = trigger.dataset.lightboxSrc ?? '';
+			const warmSrc = sourceImage?.currentSrc;
+			if (image) {
+				if (warmSrc) image.src = warmSrc;
+				image.alt = trigger.dataset.lightboxAlt ?? '';
+			}
+			if (caption) caption.textContent = trigger.dataset.lightboxCaption ?? '';
+
+			dialog.showModal();
+			takeName();
+
+			closeButton?.focus();
+			upgrade(fullSrc);
+		};
+
+		const hide = () => {
+			dialog.close();
+			giveNameBack();
+
+			activeTrigger?.focus();
 		};
 
 		const open = (index: number) => {
-			dialog.showModal();
-			update(index);
-			closeButton?.focus();
+			const trigger = triggers[index];
+			const cardImage = trigger?.closest('.painting')?.querySelector('img') ?? null;
+
+			if (!trigger || !canTransition || reduceMotion.matches) {
+				show(index);
+				clearNames();
+				return;
+			}
+
+			cardImage?.style.setProperty('view-transition-name', PAINTING_NAME);
+			document.startViewTransition(() => show(index));
 		};
 
 		const close = () => {
 			if (!dialog.open) return;
-			dialog.close();
-			activeTrigger?.focus();
+
+			if (!canTransition || reduceMotion.matches) {
+				hide();
+				clearNames();
+				return;
+			}
+
+			document.startViewTransition(() => hide()).finished.finally(clearNames);
 		};
 
 		triggers.forEach((trigger, index) => {
 			trigger.addEventListener('click', () => open(index));
+			trigger.addEventListener('pointerenter', () => warm(trigger));
+			trigger.addEventListener('focus', () => warm(trigger));
 		});
 
 		closeButton?.addEventListener('click', close);

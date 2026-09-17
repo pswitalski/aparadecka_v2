@@ -8,9 +8,28 @@
 	animation-timing-function: linear;
 }
 
+.painting-lightbox {
+	view-transition-name: lightbox;
+}
+
+::view-transition-group(lightbox-painting) {
+	z-index: 1;
+}
+
+::view-transition-group(lightbox) {
+	z-index: 0;
+}
+
+::view-transition-old(lightbox-painting),
+::view-transition-new(lightbox-painting) {
+	animation: none;
+	object-fit: contain;
+}
+
 @media (prefers-reduced-motion: reduce) {
-	::view-transition-old(root),
-	::view-transition-new(root) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
 		animation-duration: 0s;
 	}
 }
