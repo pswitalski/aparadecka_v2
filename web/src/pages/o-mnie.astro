@@ -9,7 +9,7 @@ const data = await sanityClient.fetch(aboutQuery);
 const sections = data?.sections;
 ---
 
-<Layout title="O mnie">
+<Layout preloadFonts={['bold']} title="O mnie">
   <div class="about-page">
     <div class="about-page__inner">
       <h1 class="visually-hidden">O mnie</h1>

@@ -21,7 +21,7 @@ const collection = await sanityClient.fetch<null | { paintings: Painting[]; year
 const paintings = collection?.paintings ?? [];
 ---
 
-<Layout title={`Rocznik ${year}`}>
+<Layout preloadFonts={['bold']} title={`Rocznik ${year}`}>
 	<header class="page-heading">
 		<a class="back-link" href="/portfolio">← Portfolio</a>
 		<h1>{year}</h1>

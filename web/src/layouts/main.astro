@@ -8,9 +8,13 @@ import '@fontsource/calistoga/latin-ext-400.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-ext-400.css';
 import caladeaLatin400 from '@fontsource/caladea/files/caladea-latin-400-normal.woff2?url';
+import caladeaLatin700 from '@fontsource/caladea/files/caladea-latin-700-normal.woff2?url';
 import caladeaLatinExt400 from '@fontsource/caladea/files/caladea-latin-ext-400-normal.woff2?url';
+import caladeaLatinExt700 from '@fontsource/caladea/files/caladea-latin-ext-700-normal.woff2?url';
 import calistogaLatin400 from '@fontsource/calistoga/files/calistoga-latin-400-normal.woff2?url';
 import calistogaLatinExt400 from '@fontsource/calistoga/files/calistoga-latin-ext-400-normal.woff2?url';
+import interLatin400 from '@fontsource/inter/files/inter-latin-400-normal.woff2?url';
+import interLatinExt400 from '@fontsource/inter/files/inter-latin-ext-400-normal.woff2?url';
 
 import '../styles/globals.scss';
 import '../styles/view-transitions.css';
@@ -24,10 +28,24 @@ import { siteQuery } from '../lib/queries';
 
 interface Props {
 	description?: string;
+	preloadFonts?: Array<'bold' | 'sans'>;
 	title?: string;
 }
 
-const { description, title } = Astro.props;
+const { description, preloadFonts = [], title } = Astro.props;
+
+const fontFaces = {
+	bold: [caladeaLatin700, caladeaLatinExt700],
+	sans: [interLatin400, interLatinExt400],
+};
+
+const preloadedFonts = [
+	caladeaLatin400,
+	caladeaLatinExt400,
+	calistogaLatin400,
+	calistogaLatinExt400,
+	...preloadFonts.flatMap((face) => fontFaces[face]),
+];
 
 const site = await sanityClient.fetch<{
   description: null | string;
@@ -57,10 +75,9 @@ const speculationRules = JSON.stringify({
 		<link href="/favicon.ico" rel="icon" />
 		<link href="/site.webmanifest" rel="manifest" />
 		<meta content={Astro.generator} name="generator" />
-		<link as="font" crossorigin href={caladeaLatin400} rel="preload" type="font/woff2" />
-		<link as="font" crossorigin href={caladeaLatinExt400} rel="preload" type="font/woff2" />
-		<link as="font" crossorigin href={calistogaLatin400} rel="preload" type="font/woff2" />
-		<link as="font" crossorigin href={calistogaLatinExt400} rel="preload" type="font/woff2" />
+		{preloadedFonts.map((href) => (
+			<link as="font" crossorigin href={href} rel="preload" type="font/woff2" />
+		))}
 		<title>{resolvedTitle}</title>
 		<script is:inline set:html={speculationRules} type="speculationrules"></script>
 	</head>
