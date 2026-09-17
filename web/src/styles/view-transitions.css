@@ -1,0 +1,49 @@
+@view-transition {
+	navigation: auto;
+}
+
+/* Linear on purpose: the header's active underline takes part in this fade, and at
+   2px thick it only reads as a fade if the change is spread across the whole 250ms.
+   An eased-out curve put two thirds of it into the first 50ms, so the line blinked. */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 250ms;
+	animation-timing-function: linear;
+}
+
+/* Named so the dark overlay fades rather than snapping. It has to be the dialog
+   rather than the panel inside it — the colour sits on the dialog, and ::backdrop
+   cannot carry a name. */
+.painting-lightbox {
+	view-transition-name: lightbox;
+}
+
+/* Raised above the overlay, or the fading overlay darkens the picture as it grows.
+   Group order otherwise follows the outgoing element, and the card sits earlier in
+   the document than the dialog. */
+::view-transition-group(lightbox-painting) {
+	z-index: 1;
+}
+
+::view-transition-group(lightbox) {
+	z-index: 0;
+}
+
+/* Hold both snapshots instead of cross-fading them: they are the same painting, so
+   the box morph reads as one picture scaling up, where the default fade reads as a
+   flash. `contain` keeps it undistorted as the box changes shape.
+   Image layers only — the group must keep its animation, which defines its box. */
+::view-transition-old(lightbox-painting),
+::view-transition-new(lightbox-painting) {
+	animation: none;
+	object-fit: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	/* Wildcards so every group is covered, including the lightbox ones. */
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation-duration: 0s;
+	}
+}

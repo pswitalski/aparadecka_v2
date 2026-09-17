@@ -6,12 +6,21 @@ import { urlForImage } from '../lib/sanity';
 interface Props {
 	class?: string;
 	painting: Painting;
+	priority?: boolean;
 	showYear?: boolean;
 	variant?: 'detail' | 'featured' | 'thumb';
 	year?: number;
 }
 
-const { class: className, painting, showYear = false, variant = 'thumb', year, ...rest } = Astro.props;
+const {
+	class: className,
+	painting,
+	priority = false,
+	showYear = false,
+	variant = 'thumb',
+	year,
+	...rest
+} = Astro.props;
 
 const imageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(1600).fit('max').format('webp').url() : null;
 const fullImageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(2400).fit('max').format('webp').url() : null;
@@ -36,8 +45,9 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 			>
 				<img
 					alt={painting.title ?? 'Obraz'}
-					decoding="async"
-					loading="eager"
+					decoding={priority ? 'sync' : 'async'}
+					fetchpriority={priority ? 'high' : undefined}
+					loading={priority ? 'eager' : 'lazy'}
 					sizes="(min-width: 1025px) 70vw, 100vw"
 					src={imageUrl}
 					srcset={imageSrcSet}
@@ -100,9 +110,10 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 
 	.painting--detail img {
 		display: block;
+		margin-inline: auto;
 		max-width: 100%;
 		object-fit: contain;
-		width: 100%;
+		width: auto;
 
 		@media (min-width: 1025px) {
 			max-height: 560px;

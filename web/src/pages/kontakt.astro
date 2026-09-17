@@ -34,7 +34,7 @@ const links = (
 	.map(({ key, label, url }) => ({ key, label, url }));
 ---
 
-<Layout title="Kontakt">
+<Layout preloadFonts={['bold', 'sans']} title="Kontakt">
 	<section class="contact-page">
 		<div class="contact-page__inner">
 			<h1 class="visually-hidden">Kontakt</h1>
@@ -52,7 +52,6 @@ const links = (
 	.contact-page {
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
-		margin-top: calc(-1 * var(--space-4));
 		background: var(--color-surface);
 		overflow-x: clip;
 	}

@@ -9,15 +9,22 @@ interface Props {
 }
 
 const { sections = [] } = Astro.props;
+/* Picture blocks are 300–450px tall, so at a typical window height the second one is
+   already partly on screen. Those load eagerly; the rest stay lazy. */
+const EAGER_IMAGES = 2;
+
+let imageIndex = 0;
 
 const blocks = (sections ?? []).map((section) => {
-  const asset = section.image?.asset ?? null;
-  const hasImage = asset !== null;
-  const side = section.imagePositionDesktop === 'right' ? 'right' : 'left';
-  const mobilePos = section.imagePositionMobile === 'under' ? 'under' : 'above';
-  const textAlign = section.textAlign ?? 'left';
+	const asset = section.image?.asset ?? null;
+	const hasImage = asset !== null;
+	const isEagerImage = hasImage && imageIndex < EAGER_IMAGES;
+	if (hasImage) imageIndex += 1;
+	const side = section.imagePositionDesktop === 'right' ? 'right' : 'left';
+	const mobilePos = section.imagePositionMobile === 'under' ? 'under' : 'above';
+	const textAlign = section.textAlign ?? 'left';
 
-  return { ...section, asset, hasImage, mobilePos, side, textAlign };
+	return { ...section, asset, hasImage, isEagerImage, mobilePos, side, textAlign };
 });
 
 function imageSrc(asset: SanityImageAssetReference, width: number) {
@@ -44,7 +51,8 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
               <img
                 alt={block.image.alt ?? ''}
                 aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
-                loading="lazy"
+                decoding={block.isEagerImage ? 'sync' : 'async'}
+                loading={block.isEagerImage ? 'eager' : 'lazy'}
                 sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
                 src={imageSrc(block.asset!, 800)}
                 srcset={`${imageSrc(block.asset!, 480)} 480w, ${imageSrc(block.asset!, 800)} 800w, ${imageSrc(block.asset!, 1200)} 1200w`}

@@ -11,6 +11,18 @@
  */
 :root {
 	--breakpoint-mobile: #{map.get(breakpoints.$breakpoints, mobile)};
+
+	/*
+	 * Keeps the layout width constant. Without it a page tall enough to scroll is
+	 * ~15px narrower than a short one, and since the header and `main` are centred
+	 * with a max-width the header shifts sideways from page to page. It also stops
+	 * the `100vw` full-bleed sections from differing between pages.
+	 *
+	 * `scrollbar-gutter: stable` pins the width too, but on a page that does not
+	 * scroll it leaves the reserved strip blank and the `100vw` sections stop short
+	 * of it, giving a pale seam down the right edge.
+	 */
+	overflow-y: scroll;
 }
 
 *,

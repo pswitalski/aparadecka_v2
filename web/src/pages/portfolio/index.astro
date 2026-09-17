@@ -13,21 +13,25 @@ interface CollectionItem {
 }
 
 const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery);
+/* The grid is three columns on desktop, so two rows — six cards — are on screen at
+   a typical desktop height. Those load eagerly; the rest stay lazy. */
+const EAGER_CARDS = 6;
 ---
 
 <Layout title="Portfolio">
 	<div class="portfolio-wrapper">
 		<ul class="years">
-			{collections.map(({ featuredPainting, year }) => (
+			{collections.map(({ featuredPainting, year }, index) => (
 				<li class="year-card">
 					<a href={`/portfolio/${year}`}>
 						{featuredPainting?.mainImage ? (
 							<span class="year-card__image-wrap">
 								<img
 									alt={featuredPainting.title ?? `Praca z ${year}`}
-									decoding="async"
-									loading="lazy"
-								sizes="(min-width: 1025px) 62vw, 50vw"
+									decoding={index < EAGER_CARDS ? 'sync' : 'async'}
+									fetchpriority={index === 0 ? 'high' : undefined}
+									loading={index < EAGER_CARDS ? 'eager' : 'lazy'}
+									sizes="(min-width: 1025px) 62vw, 50vw"
 									src={urlForImage(featuredPainting.mainImage).width(1200).height(800).fit('crop').format('webp').url()}
 									srcset={[480, 720, 960, 1200]
 										.map(
