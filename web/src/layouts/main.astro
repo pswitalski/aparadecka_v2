@@ -7,8 +7,13 @@ import '@fontsource/calistoga/latin-400.css';
 import '@fontsource/calistoga/latin-ext-400.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-ext-400.css';
+import caladeaLatin400 from '@fontsource/caladea/files/caladea-latin-400-normal.woff2?url';
+import caladeaLatinExt400 from '@fontsource/caladea/files/caladea-latin-ext-400-normal.woff2?url';
+import calistogaLatin400 from '@fontsource/calistoga/files/calistoga-latin-400-normal.woff2?url';
+import calistogaLatinExt400 from '@fontsource/calistoga/files/calistoga-latin-ext-400-normal.woff2?url';
 
 import '../styles/globals.scss';
+import '../styles/view-transitions.css';
 import '../../../shared/tokens.css';
 import '../../../shared/rich-text.css';
 
@@ -33,6 +38,10 @@ const site = await sanityClient.fetch<{
 const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka – Świtalska';
 const resolvedDescription =
 	description ?? site?.description ?? 'Agnieszka Paradecka – Świtalska – Portfolio';
+
+const speculationRules = JSON.stringify({
+	prefetch: [{ eagerness: 'moderate', source: 'document', where: { href_matches: '/*' } }],
+});
 ---
 
 <!doctype html>
@@ -48,7 +57,12 @@ const resolvedDescription =
 		<link href="/favicon.ico" rel="icon" />
 		<link href="/site.webmanifest" rel="manifest" />
 		<meta content={Astro.generator} name="generator" />
+		<link as="font" crossorigin href={caladeaLatin400} rel="preload" type="font/woff2" />
+		<link as="font" crossorigin href={caladeaLatinExt400} rel="preload" type="font/woff2" />
+		<link as="font" crossorigin href={calistogaLatin400} rel="preload" type="font/woff2" />
+		<link as="font" crossorigin href={calistogaLatinExt400} rel="preload" type="font/woff2" />
 		<title>{resolvedTitle}</title>
+		<script is:inline set:html={speculationRules} type="speculationrules"></script>
 	</head>
 	<body>
 		<Navigation />

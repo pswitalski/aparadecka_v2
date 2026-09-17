@@ -1,0 +1,32 @@
+@view-transition {
+	navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 250ms;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.site-header {
+	view-transition-name: site-header;
+}
+
+::view-transition-group(site-header) {
+	animation: none;
+}
+
+::view-transition-old(site-header) {
+	display: none;
+}
+
+::view-transition-new(site-header) {
+	animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation-duration: 0s;
+	}
+}
