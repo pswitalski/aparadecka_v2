@@ -53,9 +53,9 @@ const site = await sanityClient.fetch<{
   siteTitle: null | string;
 }>(siteQuery);
 
-const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka – Świtalska';
+const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka - Świtalska';
 const resolvedDescription =
-	description ?? site?.description ?? 'Agnieszka Paradecka – Świtalska – Portfolio';
+	description ?? site?.description ?? 'Agnieszka Paradecka - Świtalska - Portfolio';
 
 const speculationRules = JSON.stringify({
 	prefetch: [{ eagerness: 'moderate', source: 'document', where: { href_matches: '/*' } }],
