@@ -1,7 +1,7 @@
 ---
 import type { Painting } from '../lib/types';
 
-import { urlForImage } from '../lib/sanity';
+import { imageSrcSet, imageUrl } from '../lib/sanity';
 
 interface Props {
 	class?: string;
@@ -22,24 +22,22 @@ const {
 	...rest
 } = Astro.props;
 
-const imageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(1600).fit('max').format('webp').url() : null;
-const fullImageUrl = painting.mainImage ? urlForImage(painting.mainImage).width(2400).fit('max').format('webp').url() : null;
-const imageSrcSet = painting.mainImage
-	? [640, 960, 1280, 1600].map((width) => `${urlForImage(painting.mainImage!).width(width).fit('max').format('webp').url()} ${width}w`).join(', ')
-	: undefined;
+const previewUrl = painting.mainImage ? imageUrl(painting.mainImage, { width: 1600 }) : null;
+const lightboxUrl = painting.mainImage ? imageUrl(painting.mainImage, { width: 2400 }) : null;
+const previewSrcSet = painting.mainImage ? imageSrcSet(painting.mainImage) : undefined;
 const details = [painting.medium, painting.support, painting.dimensions].filter(Boolean).join(', ');
 const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytułu', details].filter(Boolean).join(' ');
 ---
 
 <figure class:list={['painting', `painting--${variant}`, className]} {...rest}>
-	{imageUrl && (
+	{previewUrl && (
 		variant === 'detail' ? (
 			<button
 				aria-label={`Powiększ obraz: ${painting.title ?? 'bez tytułu'}`}
 				class="painting__image-button"
 				data-lightbox-alt={painting.title ?? 'Obraz'}
 				data-lightbox-caption={lightboxCaption}
-				data-lightbox-src={fullImageUrl ?? imageUrl}
+				data-lightbox-src={lightboxUrl ?? previewUrl}
 				data-lightbox-trigger
 				type="button"
 			>
@@ -48,9 +46,9 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 					decoding={priority ? 'sync' : 'async'}
 					fetchpriority={priority ? 'high' : undefined}
 					loading={priority ? 'eager' : 'lazy'}
-					sizes="(min-width: 1025px) 70vw, 100vw"
-					src={imageUrl}
-					srcset={imageSrcSet}
+					sizes="(min-width: 1025px) min(60vw, 670px), calc(100vw - 2rem)"
+					src={previewUrl}
+					srcset={previewSrcSet}
 				/>
 			</button>
 		) : (
@@ -59,8 +57,8 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 				decoding="async"
 				loading="lazy"
 				sizes="(min-width: 768px) 25vw, 50vw"
-				src={imageUrl}
-				srcset={imageSrcSet}
+				src={previewUrl}
+				srcset={previewSrcSet}
 			/>
 		)
 	)}
