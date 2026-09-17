@@ -28,7 +28,14 @@ const paintings = collection?.paintings ?? [];
 	</header>
 	<section aria-label={`Prace z roku ${year}`} class="paintings">
 		{paintings.map((painting, index) => (
-			<PaintingCard class={index === 0 ? 'painting--first' : undefined} painting={painting} showYear={index === 0} variant="detail" year={Number(year)} />
+			<PaintingCard
+				class={index === 0 ? 'painting--first' : undefined}
+				painting={painting}
+				priority={index === 0}
+				showYear={index === 0}
+				variant="detail"
+				year={Number(year)}
+			/>
 		))}
 	</section>
 	<PaintingLightbox />
