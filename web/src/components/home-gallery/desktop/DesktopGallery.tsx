@@ -127,7 +127,8 @@ export default function DesktopGallery({ paintings }: Props) {
 										<motion.img
 											alt={paintings[idx].title ?? ''}
 											className={`${styles.galleryImg} ${styles.bigImg}`}
-											loading="lazy"
+											fetchPriority="high"
+											loading="eager"
 											src={paintings[idx].image}
 										/>
 									</div>

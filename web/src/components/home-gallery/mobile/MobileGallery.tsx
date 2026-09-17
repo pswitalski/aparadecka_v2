@@ -93,12 +93,13 @@ export default function MobileGallery({ paintings }: Props) {
 				ref={emblaRef}
 			>
 				<div className={styles.container}>
-					{paintings.map((p) => (
+					{paintings.map((p, i) => (
 						<div className={styles.slide} key={p.id}>
 							<img
 								alt={p.title ?? ''}
 								className={styles.img}
-								loading="lazy"
+								fetchPriority={i === 0 ? 'high' : 'auto'}
+								loading={i === 0 ? 'eager' : 'lazy'}
 								sizes="100vw"
 								src={p.mobile}
 								srcSet={p.srcset}
