@@ -121,6 +121,11 @@
 	font-family: var(--font-sans);
 }
 
+.contact-form__form[hidden] {
+	display: block;
+	visibility: hidden;
+}
+
 .contact-form__field {
 	margin-bottom: var(--field-gap);
 }
@@ -193,10 +198,19 @@
 }
 
 .contact-form__success {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: grid;
+	place-content: center;
 	padding: var(--space-4);
 	text-align: center;
 	font-family: var(--font-sans);
 	font-size: var(--font-size-base);
+}
+
+.contact-form__success[hidden] {
+	display: none;
 }
 
 .contact-form__field input:user-invalid,

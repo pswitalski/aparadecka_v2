@@ -149,9 +149,13 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
   .about-block--has-image .about-block__text-inner {
     display: grid;
     gap: var(--space-5);
+    padding-block: var(--space-5);
+  }
+
+  .about-block--has-image.about-block--highlighted .about-block__text-inner {
     max-width: var(--container-width);
     margin-inline: auto;
-    padding: var(--space-5) var(--space-6);
+    padding-inline: var(--space-6);
   }
 
   /* Highlight band for image blocks */
@@ -230,6 +234,14 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
 
   /* Mobile (< 768): image stacks above or below the text */
   @media (max-width: 767px) {
+    .about-block {
+      margin-block: 0;
+    }
+
+    .about-block--has-image .about-block__text-inner {
+      padding-block: 0;
+    }
+
     .about-block--has-image.about-block--mobile-above .about-block__inner,
     .about-block--has-image.about-block--mobile-under .about-block__inner {
       grid-template-columns: 1fr;
