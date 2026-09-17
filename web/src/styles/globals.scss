@@ -11,6 +11,7 @@
  */
 :root {
 	--breakpoint-mobile: #{map.get(breakpoints.$breakpoints, mobile)};
+	overflow-y: scroll;
 }
 
 *,
