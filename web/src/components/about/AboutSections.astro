@@ -53,20 +53,17 @@ const blocks = (sections ?? []).map((section) => {
         <div class="about-block__inner">
           <div class="about-block__media">
             <figure>
-              <picture>
-                <source media="(max-width: 767px)" srcset={imageUrl(block.asset!, { width: 320 })} />
-                <img
-                  alt={block.image.alt ?? ''}
-                  aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
-                  decoding={block.isEagerImage ? 'sync' : 'async'}
-                  height={block.dimensions?.height}
-                  loading={block.isEagerImage ? 'eager' : 'lazy'}
-                  sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
-                  src={imageUrl(block.asset!, { width: 800 })}
-                  srcset={imageSrcSet(block.asset!)}
-                  width={block.dimensions?.width}
-                />
-              </picture>
+              <img
+                alt={block.image.alt ?? ''}
+                aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
+                decoding={block.isEagerImage ? 'sync' : 'async'}
+                height={block.dimensions?.height}
+                loading={block.isEagerImage ? 'eager' : 'lazy'}
+                sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
+                src={imageUrl(block.asset!, { width: 800 })}
+                srcset={imageSrcSet(block.asset!)}
+                width={block.dimensions?.width}
+              />
               {block.image.title && (
                 <figcaption id={`about-caption-${block._key}`}>{block.image.title}</figcaption>
               )}
