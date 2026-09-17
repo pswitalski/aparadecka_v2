@@ -16,7 +16,7 @@ const MOBILE_WIDTH = 1024;
 /* The carousel is hidden above 767px, but its first slide is eager, so a desktop browser
    still resolves `sizes="100vw"` against the full window. Capping the ladder here keeps that
    request at the same size it is today, instead of jumping to the 2000w top of the shared ladder. */
-const MOBILE_SRCSET_WIDTHS = [320, 480, 640, 800, 1024, 1200];
+const MOBILE_SRCSET_WIDTHS = [320, 400, 480, 560, 640, 720, 800, 960, 1120];
 
 export function adaptPaintings(paintings: null | Painting[] | undefined): GalleryPainting[] {
 	return (paintings ?? []).map((p) => ({
