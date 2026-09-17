@@ -1,7 +1,7 @@
 ---
-import type { AboutQueryResult, SanityImageAssetReference } from '../../../sanity.types';
+import type { AboutQueryResult } from '../../../sanity.types';
 
-import { urlForImage } from '../../lib/sanity';
+import { imageSrcSet, imageUrl } from '../../lib/sanity';
 import PortableText from '../PortableText.astro';
 
 interface Props {
@@ -26,10 +26,6 @@ const blocks = (sections ?? []).map((section) => {
 
 	return { ...section, asset, hasImage, isEagerImage, mobilePos, side, textAlign };
 });
-
-function imageSrc(asset: SanityImageAssetReference, width: number) {
-  return urlForImage(asset).width(width).format('webp').url();
-}
 ---
 
 {
@@ -54,8 +50,8 @@ function imageSrc(asset: SanityImageAssetReference, width: number) {
                 decoding={block.isEagerImage ? 'sync' : 'async'}
                 loading={block.isEagerImage ? 'eager' : 'lazy'}
                 sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
-                src={imageSrc(block.asset!, 800)}
-                srcset={`${imageSrc(block.asset!, 480)} 480w, ${imageSrc(block.asset!, 800)} 800w, ${imageSrc(block.asset!, 1200)} 1200w`}
+                src={imageUrl(block.asset!, { width: 800 })}
+                srcset={imageSrcSet(block.asset!)}
               />
               {block.image.title && (
                 <figcaption id={`about-caption-${block._key}`}>{block.image.title}</figcaption>

@@ -5,7 +5,7 @@ import type { Painting } from '../../lib/types';
 
 import Layout from '../../layouts/main.astro';
 import { collectionsQuery } from '../../lib/queries';
-import { urlForImage } from '../../lib/sanity';
+import { imageSrcSet, imageUrl } from '../../lib/sanity';
 
 interface CollectionItem {
 	featuredPainting: null | Painting;
@@ -31,14 +31,9 @@ const EAGER_CARDS = 6;
 									decoding={index < EAGER_CARDS ? 'sync' : 'async'}
 									fetchpriority={index === 0 ? 'high' : undefined}
 									loading={index < EAGER_CARDS ? 'eager' : 'lazy'}
-									sizes="(min-width: 1025px) 62vw, 50vw"
-									src={urlForImage(featuredPainting.mainImage).width(1200).height(800).fit('crop').format('webp').url()}
-									srcset={[480, 720, 960, 1200]
-										.map(
-											(width) =>
-												`${urlForImage(featuredPainting.mainImage!).width(width).height(Math.round(width / 1.5)).fit('crop').format('webp').url()} ${width}w`,
-										)
-										.join(', ')}
+									sizes="(min-width: 1025px) calc((min(100vw, 1200px) - 5rem) / 3), (min-width: 768px) 50vw, calc(100vw - 2rem)"
+									src={imageUrl(featuredPainting.mainImage, { ratio: 1.5, width: 1200 })}
+									srcset={imageSrcSet(featuredPainting.mainImage, { ratio: 1.5 })}
 								/>
 								<span class="year-card__year">{year}</span>
 							</span>
