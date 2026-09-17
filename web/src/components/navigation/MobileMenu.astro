@@ -165,11 +165,15 @@ const { id = 'mobile-menu', links } = Astro.props;
 			setOpenState(true);
 		};
 
-		const closeMenu = () => {
-			if (!dialog.open) return;
+		const closeMenu = (onClosed?: () => void) => {
+			if (!dialog.open) {
+				onClosed?.();
+				return;
+			}
 
 			if (prefersReducedMotion) {
 				dialog.close();
+				onClosed?.();
 				return;
 			}
 
@@ -181,6 +185,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 				done = true;
 				dialog.classList.remove('is-closing');
 				dialog.close();
+				onClosed?.();
 			};
 
 			const onTransitionEnd = (event: TransitionEvent) => {
@@ -201,7 +206,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 			}
 		});
 
-		closeButton?.addEventListener('click', closeMenu);
+		closeButton?.addEventListener('click', () => closeMenu());
 
 		dialog.addEventListener('click', (event: MouseEvent) => {
 			if (event.target === dialog) {
@@ -216,6 +221,55 @@ const { id = 'mobile-menu', links } = Astro.props;
 
 		dialog.addEventListener('close', () => {
 			setOpenState(false);
+		});
+
+		const isPlainLeftClick = (event: MouseEvent) =>
+			event.button === 0 &&
+			!event.defaultPrevented &&
+			!event.metaKey &&
+			!event.ctrlKey &&
+			!event.shiftKey &&
+			!event.altKey;
+
+		let navigating = false;
+
+		const menuLinks = dialog.querySelectorAll<HTMLAnchorElement>('nav a[href]');
+
+		menuLinks.forEach((link) => {
+			link.addEventListener('click', (event) => {
+				if (!isPlainLeftClick(event)) return;
+
+				const href = link.getAttribute('href');
+				if (!href || link.target === '_blank' || link.hasAttribute('download')) return;
+
+				const target = new URL(link.href, window.location.href);
+
+				if (target.origin !== window.location.origin) return;
+
+				const isSamePage =
+					target.pathname === window.location.pathname &&
+					target.search === window.location.search &&
+					target.hash === window.location.hash;
+
+				event.preventDefault();
+
+				if (isSamePage) {
+					closeMenu();
+					return;
+				}
+
+				if (navigating) return;
+				navigating = true;
+
+				closeMenu(() => window.location.assign(link.href));
+			});
+		});
+
+		window.addEventListener('pageswap', () => {
+			if (dialog.open) {
+				dialog.classList.remove('is-closing');
+				dialog.close();
+			}
 		});
 
 		const breakpoint = Number.parseInt(
