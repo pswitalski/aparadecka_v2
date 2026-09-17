@@ -5,7 +5,7 @@ import type { Painting } from '../../lib/types';
 
 import Layout from '../../layouts/main.astro';
 import { collectionsQuery } from '../../lib/queries';
-import { imageSrcSet, imageUrl } from '../../lib/sanity';
+import { displayedCropRect, imageDimensions, imageSrcSet, imageUrl } from '../../lib/sanity';
 
 interface CollectionItem {
 	featuredPainting: null | Painting;
@@ -16,24 +16,37 @@ const collections = await sanityClient.fetch<CollectionItem[]>(collectionsQuery)
 /* The grid is three columns on desktop, so two rows — six cards — are on screen at
    a typical desktop height. Those load eagerly; the rest stay lazy. */
 const EAGER_CARDS = 6;
+
+/* The card box is square while the file is a 3:2 crop, so CSS discards the sides. Crop that
+   same square at the CDN instead, and the download holds nothing the browser throws away. */
+const cards = collections.map((collection) => {
+	const mainImage = collection.featuredPainting?.mainImage ?? null;
+	const dimensions = mainImage ? imageDimensions(mainImage) : null;
+
+	return {
+		...collection,
+		mainImage,
+		rect: dimensions ? displayedCropRect(dimensions, { displayRatio: 1, sentRatio: 1.5 }) : undefined,
+	};
+});
 ---
 
 <Layout title="Portfolio">
 	<div class="portfolio-wrapper">
 		<ul class="years">
-			{collections.map(({ featuredPainting, year }, index) => (
+			{cards.map(({ featuredPainting, mainImage, rect, year }, index) => (
 				<li class="year-card">
 					<a href={`/portfolio/${year}`}>
-						{featuredPainting?.mainImage ? (
+						{mainImage ? (
 							<span class="year-card__image-wrap">
 								<img
-									alt={featuredPainting.title ?? `Praca z ${year}`}
+									alt={featuredPainting?.title ?? `Praca z ${year}`}
 									decoding={index < EAGER_CARDS ? 'sync' : 'async'}
 									fetchpriority={index === 0 ? 'high' : undefined}
 									loading={index < EAGER_CARDS ? 'eager' : 'lazy'}
 									sizes="(min-width: 1025px) calc((min(100vw, 1200px) - 5rem) / 3), (min-width: 768px) calc((min(100vw, 1200px) - 2 * clamp(1.5rem, 7vw, 3rem) - 1rem) / 2), calc(100vw - 2 * clamp(1.5rem, 7vw, 3rem))"
-									src={imageUrl(featuredPainting.mainImage, { ratio: 1.5, width: 1200 })}
-									srcset={imageSrcSet(featuredPainting.mainImage, { ratio: 1.5 })}
+									src={imageUrl(mainImage, { ratio: 1, rect, width: 1200 })}
+									srcset={imageSrcSet(mainImage, { ratio: 1, rect })}
 								/>
 								<span class="year-card__year">{year}</span>
 							</span>
