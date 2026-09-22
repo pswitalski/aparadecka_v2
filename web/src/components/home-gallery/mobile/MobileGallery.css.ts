@@ -35,7 +35,7 @@ export const dots = style({
 
 export const dot = style({
 	'::before': {
-		backgroundColor: '#D9D9D9',
+		backgroundColor: 'var(--color-muted)',
 		content: '""',
 		display: 'block',
 		height: 9,
@@ -58,7 +58,7 @@ export const dot = style({
 });
 
 export const dotActive = style({
-	'::before': { backgroundColor: '#BEACAC' },
+	'::before': { backgroundColor: 'var(--color-accent)' },
 });
 
 export const title = style({
