@@ -64,7 +64,7 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 	)}
 	{variant === 'detail' ? (
 		<figcaption>
-			{showYear && (year ?? painting.year) && <span class="painting__year">{year ?? painting.year}</span>}
+			{showYear && (year ?? painting.year) && <h1 class="painting__year">{year ?? painting.year}</h1>}
 			<span class="painting__caption-content">
 				<strong>{painting.title ?? 'Bez tytułu'}</strong>
 				{details && <span>{details}</span>}
@@ -164,6 +164,7 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 	.painting__year {
 		font-family: var(--font-special);
 		font-size: var(--font-size-5xl);
+		line-height: inherit;
 		margin-bottom: auto;
 	}
 
