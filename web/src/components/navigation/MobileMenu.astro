@@ -21,13 +21,13 @@ const { id = 'mobile-menu', links } = Astro.props;
 		data-menu-toggle
 		label="Otwórz menu"
 	>
-		<Icon height={12} name="menu" width={25} />
+		<Icon aria-hidden="true" height={12} name="menu" width={25} />
 	</IconButton>
 </div>
 
 <dialog aria-label="Menu" class="mobile-menu" id={id}>
 	<IconButton class="menu-close" data-menu-close label="Zamknij menu">
-		<Icon height={26.25} name="close" width={26.25} />
+		<Icon aria-hidden="true" height={26.25} name="close" width={26.25} />
 	</IconButton>
 	<nav aria-label="Nawigacja mobilna">
 		<NavLinks links={links} />
@@ -147,7 +147,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 
 <script>
 	const dialog = document.querySelector<HTMLDialogElement>('dialog.mobile-menu');
-	const toggle = dialog ? document.querySelector(`[aria-controls="${dialog.id}"]`) : null;
+	const toggle = dialog ? document.querySelector<HTMLElement>(`[aria-controls="${dialog.id}"]`) : null;
 
 	if (dialog && toggle) {
 		const closeButton = dialog.querySelector('[data-menu-close]');
@@ -221,6 +221,7 @@ const { id = 'mobile-menu', links } = Astro.props;
 
 		dialog.addEventListener('close', () => {
 			setOpenState(false);
+			toggle.focus();
 		});
 
 		const isPlainLeftClick = (event: MouseEvent) =>

@@ -13,6 +13,7 @@ interface Props {
 const AUTOPLAY_INTERVAL = 5000;
 const RESUME_DELAY = 5000;
 const MAX_VISIBLE_DOTS = 9;
+export const MOBILE_GALLERY_SIZES = '100vw';
 
 function visibleDots(active: number, total: number, max: number): number[] {
 	if (total <= max) return Array.from({ length: total }, (_, i) => i);
@@ -74,7 +75,7 @@ export default function MobileGallery({ paintings }: Props) {
 	if (paintings.length === 0) return null;
 
 	return (
-		<section className={styles.carousel} data-home-carousel>
+		<section aria-label="Wyróżnione obrazy" className={styles.carousel} data-home-carousel>
 			<div className={styles.dotsBar}>
 				<div className={styles.dots}>
 					{visibleDots(selectedIndex, paintings.length, MAX_VISIBLE_DOTS).map((i) => {
@@ -105,13 +106,18 @@ export default function MobileGallery({ paintings }: Props) {
 			>
 				<div className={styles.container}>
 					{paintings.map((p, i) => (
-						<div className={styles.slide} key={p.id}>
+						<div
+							aria-label={`${i + 1} z ${paintings.length}`}
+							aria-roledescription="slajd"
+							className={styles.slide}
+							key={p.id}
+							role="group"
+						>
 							<img
 								alt={p.title ?? ''}
 								className={styles.img}
-								fetchPriority={i === 0 ? 'high' : 'auto'}
-								loading={i === 0 ? 'eager' : 'lazy'}
-								sizes="100vw"
+								loading="lazy"
+								sizes={MOBILE_GALLERY_SIZES}
 								src={p.mobile}
 								srcSet={p.srcset}
 							/>

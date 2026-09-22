@@ -4,17 +4,40 @@ import { sanityClient } from 'sanity:client';
 import type { Painting } from '../lib/types';
 
 import { adaptPaintings } from '../components/home-gallery/adapter';
-import DesktopGallery from '../components/home-gallery/desktop/DesktopGallery';
-import MobileGallery from '../components/home-gallery/mobile/MobileGallery';
+import DesktopGallery, { DESKTOP_GALLERY_SIZES } from '../components/home-gallery/desktop/DesktopGallery';
+import MobileGallery, { MOBILE_GALLERY_SIZES } from '../components/home-gallery/mobile/MobileGallery';
 import Layout from '../layouts/main.astro';
 import { featuredPaintingsQuery } from '../lib/queries';
 
 const { featuredPaintings } = await sanityClient.fetch<{ featuredPaintings: Painting[] }>(featuredPaintingsQuery);
 
 const paintings = adaptPaintings(featuredPaintings);
+const hero = paintings[0];
 ---
 
 <Layout>
+	<Fragment slot="head">
+		{hero?.srcset && (
+			<link
+				as="image"
+				fetchpriority="high"
+				imagesizes={MOBILE_GALLERY_SIZES}
+				imagesrcset={hero.srcset}
+				media="(max-width: 767px)"
+				rel="preload"
+			/>
+		)}
+		{hero?.desktopSrcset && (
+			<link
+				as="image"
+				fetchpriority="high"
+				imagesizes={DESKTOP_GALLERY_SIZES}
+				imagesrcset={hero.desktopSrcset}
+				media="(min-width: 768px)"
+				rel="preload"
+			/>
+		)}
+	</Fragment>
 	<h1 class="visually-hidden">Wyróżnione obrazy</h1>
 	<DesktopGallery client:media="(min-width: 768px)" paintings={paintings} />
 	<MobileGallery client:media="(max-width: 767px)" paintings={paintings} />

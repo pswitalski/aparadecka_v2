@@ -6,28 +6,28 @@
 			<form class="contact-form__form">
 				<div class="contact-form__field">
 					<label for="imie">Imię</label>
-					<input id="imie" maxlength="100" name="name" required type="text" />
+					<input autocomplete="given-name" id="imie" maxlength="100" name="name" required type="text" />
 				</div>
 				<div class="contact-form__field">
 					<label for="nazwisko">Nazwisko</label>
-					<input id="nazwisko" maxlength="100" name="surname" required type="text" />
+					<input autocomplete="family-name" id="nazwisko" maxlength="100" name="surname" required type="text" />
 				</div>
 				<div class="contact-form__field">
 					<label for="email">E-mail</label>
-					<input id="email" maxlength="254" name="email" required type="email" />
+					<input autocomplete="email" id="email" maxlength="254" name="email" required type="email" />
 				</div>
 				<div class="contact-form__field">
 					<label for="wiadomosc">Wiadomość</label>
 					<textarea id="wiadomosc" maxlength="2000" name="message" required></textarea>
 				</div>
-				<div class="contact-form__error" hidden role="alert"></div>
+				<div class="contact-form__error" hidden id="contact-form-error" role="alert" tabindex="-1"></div>
 				<div aria-hidden="true" style="position:absolute;left:-9999px">
 					<label for="website">Website</label>
 					<input autocomplete="off" id="website" name="website" tabindex="-1" type="text" />
 				</div>
 				<button class="contact-form__submit" type="submit">Wyślij</button>
 			</form>
-			<div class="contact-form__success" hidden>
+			<div class="contact-form__success" hidden role="status" tabindex="-1">
 				<p>Dziękuję za wiadomość!</p>
 			</div>
 			<span aria-hidden="true" class="contact-form__fold"></span>
@@ -317,13 +317,16 @@
 				if (json.ok) {
 					form.hidden = true
 					successEl.hidden = false
+					successEl.focus()
 				} else {
 					errorEl.textContent = json.error || 'Wystąpił błąd. Spróbuj ponownie.'
 					errorEl.hidden = false
+					errorEl.focus()
 				}
 			} catch {
 				errorEl.textContent = 'Brak połączenia. Spróbuj ponownie.'
 				errorEl.hidden = false
+				errorEl.focus()
 			} finally {
 				submitBtn.disabled = false
 				submitBtn.textContent = originalText

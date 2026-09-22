@@ -12,11 +12,7 @@ interface Props {
 
 const INTERVAL = 5000;
 const VISIBLE = 3;
-/* The big slot is the clip width minus the thumbnail column, and the clip is the content box
-   of `main` (max-width 1200px, 1rem inline padding). Sizing the file against this keeps the
-   hero from being upscaled on a 2x screen; the thumbnails share the same srcset so the element
-   never swaps files as it morphs between slots. */
-const GALLERY_SIZES = `calc(min(100vw, 1200px) - 2rem - ${THUMB_WIDTH + SIDE_GAP}px)`;
+export const DESKTOP_GALLERY_SIZES = `calc(min(100vw, 1200px) - 2rem - ${THUMB_WIDTH + SIDE_GAP}px)`;
 
 export default function DesktopGallery({ paintings }: Props) {
 	const total = paintings.length;
@@ -83,7 +79,13 @@ export default function DesktopGallery({ paintings }: Props) {
 	if (paintings.length === 0) return null;
 
 	return (
-		<section className={styles.homeGallery} data-home-gallery>
+		<section
+			aria-label="Galeria wyróżnionych obrazów"
+			className={styles.homeGallery}
+			data-home-gallery
+			onBlur={() => setPaused(false)}
+			onFocus={() => setPaused(true)}
+		>
 			<div className={styles.inner}>
 				<div className={styles.clip} ref={rootRef}>
 					{/* visible thumbnail cells: hover-pause regions + the click targets */}
@@ -128,7 +130,7 @@ export default function DesktopGallery({ paintings }: Props) {
 								initial={rect ?? false}
 								key={hasGeometry ? paintings[idx].id : `${paintings[idx].id}-ssr`}
 								style={hasGeometry ? undefined : staticGeometryOf(slot)}
-								transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+								transition={reduceMotion ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
 							>
 								{isBig ? (
 									<div
@@ -139,9 +141,8 @@ export default function DesktopGallery({ paintings }: Props) {
 										<motion.img
 											alt={paintings[idx].title ?? ''}
 											className={`${styles.galleryImg} ${styles.bigImg}`}
-											fetchPriority="high"
-											loading="eager"
-											sizes={GALLERY_SIZES}
+											loading="lazy"
+											sizes={DESKTOP_GALLERY_SIZES}
 											src={paintings[idx].image}
 											srcSet={paintings[idx].desktopSrcset}
 										/>
@@ -152,7 +153,7 @@ export default function DesktopGallery({ paintings }: Props) {
 											alt={paintings[idx].title ?? ''}
 											className={`${styles.galleryImg} ${styles.thumbImg}`}
 											loading="lazy"
-											sizes={GALLERY_SIZES}
+											sizes={DESKTOP_GALLERY_SIZES}
 											src={paintings[idx].image}
 											srcSet={paintings[idx].desktopSrcset}
 										/>
