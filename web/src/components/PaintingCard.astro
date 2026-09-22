@@ -199,17 +199,22 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 		text-align: center;
 		text-wrap: balance;
 		background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
-		opacity: 0;
-		transform: translateY(4px);
 		transition:
 			opacity 200ms ease,
 			transform 200ms ease;
 	}
 
-	.painting--thumb:hover figcaption,
-	.painting--thumb:focus-within figcaption {
-		opacity: 1;
-		transform: translateY(0);
+	@media (hover: hover) and (pointer: fine) {
+		.painting--thumb figcaption {
+			opacity: 0;
+			transform: translateY(4px);
+		}
+
+		.painting--thumb:hover figcaption,
+		.painting--thumb:focus-within figcaption {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {

@@ -102,13 +102,18 @@ export const thumbBtn = style({
 });
 
 export const thumbTitle = style({
+	'@media': {
+		'(hover: hover) and (pointer: fine)': {
+			opacity: 0,
+		},
+	},
 	background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.5))',
 	bottom: 0,
 	color: '#fff',
 	fontFamily: 'var(--font-body)',
 	fontSize: 'var(--font-size-sm)',
 	left: 0,
-	opacity: 0,
+	opacity: 1,
 	padding: 'var(--space-4) var(--space-3) var(--space-2)',
 	pointerEvents: 'none',
 	position: 'absolute',

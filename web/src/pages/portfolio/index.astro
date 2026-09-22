@@ -108,16 +108,14 @@ const cards = collections.map((collection) => {
 
 	.year-card__year {
 		align-items: center;
-		background: rgba(255, 255, 255, 0.72);
+		background: transparent;
 		color: var(--color-text);
 		display: flex;
 		font-family: var(--font-special);
-		font-size: clamp(var(--font-size-3xl), 6vw, var(--font-size-5xl));
-		inset: 0;
+		font-size: var(--font-size-2xl);
 		justify-content: center;
-		opacity: 0;
-		position: absolute;
-		transition: opacity 180ms ease;
+		padding: var(--space-2) var(--space-1) 0;
+		text-shadow: none;
 	}
 
 	.year-card__image-wrap--empty {
@@ -129,7 +127,17 @@ const cards = collections.map((collection) => {
 		justify-content: center;
 	}
 
-	@media (min-width: 1025px) {
+	@media (hover: hover) and (pointer: fine) {
+		.year-card__year {
+			background: rgba(255, 255, 255, 0.72);
+			font-size: clamp(var(--font-size-3xl), 6vw, var(--font-size-5xl));
+			inset: 0;
+			opacity: 0;
+			padding: 0;
+			position: absolute;
+			transition: opacity 180ms ease;
+		}
+
 		.year-card a:hover .year-card__year,
 		.year-card a:focus-visible .year-card__year {
 			opacity: 1;
@@ -145,17 +153,6 @@ const cards = collections.map((collection) => {
 		.years {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: var(--space-6) var(--space-4);
-		}
-
-		.year-card__year {
-			align-items: center;
-			background: transparent;
-			font-size: var(--font-size-2xl);
-			justify-content: center;
-			opacity: 1;
-			padding: var(--space-2) var(--space-1) 0;
-			position: static;
-			text-shadow: none;
 		}
 	}
 
