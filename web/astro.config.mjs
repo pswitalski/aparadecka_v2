@@ -8,6 +8,7 @@ import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 
 import { apiVersion } from './apiVersion';
+import preloadIslands from './integrations/preload-islands.mjs';
 
 const { PUBLIC_SANITY_DATASET, PUBLIC_SANITY_PROJECT_ID } = loadEnv(
 	process.env.NODE_ENV ?? 'development',
@@ -18,6 +19,7 @@ const { PUBLIC_SANITY_DATASET, PUBLIC_SANITY_PROJECT_ID } = loadEnv(
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
+		preloadIslands(),
 		react(),
 		sanity({
 			apiVersion,
