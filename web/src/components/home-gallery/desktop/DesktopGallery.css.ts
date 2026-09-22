@@ -119,7 +119,7 @@ export const thumbTitle = style({
 	position: 'absolute',
 	right: 0,
 	selectors: {
-		[`.${thumbBtn}:hover &, .${thumbBtn}:focus-visible &`]: {
+		"&[data-visible='true']": {
 			opacity: 1,
 		},
 	},

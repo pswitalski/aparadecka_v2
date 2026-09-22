@@ -28,6 +28,7 @@ export default function DesktopGallery({ paintings }: Props) {
 		return [0, ...stack, ...visible];
 	});
 	const [paused, setPaused] = useState(false);
+	const [revealedThumb, setRevealedThumb] = useState<null | number>(null);
 	const reduceMotion = useMemo(
 		() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 		[],
@@ -90,18 +91,24 @@ export default function DesktopGallery({ paintings }: Props) {
 						<div
 							className={`${styles.cell} ${styles.sideCell}`}
 							key={i}
-							onMouseEnter={() => setPaused(true)}
-							onMouseLeave={() => setPaused(false)}
+							onMouseEnter={() => {
+								setPaused(true);
+								setRevealedThumb(i);
+							}}
+							onMouseLeave={() => {
+								setPaused(false);
+								setRevealedThumb(null);
+							}}
 							style={{ top: i * THUMB_STEP }}
 						>
 							<button
 								aria-label={`Pokaż: ${paintings[visibleStrip[i]].title ?? 'obraz bez tytułu'}`}
 								className={styles.thumbBtn}
+								onBlur={() => setRevealedThumb(null)}
 								onClick={() => select(visibleStrip[i])}
+								onFocus={() => setRevealedThumb(i)}
 								type="button"
-							>
-								<span className={styles.thumbTitle}>{paintings[visibleStrip[i]].title ?? 'Bez tytułu'}</span>
-							</button>
+							/>
 						</div>
 					))}
 
@@ -140,14 +147,24 @@ export default function DesktopGallery({ paintings }: Props) {
 										/>
 									</div>
 								) : (
-									<motion.img
-										alt={paintings[idx].title ?? ''}
-										className={`${styles.galleryImg} ${styles.thumbImg}`}
-										loading="lazy"
-										sizes={GALLERY_SIZES}
-										src={paintings[idx].image}
-										srcSet={paintings[idx].desktopSrcset}
-									/>
+									<>
+										<motion.img
+											alt={paintings[idx].title ?? ''}
+											className={`${styles.galleryImg} ${styles.thumbImg}`}
+											loading="lazy"
+											sizes={GALLERY_SIZES}
+											src={paintings[idx].image}
+											srcSet={paintings[idx].desktopSrcset}
+										/>
+										{slot.kind === 'thumb' && (
+											<span
+												className={styles.thumbTitle}
+												data-visible={slot.pos === revealedThumb ? 'true' : undefined}
+											>
+												{paintings[idx].title ?? 'Bez tytułu'}
+											</span>
+										)}
+									</>
 								)}
 							</motion.div>
 						);
