@@ -12,6 +12,13 @@ interface Props {
 
 const AUTOPLAY_INTERVAL = 5000;
 const RESUME_DELAY = 5000;
+const MAX_VISIBLE_DOTS = 9;
+
+function visibleDots(active: number, total: number, max: number): number[] {
+	if (total <= max) return Array.from({ length: total }, (_, i) => i);
+	const start = Math.min(Math.max(active - Math.floor(max / 2), 0), total - max);
+	return Array.from({ length: max }, (_, i) => start + i);
+}
 
 export default function MobileGallery({ paintings }: Props) {
 	const reduceMotion = useMemo(
@@ -70,16 +77,20 @@ export default function MobileGallery({ paintings }: Props) {
 		<section className={styles.carousel} data-home-carousel>
 			<div className={styles.dotsBar}>
 				<div className={styles.dots}>
-					{paintings.map((p, i) => (
-						<button
-							aria-current={i === selectedIndex}
-							aria-label={`Pokaż: ${p.title ?? 'obraz bez tytułu'}`}
-							className={i === selectedIndex ? `${styles.dot} ${styles.dotActive}` : styles.dot}
-							key={p.id}
-							onClick={() => emblaApi?.scrollTo(i)}
-							type="button"
-						/>
-					))}
+					{visibleDots(selectedIndex, paintings.length, MAX_VISIBLE_DOTS).map((i) => {
+						const p = paintings[i];
+						if (!p) return null;
+						return (
+							<button
+								aria-current={i === selectedIndex ? 'true' : undefined}
+								aria-label={`Pokaż: ${p.title ?? 'obraz bez tytułu'}`}
+								className={i === selectedIndex ? `${styles.dot} ${styles.dotActive}` : styles.dot}
+								key={p.id}
+								onClick={() => emblaApi?.scrollTo(i)}
+								type="button"
+							/>
+						);
+					})}
 				</div>
 			</div>
 			<p aria-live="off" className={styles.title}>

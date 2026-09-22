@@ -30,22 +30,35 @@ export const dotsBar = style({
 
 export const dots = style({
 	display: 'flex',
-	gap: 'var(--space-2)',
+	gap: 'var(--space-1)',
 });
 
 export const dot = style({
-	backgroundColor: '#D9D9D9',
+	'::before': {
+		backgroundColor: '#D9D9D9',
+		content: '""',
+		display: 'block',
+		height: 9,
+		transition: 'background-color 200ms ease',
+		width: 9,
+	},
+	':focus-visible': {
+		outline: 'var(--focus-ring-width) solid var(--color-accent)',
+		outlineOffset: 'var(--focus-ring-offset)',
+	},
+	alignItems: 'center',
+	backgroundColor: 'transparent',
 	border: 0,
-	borderRadius: 0,
 	cursor: 'pointer',
-	height: 9,
+	display: 'inline-flex',
+	height: 24,
+	justifyContent: 'center',
 	padding: 0,
-	transition: 'background-color 200ms ease',
-	width: 9,
+	width: 24,
 });
 
 export const dotActive = style({
-	backgroundColor: '#BEACAC',
+	'::before': { backgroundColor: '#BEACAC' },
 });
 
 export const title = style({
