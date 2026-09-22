@@ -10,7 +10,8 @@ interface Props {
 
 const { sections = [] } = Astro.props;
 /* Picture blocks are 300–450px tall, so at a typical window height the second one is
-   already partly on screen. Those load eagerly; the rest stay lazy. */
+   already partly on screen. Those load eagerly and high priority — either can be the LCP
+   element depending on viewport — while the rest stay lazy and default priority. */
 const EAGER_IMAGES = 2;
 
 let imageIndex = 0;
@@ -57,6 +58,7 @@ const blocks = (sections ?? []).map((section) => {
                 alt={block.image.alt ?? ''}
                 aria-describedby={block.image.title ? `about-caption-${block._key}` : undefined}
                 decoding={block.isEagerImage ? 'sync' : 'async'}
+                fetchpriority={block.isEagerImage ? 'high' : undefined}
                 height={block.dimensions?.height}
                 loading={block.isEagerImage ? 'eager' : 'lazy'}
                 sizes="(min-width: 768px) min(30vw, 360px), calc(100vw - 6rem)"
