@@ -113,3 +113,19 @@ Use the **CI** workflow (Actions → **CI** → Run workflow) with the **Branch 
 ### Deploy the Sanity Studio
 
 Use the **Deploy Studio** workflow (Actions → **Deploy Studio** → Run workflow) to redeploy the hosted Studio from `master`. The optional `deploy_schema` input also syncs the schema registry.
+
+### Contact form email notifications
+
+The contact form (`/kontakt`) stores each message in Sanity (Studio → **Kontakt** → **Wiadomości**) and
+emails it to the page owner via the Cloudflare Email Service REST API, called from the Pages Function
+at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`.
+
+- The recipients are the `CONTACT_NOTIFICATION_EMAIL` env var on the Pages project (set in the
+  Cloudflare dashboard, not the CMS). Accepts a comma-separated list; **every** address must be a
+  verified destination address in Cloudflare (Compute → Email Service → Email Routing → Destination
+  Addresses), otherwise sending fails. Changing it means editing the env var and redeploying.
+- Do **not** onboard "Email Sending" — routing-only is what keeps verified-destination sends free.
+- The `aparadecka-v2` Pages project needs these env vars (Settings → Variables and Secrets, for both
+  Production and Preview): `CLOUDFLARE_ACCOUNT_ID`, `CONTACT_NOTIFICATION_EMAIL`,
+  `CLOUDFLARE_EMAIL_API_TOKEN` (secret, permission **Account → Email Sending → Edit**), and optionally
+  `CONTACT_FROM_EMAIL`. See `web/.dev.vars.example`.

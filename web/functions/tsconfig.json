@@ -5,6 +5,7 @@
     "lib": ["esnext"],
     "types": ["@cloudflare/workers-types"],
     "strict": true,
+    "noEmit": true,
     "moduleResolution": "bundler"
   }
 }
