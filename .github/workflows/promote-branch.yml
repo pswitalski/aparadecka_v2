@@ -16,8 +16,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: promote-branch-${{ github.ref }}
-  cancel-in-progress: true
+  group: promote-branch-${{ github.event.inputs.path }}
+  cancel-in-progress: false
 
 jobs:
   promote:
@@ -29,8 +29,11 @@ jobs:
           fetch-depth: 0
 
       - name: Promote branch
+        env:
+          PROMOTION_PATH: ${{ github.event.inputs.path }}
         run: |
-          case "${{ github.event.inputs.path }}" in
+          set -euo pipefail
+          case "$PROMOTION_PATH" in
             "master -> stage")
               SOURCE=master
               TARGET=stage
@@ -44,10 +47,10 @@ jobs:
               TARGET=prod
               ;;
             *)
-              echo "Unknown promotion path: ${{ github.event.inputs.path }}"
+              echo "Unknown promotion path: $PROMOTION_PATH"
               exit 1
               ;;
           esac
           echo "Promoting $SOURCE -> $TARGET"
-          git fetch origin "$SOURCE" "$TARGET"
-          git push origin "$SOURCE:$TARGET"
+          git fetch origin "refs/heads/$SOURCE"
+          git push origin "FETCH_HEAD:refs/heads/$TARGET"
