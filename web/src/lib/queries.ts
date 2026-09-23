@@ -12,7 +12,7 @@ export const featuredPaintingsQuery = defineQuery(`*[_type == "home"][0]{
   })[defined(year)]
 }`);
 
-export const collectionsQuery = defineQuery(`*[_type == "collection"] | order(year desc){
+export const collectionsQuery = defineQuery(`*[_type == "collection" && count(paintings) > 0] | order(year desc){
   year,
   "featuredPainting": coalesce(
     thumbnail->{ _id, title, medium, support, dimensions, mainImage },
