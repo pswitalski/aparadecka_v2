@@ -1,6 +1,6 @@
 import type {NumberInputProps} from 'sanity'
 
-import {Select} from '@sanity/ui'
+import {Select, Text} from '@sanity/ui'
 import {useToast} from '@sanity/ui/toast'
 import {type ChangeEvent, useCallback, useEffect, useState} from 'react'
 import {useClient, useFormValue} from 'sanity'
@@ -21,6 +21,8 @@ type TargetCollection = {
 
 const COLLECTIONS_QUERY = `*[_type == "collection"] | order(year desc){_id, year}`
 
+const PAINTING_EXISTS_QUERY = `count(*[_id == $id]) > 0`
+
 const SOURCES_QUERY = `*[_type == "collection" && $id in paintings[]._ref]{
   _id,
   year,
@@ -40,11 +42,14 @@ export function YearSelectInput(props: NumberInputProps) {
 
   const [collections, setCollections] = useState<TargetCollection[]>([])
   const [sources, setSources] = useState<SourceCollection[]>([])
+  const [isPublished, setIsPublished] = useState(false)
   const [error, setError] = useState<null | string>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
 
   const currentYear = sources.find((item) => !item._id.startsWith('drafts.'))?.year ?? sources[0]?.year
+  const isAssigned = sources.length > 0
+  const canMove = isPublished && isAssigned
 
   const load = useCallback(async () => {
     if (!paintingId) {
@@ -52,12 +57,14 @@ export function YearSelectInput(props: NumberInputProps) {
       return
     }
     try {
-      const [all, mine] = await Promise.all([
+      const [all, mine, published] = await Promise.all([
         client.fetch<TargetCollection[]>(COLLECTIONS_QUERY),
         client.fetch<SourceCollection[]>(SOURCES_QUERY, {id: paintingId}, {perspective: 'raw'}),
+        client.fetch<boolean>(PAINTING_EXISTS_QUERY, {id: paintingId}, {perspective: 'published'}),
       ])
       setCollections(all)
       setSources(mine)
+      setIsPublished(published)
       setError(null)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Failed to load years.')
@@ -87,6 +94,15 @@ export function YearSelectInput(props: NumberInputProps) {
     setIsSaving(true)
     setError(null)
     try {
+      const exists = await client.fetch<boolean>(
+        PAINTING_EXISTS_QUERY,
+        {id: paintingId},
+        {perspective: 'published'},
+      )
+      if (!exists || sources.length === 0) {
+        setError('Obraz musi być zapisany i przypisany do rocznika.')
+        return
+      }
       const targetVersions = await client.fetch<{_id: string}[]>(
         TARGET_VERSIONS_QUERY,
         {draftId: `drafts.${target._id}`, id: target._id},
@@ -119,6 +135,26 @@ export function YearSelectInput(props: NumberInputProps) {
     } finally {
       setIsSaving(false)
     }
+  }
+
+  if (!canMove) {
+    return (
+      <>
+        <Select disabled value={currentYear ? String(currentYear) : ''}>
+          <option value={currentYear ? String(currentYear) : ''}>
+            {isLoading ? 'Loading…' : (currentYear ?? '—')}
+          </option>
+        </Select>
+        <div style={{marginTop: '0.5rem'}}>
+          <Text muted size={1}>
+            {isAssigned
+              ? 'Zapisz i opublikuj obraz, aby móc przenosić go między rocznikami.'
+              : 'Rocznik zostanie przypisany po dodaniu obrazu do rocznika.'}
+          </Text>
+        </div>
+        {error ? <p style={{color: 'red', margin: '0.5rem 0 0'}}>{error}</p> : null}
+      </>
+    )
   }
 
   return (
