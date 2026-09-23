@@ -8,6 +8,13 @@ interface Env {
   SANITY_PROJECT_ID: string
 }
 
+interface ContactMessage {
+  email: string
+  message: string
+  name: string
+  surname: string
+}
+
 interface ContactPayload {
   email?: string
   message?: string
@@ -15,6 +22,11 @@ interface ContactPayload {
   surname?: string
   website?: string // honeypot
 }
+
+type ValidationResult =
+  | {data: ContactMessage; kind: 'valid'}
+  | {error: string; kind: 'invalid'; status: number}
+  | {kind: 'spam'}
 
 const DEFAULT_FROM_EMAIL = 'kontakt@agnieszkaparadecka.pl'
 const MAX_MESSAGE_LENGTH = 2000
@@ -31,11 +43,68 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;')
 
-interface ContactMessage {
-  email: string
-  message: string
-  name: string
-  surname: string
+function parseContactPayload(body: unknown): ValidationResult {
+  const {email, message, name, surname, website} = (body ?? {}) as ContactPayload
+
+  // Honeypot — silently succeed for bots
+  if (website) {
+    return {kind: 'spam'}
+  }
+
+  if (!name?.trim() || !surname?.trim() || !email?.trim() || !message?.trim()) {
+    return {error: 'Wszystkie pola są wymagane', kind: 'invalid', status: 400}
+  }
+
+  if (!EMAIL_RE.test(email.trim())) {
+    return {error: 'Nieprawidłowy adres e-mail', kind: 'invalid', status: 400}
+  }
+
+  if (message.trim().length > MAX_MESSAGE_LENGTH) {
+    return {
+      error: `Wiadomość jest za długa (max ${MAX_MESSAGE_LENGTH} znaków)`,
+      kind: 'invalid',
+      status: 400,
+    }
+  }
+
+  return {
+    data: {
+      email: email.trim(),
+      message: message.trim(),
+      name: name.trim(),
+      surname: surname.trim(),
+    },
+    kind: 'valid',
+  }
+}
+
+async function saveContactMessage(env: Env, contact: ContactMessage): Promise<void> {
+  const projectId = env.SANITY_PROJECT_ID || 'w73pc8ge'
+  const dataset = env.SANITY_DATASET || 'production'
+  const url = `https://${projectId}.api.sanity.io/v2021-06-07/data/mutate/${dataset}`
+
+  const document = {
+    _type: 'contactMessage',
+    createdAt: new Date().toISOString(),
+    email: contact.email,
+    message: contact.message,
+    name: contact.name,
+    read: false,
+    surname: contact.surname,
+  }
+
+  const res = await fetch(url, {
+    body: JSON.stringify({mutations: [{create: document}]}),
+    headers: {
+      Authorization: `Bearer ${env.SANITY_API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+  })
+
+  if (!res.ok) {
+    throw new Error(`Sanity API error: ${res.status} ${await res.text()}`)
+  }
 }
 
 async function sendOwnerNotification(env: Env, contact: ContactMessage): Promise<void> {
@@ -79,71 +148,34 @@ async function sendOwnerNotification(env: Env, contact: ContactMessage): Promise
 }
 
 async function handleContactFormMessage(request: Request, env: Env): Promise<Response> {
-  let body: ContactPayload
+  let body: unknown
   try {
-    body = await request.json<ContactPayload>()
+    body = await request.json()
   } catch {
     return Response.json({error: 'Nieprawidłowe dane', ok: false}, {status: 400})
   }
 
-  const {email, message, name, surname, website} = body
+  const result = parseContactPayload(body)
 
-  // Honeypot — silently succeed for bots
-  if (website) {
+  if (result.kind === 'spam') {
     return Response.json({ok: true})
   }
 
-  if (!name?.trim() || !surname?.trim() || !email?.trim() || !message?.trim()) {
-    return Response.json({error: 'Wszystkie pola są wymagane', ok: false}, {status: 400})
+  if (result.kind === 'invalid') {
+    return Response.json({error: result.error, ok: false}, {status: result.status})
   }
 
-  if (!EMAIL_RE.test(email.trim())) {
-    return Response.json({error: 'Nieprawidłowy adres e-mail', ok: false}, {status: 400})
-  }
+  const contact = result.data
 
-  if (message.trim().length > MAX_MESSAGE_LENGTH) {
-    return Response.json(
-      {error: 'Wiadomość jest za długa (max 2000 znaków)', ok: false},
-      {status: 400},
-    )
-  }
-
-  const projectId = env.SANITY_PROJECT_ID || 'w73pc8ge'
-  const dataset = env.SANITY_DATASET || 'production'
-  const url = `https://${projectId}.api.sanity.io/v2021-06-07/data/mutate/${dataset}`
-
-  const document = {
-    _type: 'contactMessage',
-    createdAt: new Date().toISOString(),
-    email: email.trim(),
-    message: message.trim(),
-    name: name.trim(),
-    read: false,
-    surname: surname.trim(),
-  }
-
-  const res = await fetch(url, {
-    body: JSON.stringify({mutations: [{create: document}]}),
-    headers: {
-      Authorization: `Bearer ${env.SANITY_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  if (!res.ok) {
-    const errorText = await res.text()
-    console.error('Sanity API error:', res.status, errorText)
+  try {
+    await saveContactMessage(env, contact)
+  } catch (error) {
+    console.error('Sanity API error:', error)
     return Response.json({error: 'Błąd serwera', ok: false}, {status: 500})
   }
 
   try {
-    await sendOwnerNotification(env, {
-      email: email.trim(),
-      message: message.trim(),
-      name: name.trim(),
-      surname: surname.trim(),
-    })
+    await sendOwnerNotification(env, contact)
   } catch (error) {
     console.error('Email notification error:', error)
     return Response.json(
