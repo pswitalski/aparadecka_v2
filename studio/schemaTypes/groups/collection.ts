@@ -2,6 +2,7 @@ import {FolderIcon} from '@sanity/icons/Folder'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 import {apiVersion} from '../../apiVersion'
+import {FeaturedImageInput} from '../components/FeaturedImageInput'
 import {PaintingsArrayInput} from '../components/PaintingsArrayInput'
 
 export const collection = defineType({
@@ -23,6 +24,7 @@ export const collection = defineType({
         }),
     }),
     defineField({
+      components: {input: FeaturedImageInput},
       name: 'thumbnail',
       options: {
         filter: ({document}) => ({
