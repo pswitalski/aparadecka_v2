@@ -1,17 +1,19 @@
 import {TrashIcon} from '@sanity/icons/Trash'
 import {Button, Dialog, Flex, Stack, Text} from '@sanity/ui'
 import {useToast} from '@sanity/ui/toast'
-import {useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {
   type ArrayOfObjectsInputProps,
   type ObjectItemProps,
-  unset,
+  set,
   useClient,
   useFormValue,
 } from 'sanity'
 
 import {apiVersion} from '../../apiVersion'
 import {deleteAssetIfUnused, deletePainting, getPaintingAssetId} from '../lib/paintingCleanup'
+
+const EXISTING_PAINTINGS_QUERY = `*[_id in $ids]._id`
 
 type PendingRemove = {
   itemProps: Omit<ObjectItemProps, 'renderDefault'>
@@ -22,9 +24,43 @@ export function PaintingsArrayInput(props: ArrayOfObjectsInputProps) {
   const client = useClient({apiVersion})
   const toast = useToast()
   const docId = useFormValue(['_id']) as string | undefined
-  const thumbnail = useFormValue(['thumbnail']) as undefined | {_ref?: string}
   const [pending, setPending] = useState<null | PendingRemove>(null)
   const [isRemoving, setIsRemoving] = useState(false)
+
+  const signature = ((props.value ?? []) as Array<{_ref?: string}>)
+    .map((item) => item?._ref)
+    .filter((ref): ref is string => Boolean(ref))
+    .join(',')
+  const latest = useRef(props)
+  latest.current = props
+  const initialRefs = useRef<null | Set<string>>(null)
+  if (initialRefs.current === null && props.value !== undefined) {
+    initialRefs.current = new Set(signature ? signature.split(',') : [])
+  }
+
+  useEffect(() => {
+    const candidates = (signature ? signature.split(',') : []).filter((ref) =>
+      initialRefs.current?.has(ref),
+    )
+    if (candidates.length === 0) return
+    let cancelled = false
+    client
+      .fetch<string[]>(EXISTING_PAINTINGS_QUERY, {ids: candidates}, {perspective: 'previewDrafts'})
+      .then((found) => {
+        if (cancelled) return
+        const existing = new Set(found)
+        const missing = new Set(candidates.filter((ref) => !existing.has(ref)))
+        if (missing.size === 0) return
+        const current = (latest.current.value ?? []) as Array<{_ref?: string}>
+        latest.current.onChange(
+          set(current.filter((item) => !item?._ref || !missing.has(item._ref))),
+        )
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [client, signature])
 
   const onRemoveRequest = (itemProps: Omit<ObjectItemProps, 'renderDefault'>) => {
     const item = (props.value ?? [])[itemProps.index]
@@ -47,9 +83,6 @@ export function PaintingsArrayInput(props: ArrayOfObjectsInputProps) {
     setIsRemoving(true)
     try {
       itemProps.onRemove()
-      if (thumbnail?._ref === paintingId) {
-        props.onChange(unset(['thumbnail']))
-      }
       const baseId = (docId ?? '').replace(/^drafts\./, '')
       const excludeIds = new Set([baseId, docId ?? ''])
       const assetId = await getPaintingAssetId(client, paintingId)
