@@ -6,6 +6,8 @@ Artist portfolio site built with Astro and Sanity CMS, with a GitHub Actions CI 
 
 - `studio/` — Sanity Studio (content model + admin UI)
 - `web/` — Astro site (frontend)
+- `shared/` — design tokens and shared CSS pulled in by both packages (`tokens.css`, `rich-text.css`)
+- root `package.json` — tooling only (Husky hooks, lint-staged, dependency scripts); it is not an app package, and `studio/` and `web/` keep their own lockfiles
 
 The **About page** is fully editable from the Studio: each section is a CMS block with rich text, an optional image, per-block text alignment, and image placement (left/right on desktop, above/under on mobile). See `studio/README.md` (content model) and `web/README.md` (rendering) for details.
 
@@ -52,7 +54,7 @@ ci: split web deploy into dedicated workflow
 
 ### Pre-commit / pre-push checks
 
-- `pre-commit`: ESLint on staged files only (via lint-staged), then a full type check for each package that has changes (studio `tsc --noEmit`, web `astro check`).
+- `pre-commit`: ESLint on staged files only (via lint-staged), then a full type check for each package that has changes (studio `npm run typecheck`, web `npm run check` = `astro check` + `tsc --noEmit -p functions`).
 - `pre-push`: branch name validated, then a full type check for both packages.
 
 ## Dependency management
@@ -75,7 +77,7 @@ updated `package.json` and `package-lock.json` files.
 
 ## Deployment
 
-The site deploys to [Cloudflare Pages](https://dash.cloudflare.com) and the Sanity Studio to Sanity's hosted service. All deploys and promotions are **manual** — nothing deploys automatically.
+The site deploys to [Cloudflare Pages](https://dash.cloudflare.com) and the Sanity Studio to Sanity's hosted service. Nothing deploys on a git push — web deploys are started from GitHub Actions or from the Studio's **Deploy to stage** / **Deploy to prod** document actions, and promotions run from the **Promote Branch** workflow.
 
 ### Branch model
 
@@ -83,7 +85,7 @@ The site deploys to [Cloudflare Pages](https://dash.cloudflare.com) and the Sani
 |---|---|---|
 | `master` | Integration (features merge here) | — |
 | `stage` | Staging / preview | `https://stage.aparadecka-v2.pages.dev` |
-| `prod` | Production | `https://aparadecka-v2.pages.dev` |
+| `prod` | Production | `https://agnieszkaparadecka.pl` |
 
 `prod` is the Cloudflare **production branch**, so deploying `prod` publishes to production; every other branch (`stage`, etc.) publishes as a non-public preview.
 
@@ -105,10 +107,21 @@ git push origin master:prod    # master -> prod
 
 ### Deploy the web app
 
-Use the **CI** workflow (Actions → **CI** → Run workflow) with the **Branch to deploy** input set to the target:
+Use the **Deploy Web** workflow (Actions → **Deploy Web** → Run workflow) with the **branch** input set to the target:
 
+- `master` (default) → preview
 - `stage` → preview at `https://stage.aparadecka-v2.pages.dev`
-- `prod` → production at `https://aparadecka-v2.pages.dev`
+- `prod` → production at `https://agnieszkaparadecka.pl`
+
+The same workflow also runs on the `content-rebuild` repository dispatch. That dispatch is **not**
+sent by any code in this repository — it is wired up by a Sanity webhook (configured in Sanity)
+that watches the `deploy.trigger` document. That document is what the Studio's **Deploy to stage** /
+**Deploy to prod** document actions create; the workflow then writes progress back to a
+`deploy.run.<branch>` document, which those same actions read to show deploy status.
+
+The build derives `PUBLIC_SITE_ENV` from the deployed branch (`prod` → `production`, anything else
+→ `preview`). The **CI** workflow is separate and only runs on push to `master` and on pull
+requests — it does not deploy.
 
 ### Search indexing & sitemap
 
@@ -132,7 +145,7 @@ Use the **Deploy Studio** workflow (Actions → **Deploy Studio** → Run workfl
 
 ### Contact form email notifications
 
-The contact form (`/kontakt`) stores each message in Sanity (Studio → **Kontakt** → **Wiadomości**) and
+The contact form (`/kontakt`) stores each message in Sanity (the Studio's contact messages list) and
 emails it to the page owner via the Cloudflare Email Service REST API, called from the Pages Function
 at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`.
 
@@ -142,6 +155,9 @@ at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`
   Addresses), otherwise sending fails. Changing it means editing the env var and redeploying.
 - Do **not** onboard "Email Sending" — routing-only is what keeps verified-destination sends free.
 - The `aparadecka-v2` Pages project needs these env vars (Settings → Variables and Secrets, for both
-  Production and Preview): `CLOUDFLARE_ACCOUNT_ID`, `CONTACT_NOTIFICATION_EMAIL`,
-  `CLOUDFLARE_EMAIL_API_TOKEN` (secret, permission **Account → Email Sending → Edit**), and optionally
-  `CONTACT_FROM_EMAIL`. See `web/.dev.vars.example`.
+  Production and Preview):
+  - `SANITY_API_TOKEN` (secret) — writes the `contactMessage` doc into the dataset.
+  - `SANITY_PROJECT_ID` and `SANITY_DATASET` — defaults are hardcoded (`w73pc8ge` / `production`) but set them explicitly to avoid surprises.
+  - `CLOUDFLARE_ACCOUNT_ID`, `CONTACT_NOTIFICATION_EMAIL`, `CLOUDFLARE_EMAIL_API_TOKEN` (secret, permission **Account → Email Sending → Edit**), and optionally `CONTACT_FROM_EMAIL`.
+
+  See `web/.dev.vars.example`.
