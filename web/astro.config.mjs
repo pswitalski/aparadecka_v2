@@ -1,6 +1,7 @@
 // @ts-check
 
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import sanity from '@sanity/astro';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import icon from 'astro-icon';
@@ -9,6 +10,7 @@ import { loadEnv } from 'vite';
 
 import { apiVersion } from './apiVersion';
 import preloadIslands from './integrations/preload-islands.mjs';
+import { siteUrl } from './siteUrl';
 
 const { PUBLIC_SANITY_DATASET, PUBLIC_SANITY_PROJECT_ID } = loadEnv(
 	process.env.NODE_ENV ?? 'development',
@@ -28,7 +30,9 @@ export default defineConfig({
 			useCdn: false,
 		}),
 		icon(),
+		sitemap(),
 	],
+	site: siteUrl,
 	vite: {
 		plugins: [vanillaExtractPlugin()],
 		server: {
