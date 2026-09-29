@@ -1,0 +1,65 @@
+---
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+<turnstile-field data-sitekey={siteKey}></turnstile-field>
+
+<style>
+	turnstile-field {
+		display: block;
+	}
+</style>
+
+<script async defer is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
+
+<script>
+	import { mountTurnstile, type TurnstileHandle } from '../../lib/turnstile';
+
+	const FIT_POLL_INTERVAL_MS = 250
+	const FIT_POLL_TRIES = 20
+
+	const handles: WeakMap<HTMLElement, TurnstileHandle> = new WeakMap()
+
+	// `flexible` keeps a 300px minimum, so scale the widget down when the column is narrower.
+	const fitToColumn = (element: HTMLElement) => {
+		const available = element.clientWidth
+		const natural = element.scrollWidth
+
+		if (available > 0 && natural > available) {
+			element.style.height = `${Math.round(element.scrollHeight * (available / natural))}px`
+			element.style.transform = `scale(${available / natural})`
+			element.style.transformOrigin = 'top left'
+		} else {
+			element.style.height = ''
+			element.style.transform = ''
+		}
+	}
+
+	class TurnstileField extends HTMLElement {
+		connectedCallback() {
+			handles.set(this, mountTurnstile(this))
+
+			window.addEventListener('resize', () => fitToColumn(this))
+
+			let tries = 0
+			const timer = window.setInterval(() => {
+				fitToColumn(this)
+				if (++tries >= FIT_POLL_TRIES) {
+					window.clearInterval(timer)
+				}
+			}, FIT_POLL_INTERVAL_MS)
+
+			fitToColumn(this)
+		}
+
+		getToken() {
+			return handles.get(this)?.getToken() ?? Promise.resolve('')
+		}
+
+		reset() {
+			handles.get(this)?.reset()
+		}
+	}
+
+	customElements.define('turnstile-field', TurnstileField)
+</script>

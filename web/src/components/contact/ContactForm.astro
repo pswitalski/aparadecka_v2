@@ -1,3 +1,7 @@
+---
+import Turnstile from './Turnstile.astro';
+---
+
 <section class="contact-form">
 	<div class="contact-form__figure">
 		<span aria-hidden="true" class="contact-form__flap"></span>
@@ -25,6 +29,7 @@
 					<label for="website">Website</label>
 					<input autocomplete="off" id="website" name="website" tabindex="-1" type="text" />
 				</div>
+				<Turnstile />
 				<button class="contact-form__submit" type="submit">Wyślij</button>
 			</form>
 			<div class="contact-form__success" hidden role="status" tabindex="-1">
@@ -288,28 +293,36 @@
 </style>
 
 <script>
+	import type { TurnstileElement } from '../../lib/turnstile';
+
 	const form = document.querySelector<HTMLFormElement>('.contact-form__form')
 	const successEl = document.querySelector<HTMLElement>('.contact-form__success')
 	const errorEl = document.querySelector<HTMLElement>('.contact-form__error')
 	const submitBtn = form?.querySelector<HTMLButtonElement>('.contact-form__submit')
+	const turnstile = document.querySelector<TurnstileElement>('turnstile-field')
 
-	if (form && successEl && errorEl && submitBtn) {
+	if (form && successEl && errorEl && submitBtn && turnstile) {
 		const originalText = submitBtn.textContent
 
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault()
 			errorEl.hidden = true
 
-			const data = Object.fromEntries(new FormData(form))
-
 			submitBtn.disabled = true
 			submitBtn.textContent = 'Wysyłanie...'
+
+			const token = await turnstile.getToken().catch(() => '')
+
+			const data = {
+				...Object.fromEntries(new FormData(form)),
+				'cf-turnstile-response': token,
+			}
 
 			try {
 				const res = await fetch('/api/contact', {
 					body: JSON.stringify(data),
-				headers: {'Content-Type': 'application/json'},
-				method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					method: 'POST',
 				})
 
 				const json = (await res.json()) as {error?: string; ok: boolean;}
@@ -322,6 +335,7 @@
 					errorEl.textContent = json.error || 'Wystąpił błąd. Spróbuj ponownie.'
 					errorEl.hidden = false
 					errorEl.focus()
+					turnstile.reset()
 				}
 			} catch {
 				errorEl.textContent = 'Brak połączenia. Spróbuj ponownie.'
