@@ -11,7 +11,6 @@ Registered in `schemaTypes/index.ts`:
 - `home`, `about`, `contact`, `site` — page singletons (locked: fixed IDs, no duplicates/delete). `site` holds site-wide settings.
 - `aboutBlock` — reusable block used by `about.sections` (see below).
 - `socialLink` — shared link object (label + url), used by the contact page.
-- `contactMessage` — contact-form submissions (the Studio's contact messages list), written by the web app's `/api/contact` Pages Function.
 - `deploy.run` / `deploy.trigger` — **internal** deploy plumbing, not editor-facing. The Studio's deploy document actions create `deploy.trigger` to request a deploy; the `Deploy Web` workflow writes status back to `deploy.run.<branch>`, which the Studio reads.
 
 ### `aboutBlock` (used by `about.sections`)
@@ -41,7 +40,7 @@ Studio structure is grouped by page (the Studio UI labels are in Polish):
 - **Home** → Home (`home`)
 - **About** → About (`about`)
 - **Portfolio** → Years (`collection`)
-- **Contact** → Contact (`contact`), Messages (`contactMessage`)
+- **Contact** → Contact (`contact`)
 - **Settings** → Site settings (`site`)
 
 Singleton and delete/duplicate rules, plus the collection delete action and the deploy actions, are configured in `sanity.config.ts`.
