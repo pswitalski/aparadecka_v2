@@ -1,5 +1,10 @@
 ---
 import Turnstile from './Turnstile.astro';
+
+const privacyNotice =
+	'Administratorem danych z formularza jest Agnieszka Paradecka - Świtalska. Dane te służą wyłącznie ' +
+	'do odpowiedzi na wiadomość (art. 6 ust. 1 lit. f RODO); masz prawo wglądu, poprawienia i usunięcia ' +
+	'danych oraz skargi do Prezesa UODO.';
 ---
 
 <section class="contact-form">
@@ -7,7 +12,17 @@ import Turnstile from './Turnstile.astro';
 		<span aria-hidden="true" class="contact-form__flap"></span>
 		<div class="contact-form__envelope"></div>
 		<div class="contact-form__card">
-			<form class="contact-form__form">
+			<noscript>
+				<style is:inline>
+					.contact-form__form {
+						visibility: hidden;
+					}
+				</style>
+				<p class="contact-form__noscript">
+					Formularz kontaktowy wymaga włączonego JavaScriptu, aby wysłać wiadomość.
+				</p>
+			</noscript>
+			<form action="/api/contact" class="contact-form__form" method="post">
 				<div class="contact-form__field">
 					<label for="imie">Imię</label>
 					<input autocomplete="given-name" id="imie" maxlength="100" name="name" required type="text" />
@@ -38,6 +53,7 @@ import Turnstile from './Turnstile.astro';
 			<span aria-hidden="true" class="contact-form__fold"></span>
 		</div>
 	</div>
+	<p class="contact-form__privacy">{privacyNotice}</p>
 </section>
 
 <style lang="scss">
@@ -70,11 +86,11 @@ import Turnstile from './Turnstile.astro';
 	--field-right: 40px;
 	--field-top: 44px;
 	--field-h: 40px;
-	--label-gap: 13px;
-	--field-gap: 25px;
+	--label-gap: 10px;
+	--field-gap: 10px;
 	--textarea-h: 80px;
 	--submit-h: 40px;
-	--submit-gap: 25px;
+	--submit-gap: 10px;
 	--card-pad-b: 27px;
 }
 
@@ -200,6 +216,31 @@ import Turnstile from './Turnstile.astro';
 	font-family: var(--font-sans);
 	font-size: var(--font-size-xs);
 	margin-bottom: var(--space-2);
+}
+
+.contact-form__privacy {
+	max-width: var(--figure-max);
+	margin: calc(var(--env-overhang-b) + var(--space-2)) auto 0;
+	padding-inline: var(--space-2);
+	color: var(--color-muted);
+	font-family: var(--font-sans);
+	font-size: var(--font-size-xxs);
+	line-height: 1.35;
+}
+
+.contact-form__noscript {
+	position: absolute;
+	top: var(--field-top);
+	right: var(--field-right);
+	bottom: var(--card-pad-b);
+	z-index: 1;
+	display: grid;
+	place-content: center;
+	width: var(--field-w);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+	font-size: var(--font-size-sm);
+	text-align: center;
 }
 
 .contact-form__success {

@@ -189,56 +189,65 @@ async function verifyTurnstile(
 }
 
 async function handleContactFormMessage(request: Request, env: Env): Promise<Response> {
+  const isJson = (request.headers.get('content-type') ?? '').includes('application/json')
+
+  const jsonResponse = (payload: Record<string, unknown>, status: number) =>
+    Response.json(payload, {status})
+  // Abuse checks reject with their status; the no-JS form path gets a redirect, not raw JSON.
+  const reject = (payload: Record<string, unknown>, status: number) =>
+    isJson ? jsonResponse(payload, status) : new Response(null, {status})
+  const finish = (payload: Record<string, unknown>, status = 200) =>
+    isJson
+      ? jsonResponse(payload, status)
+      : new Response(null, {headers: {Location: '/kontakt'}, status: 303})
+
   if (!isSameOrigin(request)) {
-    return Response.json({error: 'Nieprawidłowe źródło żądania', ok: false}, {status: 403})
+    return reject({error: 'Nieprawidłowe źródło żądania', ok: false}, 403)
   }
 
   const ip = request.headers.get('cf-connecting-ip')
 
   if (await isRateLimited(env, ip)) {
-    return Response.json(
-      {error: 'Zbyt wiele wiadomości. Spróbuj ponownie za chwilę.', ok: false},
-      {status: 429},
-    )
+    return reject({error: 'Zbyt wiele wiadomości. Spróbuj ponownie za chwilę.', ok: false}, 429)
   }
 
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return Response.json({error: 'Nieprawidłowe dane', ok: false}, {status: 400})
+  let body: null | Record<string, unknown>
+  if (isJson) {
+    body = (await request.json().catch(() => null)) as null | Record<string, unknown>
+  } else {
+    const data = await request.formData().catch(() => null)
+    body = data ? Object.fromEntries(data) : null
+  }
+
+  if (!body) {
+    return finish({error: 'Nieprawidłowe dane', ok: false}, 400)
   }
 
   const result = parseContactPayload(body)
 
   if (result.kind === 'spam') {
-    return Response.json({ok: true})
+    return finish({ok: true})
   }
 
   if (result.kind === 'invalid') {
-    return Response.json({error: result.error, ok: false}, {status: result.status})
+    return finish({error: result.error, ok: false}, result.status)
   }
 
   if (!(await verifyTurnstile(env, (body as ContactPayload)['cf-turnstile-response'], ip))) {
-    return Response.json(
+    return finish(
       {error: 'Weryfikacja nie powiodła się. Odśwież stronę i spróbuj ponownie.', ok: false},
-      {status: 400},
+      400,
     )
   }
-
-  const contact = result.data
 
   try {
-    await sendOwnerNotification(env, contact)
+    await sendOwnerNotification(env, result.data)
   } catch (error) {
     console.error('Email notification error:', error)
-    return Response.json(
-      {error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie.', ok: false},
-      {status: 500},
-    )
+    return finish({error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie.', ok: false}, 500)
   }
 
-  return Response.json({ok: true})
+  return finish({ok: true})
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
