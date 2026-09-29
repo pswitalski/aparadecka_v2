@@ -177,3 +177,17 @@ KV-backed), and a Cloudflare Turnstile check.
   project as `CONTACT_RATE_LIMIT` (Settings → Functions → KV namespace bindings, Production +
   Preview). KV free tier is 100k reads / 1k writes per day. If the binding is missing, rate limiting
   is skipped — the Turnstile check still applies.
+
+### Privacy notice
+
+The contact form shows a short GDPR information clause (art. 13) under the submit button: the
+controller, the purpose and legal basis (legitimate interest) and data-subject rights. No consent
+checkbox is used and there is no separate policy page.
+
+### Without JavaScript
+
+With scripting disabled the form is hidden (via `<noscript>`) and replaced by a short message, so a
+no-JS visitor cannot submit and nothing leaks into the URL. As a fallback for the case where
+scripting is on but the submit script fails to run, the form still posts natively to `/api/contact`
+(`method="post"`), and the endpoint answers such non-JSON posts with a `303` redirect back to
+`/kontakt`.
