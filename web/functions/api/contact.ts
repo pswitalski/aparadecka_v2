@@ -3,6 +3,8 @@ interface Env {
   CLOUDFLARE_EMAIL_API_TOKEN: string
   CONTACT_FROM_EMAIL?: string
   CONTACT_NOTIFICATION_EMAIL: string
+  CONTACT_RATE_LIMIT?: KVNamespace
+  TURNSTILE_SECRET_KEY?: string
 }
 
 interface ContactMessage {
@@ -13,6 +15,7 @@ interface ContactMessage {
 }
 
 interface ContactPayload {
+  'cf-turnstile-response'?: string
   email?: string
   message?: string
   name?: string
@@ -28,6 +31,9 @@ type ValidationResult =
 const DEFAULT_FROM_EMAIL = 'kontakt@agnieszkaparadecka.pl'
 const MAX_MESSAGE_LENGTH = 2000
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const RATE_LIMIT_MAX = 5
+const RATE_LIMIT_WINDOW_SECONDS = 60
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
 
 const emailSendUrl = (accountId: string) =>
   `https://api.cloudflare.com/client/v4/accounts/${accountId}/email/sending/send`
@@ -115,7 +121,87 @@ async function sendOwnerNotification(env: Env, contact: ContactMessage): Promise
   }
 }
 
+function isSameOrigin(request: Request): boolean {
+  const origin = request.headers.get('Origin')
+
+  if (!origin) {
+    return false
+  }
+
+  try {
+    return new URL(origin).host === new URL(request.url).host
+  } catch {
+    return false
+  }
+}
+
+async function isRateLimited(env: Env, ip: null | string): Promise<boolean> {
+  if (!env.CONTACT_RATE_LIMIT || !ip) {
+    return false
+  }
+
+  const key = `contact:${ip}`
+  const count = Number(await env.CONTACT_RATE_LIMIT.get(key)) || 0
+
+  if (count >= RATE_LIMIT_MAX) {
+    return true
+  }
+
+  try {
+    await env.CONTACT_RATE_LIMIT.put(key, String(count + 1), {
+      expirationTtl: RATE_LIMIT_WINDOW_SECONDS,
+    })
+  } catch {
+    // KV is best-effort: a transient write error must not block a real submission.
+  }
+
+  return false
+}
+
+async function verifyTurnstile(
+  env: Env,
+  token: string | undefined,
+  ip: null | string,
+): Promise<boolean> {
+  if (!env.TURNSTILE_SECRET_KEY) {
+    console.error('TURNSTILE_SECRET_KEY is not configured')
+    return false
+  }
+
+  if (!token) {
+    return false
+  }
+
+  const form = new URLSearchParams({response: token, secret: env.TURNSTILE_SECRET_KEY})
+
+  if (ip) {
+    form.set('remoteip', ip)
+  }
+
+  try {
+    const res = await fetch(TURNSTILE_VERIFY_URL, {body: form, method: 'POST'})
+    const result = (await res.json()) as null | {success?: boolean}
+    return Boolean(result?.success)
+  } catch (error) {
+    console.error('Turnstile verification error:', error)
+    return false
+  }
+}
+
 async function handleContactFormMessage(request: Request, env: Env): Promise<Response> {
+  if (!isSameOrigin(request)) {
+    return Response.json({error: 'Nieprawidłowe źródło żądania', ok: false}, {status: 403})
+  }
+
+  const ip = request.headers.get('cf-connecting-ip')
+
+  if (await isRateLimited(env, ip)) {
+    return Response.json(
+      {error: 'Zbyt wiele wiadomości. Spróbuj ponownie za chwilę.', ok: false},
+      {status: 429},
+    )
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -131,6 +217,13 @@ async function handleContactFormMessage(request: Request, env: Env): Promise<Res
 
   if (result.kind === 'invalid') {
     return Response.json({error: result.error, ok: false}, {status: result.status})
+  }
+
+  if (!(await verifyTurnstile(env, (body as ContactPayload)['cf-turnstile-response'], ip))) {
+    return Response.json(
+      {error: 'Weryfikacja nie powiodła się. Odśwież stronę i spróbuj ponownie.', ok: false},
+      {status: 400},
+    )
   }
 
   const contact = result.data
