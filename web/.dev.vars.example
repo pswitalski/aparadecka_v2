@@ -4,4 +4,6 @@ CLOUDFLARE_EMAIL_API_TOKEN=<api-token-with-Email-Sending-Edit>
 # destination address in Cloudflare.
 CONTACT_NOTIFICATION_EMAIL=<page-owner@example.com>,<second-owner@example.com>
 CONTACT_FROM_EMAIL=kontakt@agnieszkaparadecka.pl
-SANITY_API_TOKEN=<sanity-write-token>
+# Turnstile secret key (Cloudflare dashboard → Turnstile). The KV binding
+# `CONTACT_RATE_LIMIT` is configured on the Pages project, not in this file.
+TURNSTILE_SECRET_KEY=<turnstile-secret-key>

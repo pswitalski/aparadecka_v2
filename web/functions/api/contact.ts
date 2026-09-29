@@ -3,9 +3,8 @@ interface Env {
   CLOUDFLARE_EMAIL_API_TOKEN: string
   CONTACT_FROM_EMAIL?: string
   CONTACT_NOTIFICATION_EMAIL: string
-  SANITY_API_TOKEN: string
-  SANITY_DATASET: string
-  SANITY_PROJECT_ID: string
+  CONTACT_RATE_LIMIT?: KVNamespace
+  TURNSTILE_SECRET_KEY?: string
 }
 
 interface ContactMessage {
@@ -16,6 +15,7 @@ interface ContactMessage {
 }
 
 interface ContactPayload {
+  'cf-turnstile-response'?: string
   email?: string
   message?: string
   name?: string
@@ -31,6 +31,9 @@ type ValidationResult =
 const DEFAULT_FROM_EMAIL = 'kontakt@agnieszkaparadecka.pl'
 const MAX_MESSAGE_LENGTH = 2000
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const RATE_LIMIT_MAX = 5
+const RATE_LIMIT_WINDOW_SECONDS = 60
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
 
 const emailSendUrl = (accountId: string) =>
   `https://api.cloudflare.com/client/v4/accounts/${accountId}/email/sending/send`
@@ -78,35 +81,6 @@ function parseContactPayload(body: unknown): ValidationResult {
   }
 }
 
-async function saveContactMessage(env: Env, contact: ContactMessage): Promise<void> {
-  const projectId = env.SANITY_PROJECT_ID || 'w73pc8ge'
-  const dataset = env.SANITY_DATASET || 'production'
-  const url = `https://${projectId}.api.sanity.io/v2021-06-07/data/mutate/${dataset}`
-
-  const document = {
-    _type: 'contactMessage',
-    createdAt: new Date().toISOString(),
-    email: contact.email,
-    message: contact.message,
-    name: contact.name,
-    read: false,
-    surname: contact.surname,
-  }
-
-  const res = await fetch(url, {
-    body: JSON.stringify({mutations: [{create: document}]}),
-    headers: {
-      Authorization: `Bearer ${env.SANITY_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  if (!res.ok) {
-    throw new Error(`Sanity API error: ${res.status} ${await res.text()}`)
-  }
-}
-
 async function sendOwnerNotification(env: Env, contact: ContactMessage): Promise<void> {
   const from = env.CONTACT_FROM_EMAIL || DEFAULT_FROM_EMAIL
   const to = env.CONTACT_NOTIFICATION_EMAIL.split(',')
@@ -147,44 +121,133 @@ async function sendOwnerNotification(env: Env, contact: ContactMessage): Promise
   }
 }
 
-async function handleContactFormMessage(request: Request, env: Env): Promise<Response> {
-  let body: unknown
+function isSameOrigin(request: Request): boolean {
+  const origin = request.headers.get('Origin')
+
+  if (!origin) {
+    return false
+  }
+
   try {
-    body = await request.json()
+    return new URL(origin).host === new URL(request.url).host
   } catch {
-    return Response.json({error: 'Nieprawidłowe dane', ok: false}, {status: 400})
+    return false
+  }
+}
+
+async function isRateLimited(env: Env, ip: null | string): Promise<boolean> {
+  if (!env.CONTACT_RATE_LIMIT || !ip) {
+    return false
+  }
+
+  const key = `contact:${ip}`
+  const count = Number(await env.CONTACT_RATE_LIMIT.get(key)) || 0
+
+  if (count >= RATE_LIMIT_MAX) {
+    return true
+  }
+
+  try {
+    await env.CONTACT_RATE_LIMIT.put(key, String(count + 1), {
+      expirationTtl: RATE_LIMIT_WINDOW_SECONDS,
+    })
+  } catch {
+    // KV is best-effort: a transient write error must not block a real submission.
+  }
+
+  return false
+}
+
+async function verifyTurnstile(
+  env: Env,
+  token: string | undefined,
+  ip: null | string,
+): Promise<boolean> {
+  if (!env.TURNSTILE_SECRET_KEY) {
+    console.error('TURNSTILE_SECRET_KEY is not configured')
+    return false
+  }
+
+  if (!token) {
+    return false
+  }
+
+  const form = new URLSearchParams({response: token, secret: env.TURNSTILE_SECRET_KEY})
+
+  if (ip) {
+    form.set('remoteip', ip)
+  }
+
+  try {
+    const res = await fetch(TURNSTILE_VERIFY_URL, {body: form, method: 'POST'})
+    const result = (await res.json()) as null | {success?: boolean}
+    return Boolean(result?.success)
+  } catch (error) {
+    console.error('Turnstile verification error:', error)
+    return false
+  }
+}
+
+async function handleContactFormMessage(request: Request, env: Env): Promise<Response> {
+  const isJson = (request.headers.get('content-type') ?? '').includes('application/json')
+
+  const jsonResponse = (payload: Record<string, unknown>, status: number) =>
+    Response.json(payload, {status})
+  // Abuse checks reject with their status; the no-JS form path gets a redirect, not raw JSON.
+  const reject = (payload: Record<string, unknown>, status: number) =>
+    isJson ? jsonResponse(payload, status) : new Response(null, {status})
+  const finish = (payload: Record<string, unknown>, status = 200) =>
+    isJson
+      ? jsonResponse(payload, status)
+      : new Response(null, {headers: {Location: '/kontakt'}, status: 303})
+
+  if (!isSameOrigin(request)) {
+    return reject({error: 'Nieprawidłowe źródło żądania', ok: false}, 403)
+  }
+
+  const ip = request.headers.get('cf-connecting-ip')
+
+  if (await isRateLimited(env, ip)) {
+    return reject({error: 'Zbyt wiele wiadomości. Spróbuj ponownie za chwilę.', ok: false}, 429)
+  }
+
+  let body: null | Record<string, unknown>
+  if (isJson) {
+    body = (await request.json().catch(() => null)) as null | Record<string, unknown>
+  } else {
+    const data = await request.formData().catch(() => null)
+    body = data ? Object.fromEntries(data) : null
+  }
+
+  if (!body) {
+    return finish({error: 'Nieprawidłowe dane', ok: false}, 400)
   }
 
   const result = parseContactPayload(body)
 
   if (result.kind === 'spam') {
-    return Response.json({ok: true})
+    return finish({ok: true})
   }
 
   if (result.kind === 'invalid') {
-    return Response.json({error: result.error, ok: false}, {status: result.status})
+    return finish({error: result.error, ok: false}, result.status)
   }
 
-  const contact = result.data
-
-  try {
-    await saveContactMessage(env, contact)
-  } catch (error) {
-    console.error('Sanity API error:', error)
-    return Response.json({error: 'Błąd serwera', ok: false}, {status: 500})
-  }
-
-  try {
-    await sendOwnerNotification(env, contact)
-  } catch (error) {
-    console.error('Email notification error:', error)
-    return Response.json(
-      {error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie.', ok: false},
-      {status: 500},
+  if (!(await verifyTurnstile(env, (body as ContactPayload)['cf-turnstile-response'], ip))) {
+    return finish(
+      {error: 'Weryfikacja nie powiodła się. Odśwież stronę i spróbuj ponownie.', ok: false},
+      400,
     )
   }
 
-  return Response.json({ok: true})
+  try {
+    await sendOwnerNotification(env, result.data)
+  } catch (error) {
+    console.error('Email notification error:', error)
+    return finish({error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie.', ok: false}, 500)
+  }
+
+  return finish({ok: true})
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {

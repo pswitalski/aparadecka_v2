@@ -50,20 +50,6 @@ export type Site = {
   keywords?: Array<string>;
 };
 
-export type ContactMessage = {
-  _id: string;
-  _type: "contactMessage";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  surname?: string;
-  email?: string;
-  message?: string;
-  createdAt?: string;
-  read?: boolean;
-};
-
 export type Contact = {
   _id: string;
   _type: "contact";
@@ -98,7 +84,7 @@ export type AboutBlock = {
       _type: "span";
       _key: string;
     }>;
-    style?: "h2" | "h3" | "big" | "normal" | "small";
+    style?: "normal" | "big" | "small" | "h2" | "h3";
     listItem?: "bullet";
     markDefs?: Array<{
       href?: string;
@@ -317,7 +303,6 @@ export type AllSanitySchemaTypes =
   | DeployRun
   | DeployTrigger
   | Site
-  | ContactMessage
   | Contact
   | SocialLink
   | SanityImageAssetReference
@@ -362,7 +347,7 @@ export type FeaturedPaintingsQueryResult = {
 
 // Source: ../web/src/lib/queries.ts
 // Variable: collectionsQuery
-// Query: *[_type == "collection"] | order(year desc){  year,  "featuredPainting": coalesce(    thumbnail->{ _id, title, medium, support, dimensions, mainImage },    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }  )}
+// Query: *[_type == "collection" && count(paintings) > 0] | order(year desc){  year,  "featuredPainting": coalesce(    thumbnail->{ _id, title, medium, support, dimensions, mainImage },    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }  )}
 export type CollectionsQueryResult = Array<{
   year: number | null;
   featuredPainting: {
@@ -463,7 +448,7 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     '*[_type == "home"][0]{\n  "featuredPaintings": (featured[]->{\n    _id,\n    title,\n    medium,\n    support,\n    dimensions,\n    mainImage,\n    "year": *[_type == "collection" && references(^._id)][0].year\n  })[defined(year)]\n}': FeaturedPaintingsQueryResult;
-    '*[_type == "collection"] | order(year desc){\n  year,\n  "featuredPainting": coalesce(\n    thumbnail->{ _id, title, medium, support, dimensions, mainImage },\n    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }\n  )\n}': CollectionsQueryResult;
+    '*[_type == "collection" && count(paintings) > 0] | order(year desc){\n  year,\n  "featuredPainting": coalesce(\n    thumbnail->{ _id, title, medium, support, dimensions, mainImage },\n    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }\n  )\n}': CollectionsQueryResult;
     '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, medium, support, dimensions, year, mainImage }\n}': CollectionByYearQueryResult;
     '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    highlighted,\n    imagePositionDesktop,\n    imagePositionMobile,\n    textAlign,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
     '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;

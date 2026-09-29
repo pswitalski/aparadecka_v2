@@ -35,8 +35,10 @@ Cloudflare Pages. See the root `README.md` for deployment, env vars, and CI.
   - Captions reveal on hover/focus on desktop, and are always visible on mobile
   - Text-only blocks span the full content width with the chosen alignment
 - **Contact form** — `components/contact/ContactForm.astro` posts JSON to `/api/contact`; the
-  `functions/api/contact.ts` Pages Function validates it, saves a `contactMessage` in Sanity, and
-  emails the owner (see root README for the required env vars). Includes a honeypot field.
+  `functions/api/contact.ts` Pages Function validates it and emails the owner (see root README for
+  the required env vars). Includes a honeypot field and a visible Cloudflare Turnstile widget
+  (`Turnstile.astro`); the endpoint also enforces a same-origin check and a per-IP rate limit.
+  Messages are not stored.
 - **Rich text** — `PortableText.astro`, `PortableTextImage.astro`, `BigSmallBlock.tsx`, and the
   navigation components under `components/navigation/` (including `MobileMenu`).
 
@@ -52,6 +54,7 @@ Cloudflare Pages. See the root `README.md` for deployment, env vars, and CI.
 ## Environment
 
 - `.env.example` — `PUBLIC_SANITY_PROJECT_ID`, `PUBLIC_SANITY_DATASET`, `PUBLIC_SITE_ENV`
-  (`production` makes `/robots.txt` indexable; anything else keeps previews out of search).
-- `.dev.vars.example` — env for the Pages Function (`SANITY_API_TOKEN`, `CLOUDFLARE_*`,
-  `CONTACT_NOTIFICATION_EMAIL`, `CONTACT_FROM_EMAIL`).
+  (`production` makes `/robots.txt` indexable; anything else keeps previews out of search), and
+  `PUBLIC_TURNSTILE_SITE_KEY`.
+- `.dev.vars.example` — env for the Pages Function (`CLOUDFLARE_*`,
+  `CONTACT_NOTIFICATION_EMAIL`, `CONTACT_FROM_EMAIL`, `TURNSTILE_SECRET_KEY`).

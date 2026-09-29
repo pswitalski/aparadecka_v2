@@ -145,9 +145,10 @@ Use the **Deploy Studio** workflow (Actions → **Deploy Studio** → Run workfl
 
 ### Contact form email notifications
 
-The contact form (`/kontakt`) stores each message in Sanity (the Studio's contact messages list) and
-emails it to the page owner via the Cloudflare Email Service REST API, called from the Pages Function
-at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`.
+The contact form (`/kontakt`) emails each message to the page owner via the Cloudflare Email Service
+REST API, called from the Pages Function at `web/functions/api/contact.ts`. The sender is
+`kontakt@agnieszkaparadecka.pl`. Messages are **not** stored in Sanity — the owner's mailbox is the
+only record.
 
 - The recipients are the `CONTACT_NOTIFICATION_EMAIL` env var on the Pages project (set in the
   Cloudflare dashboard, not the CMS). Accepts a comma-separated list; **every** address must be a
@@ -156,8 +157,37 @@ at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`
 - Do **not** onboard "Email Sending" — routing-only is what keeps verified-destination sends free.
 - The `aparadecka-v2` Pages project needs these env vars (Settings → Variables and Secrets, for both
   Production and Preview):
-  - `SANITY_API_TOKEN` (secret) — writes the `contactMessage` doc into the dataset.
-  - `SANITY_PROJECT_ID` and `SANITY_DATASET` — defaults are hardcoded (`w73pc8ge` / `production`) but set them explicitly to avoid surprises.
   - `CLOUDFLARE_ACCOUNT_ID`, `CONTACT_NOTIFICATION_EMAIL`, `CLOUDFLARE_EMAIL_API_TOKEN` (secret, permission **Account → Email Sending → Edit**), and optionally `CONTACT_FROM_EMAIL`.
 
   See `web/.dev.vars.example`.
+
+### Contact form abuse protection
+
+`/api/contact` enforces, in order: a same-origin `Origin` check (403), a per-IP rate limit (429,
+KV-backed), and a Cloudflare Turnstile check.
+
+- **Turnstile:** create a widget (Cloudflare dashboard → Turnstile → Add widget), mode **Managed**,
+  for `agnieszkaparadecka.pl` and the `*.pages.dev` preview hostnames. The form shows it on
+  `/kontakt` (`theme: light`), using the `flexible` size on wide columns and switching to `compact`
+  below 200px, with a CSS scale fallback so it never overflows the card. Put the **Site Key** in the
+  GitHub Actions variable `PUBLIC_TURNSTILE_SITE_KEY` (baked into the build; also set it in
+  `web/.env` for local dev) and the **Secret Key** as the Pages secret `TURNSTILE_SECRET_KEY`
+  (Production + Preview).
+- **Rate limit:** create a Workers KV namespace (e.g. `contact-rate-limit`) and bind it to the Pages
+  project as `CONTACT_RATE_LIMIT` (Settings → Functions → KV namespace bindings, Production +
+  Preview). KV free tier is 100k reads / 1k writes per day. If the binding is missing, rate limiting
+  is skipped — the Turnstile check still applies.
+
+### Privacy notice
+
+The contact form shows a short GDPR information clause (art. 13) under the submit button: the
+controller, the purpose and legal basis (legitimate interest) and data-subject rights. No consent
+checkbox is used and there is no separate policy page.
+
+### Without JavaScript
+
+With scripting disabled the form is hidden (via `<noscript>`) and replaced by a short message, so a
+no-JS visitor cannot submit and nothing leaks into the URL. As a fallback for the case where
+scripting is on but the submit script fails to run, the form still posts natively to `/api/contact`
+(`method="post"`), and the endpoint answers such non-JSON posts with a `303` redirect back to
+`/kontakt`.
