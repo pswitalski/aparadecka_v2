@@ -160,3 +160,20 @@ only record.
   - `CLOUDFLARE_ACCOUNT_ID`, `CONTACT_NOTIFICATION_EMAIL`, `CLOUDFLARE_EMAIL_API_TOKEN` (secret, permission **Account → Email Sending → Edit**), and optionally `CONTACT_FROM_EMAIL`.
 
   See `web/.dev.vars.example`.
+
+### Contact form abuse protection
+
+`/api/contact` enforces, in order: a same-origin `Origin` check (403), a per-IP rate limit (429,
+KV-backed), and a Cloudflare Turnstile check.
+
+- **Turnstile:** create a widget (Cloudflare dashboard → Turnstile → Add widget), mode **Managed**,
+  for `agnieszkaparadecka.pl` and the `*.pages.dev` preview hostnames. The form shows it on
+  `/kontakt` (`theme: light`), using the `flexible` size on wide columns and switching to `compact`
+  below 200px, with a CSS scale fallback so it never overflows the card. Put the **Site Key** in the
+  GitHub Actions variable `PUBLIC_TURNSTILE_SITE_KEY` (baked into the build; also set it in
+  `web/.env` for local dev) and the **Secret Key** as the Pages secret `TURNSTILE_SECRET_KEY`
+  (Production + Preview).
+- **Rate limit:** create a Workers KV namespace (e.g. `contact-rate-limit`) and bind it to the Pages
+  project as `CONTACT_RATE_LIMIT` (Settings → Functions → KV namespace bindings, Production +
+  Preview). KV free tier is 100k reads / 1k writes per day. If the binding is missing, rate limiting
+  is skipped — the Turnstile check still applies.
