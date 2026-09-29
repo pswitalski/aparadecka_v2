@@ -145,9 +145,10 @@ Use the **Deploy Studio** workflow (Actions → **Deploy Studio** → Run workfl
 
 ### Contact form email notifications
 
-The contact form (`/kontakt`) stores each message in Sanity (the Studio's contact messages list) and
-emails it to the page owner via the Cloudflare Email Service REST API, called from the Pages Function
-at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`.
+The contact form (`/kontakt`) emails each message to the page owner via the Cloudflare Email Service
+REST API, called from the Pages Function at `web/functions/api/contact.ts`. The sender is
+`kontakt@agnieszkaparadecka.pl`. Messages are **not** stored in Sanity — the owner's mailbox is the
+only record.
 
 - The recipients are the `CONTACT_NOTIFICATION_EMAIL` env var on the Pages project (set in the
   Cloudflare dashboard, not the CMS). Accepts a comma-separated list; **every** address must be a
@@ -156,8 +157,6 @@ at `web/functions/api/contact.ts`. The sender is `kontakt@agnieszkaparadecka.pl`
 - Do **not** onboard "Email Sending" — routing-only is what keeps verified-destination sends free.
 - The `aparadecka-v2` Pages project needs these env vars (Settings → Variables and Secrets, for both
   Production and Preview):
-  - `SANITY_API_TOKEN` (secret) — writes the `contactMessage` doc into the dataset.
-  - `SANITY_PROJECT_ID` and `SANITY_DATASET` — defaults are hardcoded (`w73pc8ge` / `production`) but set them explicitly to avoid surprises.
   - `CLOUDFLARE_ACCOUNT_ID`, `CONTACT_NOTIFICATION_EMAIL`, `CLOUDFLARE_EMAIL_API_TOKEN` (secret, permission **Account → Email Sending → Edit**), and optionally `CONTACT_FROM_EMAIL`.
 
   See `web/.dev.vars.example`.
