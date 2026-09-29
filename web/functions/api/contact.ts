@@ -3,9 +3,6 @@ interface Env {
   CLOUDFLARE_EMAIL_API_TOKEN: string
   CONTACT_FROM_EMAIL?: string
   CONTACT_NOTIFICATION_EMAIL: string
-  SANITY_API_TOKEN: string
-  SANITY_DATASET: string
-  SANITY_PROJECT_ID: string
 }
 
 interface ContactMessage {
@@ -78,35 +75,6 @@ function parseContactPayload(body: unknown): ValidationResult {
   }
 }
 
-async function saveContactMessage(env: Env, contact: ContactMessage): Promise<void> {
-  const projectId = env.SANITY_PROJECT_ID || 'w73pc8ge'
-  const dataset = env.SANITY_DATASET || 'production'
-  const url = `https://${projectId}.api.sanity.io/v2021-06-07/data/mutate/${dataset}`
-
-  const document = {
-    _type: 'contactMessage',
-    createdAt: new Date().toISOString(),
-    email: contact.email,
-    message: contact.message,
-    name: contact.name,
-    read: false,
-    surname: contact.surname,
-  }
-
-  const res = await fetch(url, {
-    body: JSON.stringify({mutations: [{create: document}]}),
-    headers: {
-      Authorization: `Bearer ${env.SANITY_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  })
-
-  if (!res.ok) {
-    throw new Error(`Sanity API error: ${res.status} ${await res.text()}`)
-  }
-}
-
 async function sendOwnerNotification(env: Env, contact: ContactMessage): Promise<void> {
   const from = env.CONTACT_FROM_EMAIL || DEFAULT_FROM_EMAIL
   const to = env.CONTACT_NOTIFICATION_EMAIL.split(',')
@@ -166,13 +134,6 @@ async function handleContactFormMessage(request: Request, env: Env): Promise<Res
   }
 
   const contact = result.data
-
-  try {
-    await saveContactMessage(env, contact)
-  } catch (error) {
-    console.error('Sanity API error:', error)
-    return Response.json({error: 'Błąd serwera', ok: false}, {status: 500})
-  }
 
   try {
     await sendOwnerNotification(env, contact)

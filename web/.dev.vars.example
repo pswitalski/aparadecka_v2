@@ -4,4 +4,3 @@ CLOUDFLARE_EMAIL_API_TOKEN=<api-token-with-Email-Sending-Edit>
 # destination address in Cloudflare.
 CONTACT_NOTIFICATION_EMAIL=<page-owner@example.com>,<second-owner@example.com>
 CONTACT_FROM_EMAIL=kontakt@agnieszkaparadecka.pl
-SANITY_API_TOKEN=<sanity-write-token>
