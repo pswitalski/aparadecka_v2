@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import type { GalleryPainting } from '../adapter';
 
+import GalleryToggle from '../GalleryToggle';
 import * as styles from './DesktopGallery.css';
 import { pixelGeometryOf, SIDE_GAP, type Slot, staticGeometryOf, THUMB_STEP, THUMB_WIDTH } from './geometry';
 
@@ -26,6 +27,7 @@ export default function DesktopGallery({ paintings }: Props) {
 	const [paused, setPaused] = useState(false);
 	const [revealedThumb, setRevealedThumb] = useState<null | number>(null);
 	const [isVisible, setIsVisible] = useState(true);
+	const [userPaused, setUserPaused] = useState(false);
 	const reduceMotion = useMemo(
 		() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 		[],
@@ -48,14 +50,14 @@ export default function DesktopGallery({ paintings }: Props) {
 	}, [order, stackStrip, visibleStrip]);
 
 	useEffect(() => {
-		if (reduceMotion || paused || !isVisible) return;
+		if (reduceMotion || paused || userPaused || !isVisible) return;
 		timerRef.current = window.setInterval(() => {
 			setOrder((prev) => [prev[prev.length - 1], prev[0], ...prev.slice(1, -1)]);
 		}, INTERVAL);
 		return () => {
 			if (timerRef.current) window.clearInterval(timerRef.current);
 		};
-	}, [isVisible, paused, reduceMotion]);
+	}, [isVisible, paused, reduceMotion, userPaused]);
 
 	const select = (targetIndex: number) => {
 		setOrder((prev) => {
@@ -84,13 +86,7 @@ export default function DesktopGallery({ paintings }: Props) {
 	if (paintings.length === 0) return null;
 
 	return (
-		<section
-			aria-label="Galeria wyróżnionych obrazów"
-			className={styles.homeGallery}
-			data-home-gallery
-			onBlur={() => setPaused(false)}
-			onFocus={() => setPaused(true)}
-		>
+		<section aria-label="Galeria wyróżnionych obrazów" className={styles.homeGallery} data-home-gallery>
 			<div className={styles.inner}>
 				<div className={styles.clip} ref={rootRef}>
 					{/* visible thumbnail cells: hover-pause regions + the click targets */}
@@ -111,9 +107,15 @@ export default function DesktopGallery({ paintings }: Props) {
 							<button
 								aria-label={`Pokaż: ${paintings[visibleStrip[i]].title ?? 'obraz bez tytułu'}`}
 								className={styles.thumbBtn}
-								onBlur={() => setRevealedThumb(null)}
+								onBlur={() => {
+									setPaused(false);
+									setRevealedThumb(null);
+								}}
 								onClick={() => select(visibleStrip[i])}
-								onFocus={() => setRevealedThumb(i)}
+								onFocus={() => {
+									setPaused(true);
+									setRevealedThumb(i);
+								}}
 								type="button"
 							/>
 						</div>
@@ -180,6 +182,13 @@ export default function DesktopGallery({ paintings }: Props) {
 				<p aria-live="off" className={styles.caption}>
 					{big?.caption}
 				</p>
+				{!reduceMotion && (
+					<GalleryToggle
+						className={styles.toggle}
+						onToggle={() => setUserPaused((prev) => !prev)}
+						paused={userPaused}
+					/>
+				)}
 			</div>
 		</section>
 	);

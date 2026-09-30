@@ -26,6 +26,7 @@ export const dotsBar = style({
 	justifyContent: 'center',
 	minHeight: 'var(--space-6)',
 	padding: '0 var(--space-4)',
+	position: 'relative',
 });
 
 export const dots = style({
@@ -98,4 +99,25 @@ export const img = style({
 	objectFit: 'cover',
 	objectPosition: 'center',
 	width: '100%',
+});
+
+export const toggle = style({
+	':focus-visible': {
+		outline: 'var(--focus-ring-width) solid var(--color-accent)',
+		outlineOffset: 'var(--focus-ring-offset)',
+	},
+	alignItems: 'center',
+	background: 'transparent',
+	border: 0,
+	color: 'var(--color-text)',
+	cursor: 'pointer',
+	display: 'inline-flex',
+	height: 40,
+	justifyContent: 'center',
+	padding: 0,
+	position: 'absolute',
+	right: 'var(--space-2)',
+	top: '50%',
+	transform: 'translateY(-50%)',
+	width: 40,
 });
