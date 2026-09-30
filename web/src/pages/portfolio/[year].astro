@@ -18,7 +18,9 @@ const { year } = Astro.params;
 const collection = await sanityClient.fetch<null | { paintings: Painting[]; year: number }>(collectionByYearQuery, {
 	year: Number(year),
 });
-const paintings = collection?.paintings ?? [];
+const paintings = (collection?.paintings ?? []).filter(
+	(painting): painting is Painting => painting !== null,
+);
 ---
 
 <Layout preloadFonts={['bold']} title={`Rocznik ${year}`}>
