@@ -17,7 +17,7 @@ interface ContactLink extends SocialLink {
 	key: SocialKey;
 }
 
-const contact = await sanityClient.fetch<{
+const contact = await sanityClient.fetch<null | {
 	email: null | SocialLink;
 	facebook: null | SocialLink;
 	instagram: null | SocialLink;
@@ -25,9 +25,9 @@ const contact = await sanityClient.fetch<{
 
 const links = (
 	[
-		{ key: 'email', ...contact.email },
-		{ key: 'instagram', ...contact.instagram },
-		{ key: 'facebook', ...contact.facebook },
+		{ key: 'email', ...contact?.email },
+		{ key: 'instagram', ...contact?.instagram },
+		{ key: 'facebook', ...contact?.facebook },
 	] as Array<ContactLink | Record<string, unknown>>
 )
 	.filter((link): link is ContactLink => Boolean((link as ContactLink).url))
