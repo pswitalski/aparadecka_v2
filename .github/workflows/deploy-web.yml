@@ -51,6 +51,7 @@ jobs:
           echo "BRANCH=$branch" >> "$GITHUB_OUTPUT"
 
       - name: Report deploy started
+        id: started
         working-directory: .
         env:
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
@@ -58,6 +59,7 @@ jobs:
           if [ -z "$SANITY_API_TOKEN" ]; then echo "Skipping status report (no SANITY_API_TOKEN)"; exit 0; fi
           BRANCH="${{ steps.branch.outputs.BRANCH }}"
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "STARTED_AT=$NOW" >> "$GITHUB_OUTPUT"
           PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:"in_progress",startedAt:$now,updatedAt:$now}}]}')"
           curl -sS -X POST "https://w73pc8ge.api.sanity.io/v2021-06-07/data/mutate/production" \
             -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
@@ -134,7 +136,7 @@ jobs:
             DEPLOY_URL="${{ steps.deploy.outputs.pages-deployment-alias-url }}"
             MESSAGE=""
           fi
-          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg status "$STATUS" --arg message "$MESSAGE" --arg deployUrl "$DEPLOY_URL" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:$status,message:$message,deployUrl:$deployUrl,updatedAt:$now}}]}')"
+          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg status "$STATUS" --arg message "$MESSAGE" --arg deployUrl "$DEPLOY_URL" --arg startedAt "${{ steps.started.outputs.STARTED_AT }}" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:$status,message:$message,deployUrl:$deployUrl,startedAt:$startedAt,updatedAt:$now}}]}')"
           curl -sS -X POST "https://w73pc8ge.api.sanity.io/v2021-06-07/data/mutate/production" \
             -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
             -H "Content-Type: application/json" \
