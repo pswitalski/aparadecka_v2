@@ -41,7 +41,7 @@ jobs:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
 
       - name: Deploy schema to registry
-        if: inputs.deploy_schema == 'true'
+        if: inputs.deploy_schema
         run: npx sanity schemas deploy
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
