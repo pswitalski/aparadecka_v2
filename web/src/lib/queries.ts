@@ -53,3 +53,5 @@ export const siteQuery = defineQuery(`*[_type == "site"][0]{
   description,
   keywords
 }`);
+
+export const ogImageQuery = defineQuery(`*[_type == "home"][0].featured[0]->mainImage`);

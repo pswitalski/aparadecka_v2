@@ -31,7 +31,8 @@ const cards = collections.map((collection) => {
 });
 ---
 
-<Layout title="Portfolio">
+<Layout image={cards[0]?.mainImage} title="Portfolio">
+	<h1 class="visually-hidden">Portfolio</h1>
 	<div class="portfolio-wrapper">
 		<ul class="years">
 			{cards.map(({ featuredPainting, mainImage, rect, year }, index) => (

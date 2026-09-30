@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { GalleryPainting } from '../adapter';
 
+import GalleryToggle from '../GalleryToggle';
 import * as styles from './MobileGallery.css';
 
 interface Props {
@@ -36,6 +37,7 @@ export default function MobileGallery({ paintings }: Props) {
 
 	const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', loop: true }, reduceMotion ? [] : [autoplay]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [userPaused, setUserPaused] = useState(false);
 
 	useEffect(() => {
 		autoplayRef.current = autoplay;
@@ -51,12 +53,12 @@ export default function MobileGallery({ paintings }: Props) {
 		const observer = new IntersectionObserver(([entry]) => {
 			const api = autoplayRef.current;
 			if (!api) return;
-			if (entry.isIntersecting) api.play();
+			if (entry.isIntersecting && !userPaused) api.play();
 			else api.stop();
 		});
 		observer.observe(node);
 		return () => observer.disconnect();
-	}, []);
+	}, [userPaused]);
 
 	useEffect(() => {
 		if (!emblaApi) return;
@@ -77,11 +79,18 @@ export default function MobileGallery({ paintings }: Props) {
 	};
 
 	const scheduleResume = () => {
+		if (userPaused) return;
 		if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
 		resumeTimer.current = window.setTimeout(() => {
 			autoplayRef.current?.play();
 			resumeTimer.current = null;
 		}, RESUME_DELAY);
+	};
+
+	const toggleAutoplay = () => {
+		if (userPaused) autoplayRef.current?.play();
+		else stopAutoplay();
+		setUserPaused(!userPaused);
 	};
 
 	const active = paintings[selectedIndex] ?? paintings[0];
@@ -107,6 +116,9 @@ export default function MobileGallery({ paintings }: Props) {
 						);
 					})}
 				</div>
+				{!reduceMotion && (
+					<GalleryToggle className={styles.toggle} onToggle={toggleAutoplay} paused={userPaused} />
+				)}
 			</div>
 			<p aria-live="off" className={styles.title}>
 				{active?.caption}
@@ -130,7 +142,8 @@ export default function MobileGallery({ paintings }: Props) {
 							<img
 								alt={p.title ?? ''}
 								className={styles.img}
-								loading="lazy"
+								fetchPriority={i === 0 ? 'high' : undefined}
+								loading={i === 0 ? 'eager' : 'lazy'}
 								sizes={MOBILE_GALLERY_SIZES}
 								src={p.mobile}
 								srcSet={p.srcset}

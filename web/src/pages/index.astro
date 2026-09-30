@@ -15,7 +15,7 @@ const paintings = adaptPaintings(data?.featuredPaintings);
 const hero = paintings[0];
 ---
 
-<Layout>
+<Layout image={data?.featuredPaintings?.[0]?.mainImage}>
 	<Fragment slot="head">
 		{hero?.srcset && (
 			<link

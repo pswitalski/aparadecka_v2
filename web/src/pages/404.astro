@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/main.astro';
+---
+
+<Layout description="Nie znaleziono strony." title="Nie znaleziono strony">
+	<Fragment slot="head">
+		<meta content="noindex" name="robots" />
+	</Fragment>
+	<section class="not-found">
+		<p aria-hidden="true" class="not-found__code">404</p>
+		<h1 class="not-found__title">Nie znaleziono strony</h1>
+		<p class="not-found__lead">Ta strona nie istnieje albo została przeniesiona.</p>
+		<p class="not-found__links">
+			<a href="/">Strona główna</a>
+		</p>
+	</section>
+</Layout>
+
+<style lang="scss">
+	.not-found {
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		justify-content: center;
+		margin-inline: calc(50% - 50vw);
+		min-height: calc(100vh - var(--header-height));
+		min-height: calc(100dvh - var(--header-height));
+		padding: var(--space-6) var(--space-4);
+		text-align: center;
+	}
+
+	.not-found__code {
+		color: var(--color-muted);
+		font-family: var(--font-special);
+		font-size: var(--font-size-5xl);
+		line-height: 1;
+	}
+
+	.not-found__title {
+		font-size: var(--font-size-2xl);
+	}
+
+	.not-found__lead {
+		color: var(--color-muted);
+		max-width: 44ch;
+	}
+
+	.not-found__links {
+		display: flex;
+		gap: var(--space-4);
+		margin-top: var(--space-3);
+	}
+
+	.not-found__links a {
+		border-bottom: 1px solid currentColor;
+		color: var(--color-text);
+		text-decoration: none;
+	}
+
+	.not-found__links a:hover {
+		color: var(--color-accent);
+	}
+
+	.not-found__links a:focus-visible {
+		border-bottom-color: transparent;
+		color: var(--color-accent);
+		outline: var(--focus-ring-width) solid var(--color-accent);
+		outline-offset: var(--focus-ring-offset);
+	}
+
+	@media (max-width: 767px) {
+		.not-found {
+			min-height: calc(100dvh - var(--header-height-mobile));
+		}
+	}
+</style>

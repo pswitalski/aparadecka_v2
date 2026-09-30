@@ -135,9 +135,11 @@ deployed branch:
   `https://agnieszkaparadecka.pl/sitemap-index.xml`.
 - every other branch (e.g. `stage`) → `PUBLIC_SITE_ENV=preview`: `Disallow: /`, so previews stay out
   of search results.
+- anything else (including unset) is treated as production; an unrecognised non-empty value also logs a
+  build warning.
 
-Anything that is not explicitly `production` is treated as a preview. Keep the canonical origin in
-sync with `web/siteUrl.ts`.
+The rules **fail open** — only an explicit preview build is blocked — so a missing or misspelled variable
+can never silently deindex the production site. Keep the canonical origin in sync with `web/siteUrl.ts`.
 
 ### Deploy the Sanity Studio
 

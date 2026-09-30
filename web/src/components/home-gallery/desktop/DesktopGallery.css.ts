@@ -127,3 +127,26 @@ export const thumbTitle = style({
 	textWrap: 'balance',
 	transition: 'opacity 200ms ease',
 });
+
+export const toggle = style({
+	':focus-visible': {
+		outline: 'var(--focus-ring-width) solid var(--color-accent)',
+		outlineOffset: 'var(--focus-ring-offset)',
+	},
+	':hover': {
+		color: 'var(--color-accent)',
+	},
+	alignItems: 'center',
+	background: 'none',
+	border: 0,
+	bottom: 'var(--space-5)',
+	color: 'var(--color-text)',
+	cursor: 'pointer',
+	display: 'inline-flex',
+	height: 40,
+	justifyContent: 'center',
+	padding: 0,
+	position: 'absolute',
+	right: 'var(--space-4)',
+	width: 40,
+});

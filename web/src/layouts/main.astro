@@ -7,6 +7,8 @@ import '@fontsource/calistoga/latin-400.css';
 import '@fontsource/calistoga/latin-ext-400.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-ext-400.css';
+import type { SanityImageSource } from '@sanity/image-url';
+
 import caladeaLatin400 from '@fontsource/caladea/files/caladea-latin-400-normal.woff2?url';
 import caladeaLatin700 from '@fontsource/caladea/files/caladea-latin-700-normal.woff2?url';
 import caladeaLatinExt400 from '@fontsource/caladea/files/caladea-latin-ext-400-normal.woff2?url';
@@ -14,25 +16,28 @@ import caladeaLatinExt700 from '@fontsource/caladea/files/caladea-latin-ext-700-
 import calistogaLatin400 from '@fontsource/calistoga/files/calistoga-latin-400-normal.woff2?url';
 import calistogaLatinExt400 from '@fontsource/calistoga/files/calistoga-latin-ext-400-normal.woff2?url';
 import interLatin400 from '@fontsource/inter/files/inter-latin-400-normal.woff2?url';
-import interLatinExt400 from '@fontsource/inter/files/inter-latin-ext-400-normal.woff2?url';
 
 import '../styles/globals.scss';
 import '../styles/view-transitions.css';
 import '../../../shared/tokens.css';
 import '../../../shared/rich-text.css';
 
+import interLatinExt400 from '@fontsource/inter/files/inter-latin-ext-400-normal.woff2?url';
 import { sanityClient } from 'sanity:client';
 
+import { siteUrl } from '../../siteUrl';
 import Navigation from '../components/navigation/Navigation.astro';
-import { siteQuery } from '../lib/queries';
+import { ogImageQuery, siteQuery } from '../lib/queries';
+import { urlForImage } from '../lib/sanity';
 
 interface Props {
 	description?: string;
+	image?: null | SanityImageSource;
 	preloadFonts?: Array<'bold' | 'sans'>;
 	title?: string;
 }
 
-const { description, preloadFonts = [], title } = Astro.props;
+const { description, image, preloadFonts = [], title } = Astro.props;
 
 const fontFaces = {
 	bold: [caladeaLatin700, caladeaLatinExt700],
@@ -53,9 +58,26 @@ const site = await sanityClient.fetch<{
   siteTitle: null | string;
 }>(siteQuery);
 
-const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka - Świtalska';
+const siteName = site?.siteTitle ?? 'Agnieszka Paradecka - Świtalska';
+const resolvedTitle = title ?? siteName;
 const resolvedDescription =
 	description ?? site?.description ?? 'Agnieszka Paradecka - Świtalska - Portfolio';
+
+const canonical = new URL(Astro.url.pathname, siteUrl).href;
+
+const ogImageSource = image ?? (await sanityClient.fetch<null | SanityImageSource>(ogImageQuery));
+const ogImage = ogImageSource
+	? urlForImage(ogImageSource).width(1200).fit('max').format('jpg').url()
+	: null;
+
+const personJsonLd = JSON.stringify({
+	'@context': 'https://schema.org',
+	'@type': 'Person',
+	description: resolvedDescription,
+	image: ogImage,
+	name: siteName,
+	url: siteUrl,
+});
 
 const speculationRules = JSON.stringify({
 	prefetch: [
@@ -76,11 +98,23 @@ const speculationRules = JSON.stringify({
 		<meta content="width=device-width" name="viewport" />
 		<meta content={resolvedDescription} name="description" />
 		{site?.keywords?.length && <meta content={site.keywords.join(', ')} name="keywords" />}
+		<meta content={canonical} property="og:url" />
+		<meta content="website" property="og:type" />
+		<meta content="pl_PL" property="og:locale" />
+		<meta content={siteName} property="og:site_name" />
+		<meta content={resolvedTitle} property="og:title" />
+		<meta content={resolvedDescription} property="og:description" />
+		{ogImage && <meta content={ogImage} property="og:image" />}
+		<meta content={ogImage ? 'summary_large_image' : 'summary'} name="twitter:card" />
+		<meta content={resolvedTitle} name="twitter:title" />
+		<meta content={resolvedDescription} name="twitter:description" />
+		{ogImage && <meta content={ogImage} name="twitter:image" />}
 		<link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
 		<link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
 		<link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
 		<link href="/favicon.ico" rel="icon" />
 		<link href="/site.webmanifest" rel="manifest" />
+		<link href={canonical} rel="canonical" />
 		<meta content={Astro.generator} name="generator" />
 		{preloadedFonts.map((href) => (
 			<link as="font" crossorigin href={href} rel="preload" type="font/woff2" />
@@ -88,6 +122,7 @@ const speculationRules = JSON.stringify({
 		<slot name="head" />
 		<title>{resolvedTitle}</title>
 		<script is:inline set:html={speculationRules} type="speculationrules"></script>
+		<script is:inline set:html={personJsonLd} type="application/ld+json"></script>
 	</head>
 	<body>
 		<a class="skip-link" href="#main">Przejdź do treści</a>
