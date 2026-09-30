@@ -5,7 +5,7 @@
   "description": "Root tooling shell: git hooks (husky + lint-staged) and repo-wide dependency scripts. Studio and web remain independent packages with their own lockfiles.",
   "scripts": {
     "prepare": "husky",
-    "check": "npm run typecheck --prefix studio && npm run check --prefix web",
+    "check": "npm run typecheck --prefix studio && npm run check --prefix web && npm run lint --prefix web",
     "deps:install-clean": "npm ci && npm ci --prefix studio && npm ci --prefix web",
     "deps:lock-regenerate": "rm -f package-lock.json studio/package-lock.json web/package-lock.json && npm install --package-lock-only && npm install --package-lock-only --prefix studio && npm install --package-lock-only --prefix web",
     "deps:bump": "ncu --target semver -u && ncu --target semver -u --cwd studio && ncu --target semver -u --cwd web && npm run deps:lock-regenerate && npm run deps:install-clean",

@@ -5,8 +5,10 @@ on:
     inputs:
       branch:
         description: Branch to deploy
+        type: choice
         required: true
         default: master
+        options: [master, stage, prod]
   repository_dispatch:
     types: [content-rebuild]
 
@@ -15,7 +17,7 @@ permissions:
   deployments: write
 
 concurrency:
-  group: deploy-web
+  group: deploy-web-${{ github.event.client_payload.branch || github.event.inputs.branch || 'master' }}
   cancel-in-progress: true
 
 jobs:
@@ -29,18 +31,44 @@ jobs:
       - name: Resolve branch
         id: branch
         working-directory: .
-        run: echo "BRANCH=${{ github.event.client_payload.branch || github.event.inputs.branch || 'master' }}" >> "$GITHUB_OUTPUT"
+        run: |
+          set -euo pipefail
+          allowed="master stage prod"
+          branch=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            branch="${{ inputs.branch }}"
+          else
+            branch="${{ github.event.client_payload.branch }}"
+            if [ -z "$branch" ]; then
+              branch="master"
+              echo "::warning::content-rebuild payload had no 'branch'; defaulting to master"
+            fi
+          fi
+          case " $allowed " in
+            *" $branch "*) ;;
+            *) echo "::error::unrecognized branch '$branch' (allowed: $allowed)"; exit 1 ;;
+          esac
+          echo "BRANCH=$branch" >> "$GITHUB_OUTPUT"
 
       - name: Report deploy started
+        id: started
         working-directory: .
         env:
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
         run: |
           if [ -z "$SANITY_API_TOKEN" ]; then echo "Skipping status report (no SANITY_API_TOKEN)"; exit 0; fi
+          if [ -z "$SANITY_PROJECT_ID" ] || [ -z "$SANITY_DATASET" ]; then
+            echo "::warning::missing PUBLIC_SANITY_PROJECT_ID / PUBLIC_SANITY_DATASET; skipping status report"
+            exit 0
+          fi
           BRANCH="${{ steps.branch.outputs.BRANCH }}"
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "STARTED_AT=$NOW" >> "$GITHUB_OUTPUT"
+          API_URL="https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/${SANITY_DATASET}"
           PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:"in_progress",startedAt:$now,updatedAt:$now}}]}')"
-          curl -sS -X POST "https://w73pc8ge.api.sanity.io/v2021-06-07/data/mutate/production" \
+          curl -sS -X POST "$API_URL" \
             -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data-binary "$PAYLOAD"
@@ -57,6 +85,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify required build vars
+        run: |
+          missing=""
+          for name in PUBLIC_SANITY_PROJECT_ID PUBLIC_SANITY_DATASET PUBLIC_TURNSTILE_SITE_KEY; do
+            eval "value=\${$name:-}"
+            [ -n "$value" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required build vars:$missing"
+            exit 1
+          fi
+        env:
+          PUBLIC_SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
       - name: Build
         run: npm run build
@@ -86,8 +130,14 @@ jobs:
         working-directory: .
         env:
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
         run: |
           if [ -z "$SANITY_API_TOKEN" ]; then echo "Skipping status report (no SANITY_API_TOKEN)"; exit 0; fi
+          if [ -z "$SANITY_PROJECT_ID" ] || [ -z "$SANITY_DATASET" ]; then
+            echo "::warning::missing PUBLIC_SANITY_PROJECT_ID / PUBLIC_SANITY_DATASET; skipping status report"
+            exit 0
+          fi
           BRANCH="${{ steps.branch.outputs.BRANCH }}"
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           RUN_URL="https://github.com/pswitalski/aparadecka_v2/actions/runs/${{ github.run_id }}"
@@ -99,8 +149,32 @@ jobs:
             DEPLOY_URL="${{ steps.deploy.outputs.pages-deployment-alias-url }}"
             MESSAGE=""
           fi
-          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg status "$STATUS" --arg message "$MESSAGE" --arg deployUrl "$DEPLOY_URL" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:$status,message:$message,deployUrl:$deployUrl,updatedAt:$now}}]}')"
-          curl -sS -X POST "https://w73pc8ge.api.sanity.io/v2021-06-07/data/mutate/production" \
+          API_URL="https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/${SANITY_DATASET}"
+          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg status "$STATUS" --arg message "$MESSAGE" --arg deployUrl "$DEPLOY_URL" --arg startedAt "${{ steps.started.outputs.STARTED_AT }}" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:$status,message:$message,deployUrl:$deployUrl,startedAt:$startedAt,updatedAt:$now}}]}')"
+          curl -sS -X POST "$API_URL" \
+            -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data-binary "$PAYLOAD"
+
+      - name: Report deploy cancelled
+        if: cancelled()
+        working-directory: .
+        env:
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
+        run: |
+          if [ -z "$SANITY_API_TOKEN" ]; then echo "Skipping status report (no SANITY_API_TOKEN)"; exit 0; fi
+          if [ -z "$SANITY_PROJECT_ID" ] || [ -z "$SANITY_DATASET" ]; then
+            echo "::warning::missing PUBLIC_SANITY_PROJECT_ID / PUBLIC_SANITY_DATASET; skipping status report"
+            exit 0
+          fi
+          BRANCH="${{ steps.branch.outputs.BRANCH || github.event.client_payload.branch || github.event.inputs.branch }}"
+          if [ -z "$BRANCH" ]; then echo "Skipping cancelled report (branch unresolved)"; exit 0; fi
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          API_URL="https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/${SANITY_DATASET}"
+          PAYLOAD="$(jq -nc --arg id "deploy.run.${BRANCH}" --arg branch "$BRANCH" --arg status "failed" --arg message "The deploy run was cancelled before it finished. Check GitHub Actions." --arg startedAt "${{ steps.started.outputs.STARTED_AT }}" --arg now "$NOW" '{mutations:[{createOrReplace:{_id:$id,_type:"deploy.run",branch:$branch,status:$status,message:$message,startedAt:$startedAt,updatedAt:$now}}]}')"
+          curl -sS -X POST "$API_URL" \
             -H "Authorization: Bearer ${SANITY_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data-binary "$PAYLOAD"

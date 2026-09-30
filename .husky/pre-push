@@ -1,7 +1,36 @@
-# Validate branch name: <type>/<kebab-description>, or protected master/stage/prod
-branch="$(git rev-parse --abbrev-ref HEAD)"
-if ! echo "$branch" | grep -qE '^(master|stage|prod)$|^(feat|fix|docs|refactor|chore|ci|test|style|perf|build)/[a-z0-9-]+$'; then
-  echo "Aborting push: branch '$branch' does not follow <type>/<description> (e.g. feat/my-change)."
+set -e
+
+# Validate every pushed ref against <type>/<kebab-description>, or protected master/stage/prod.
+# Husky feeds the refs on stdin as: <local ref> <local sha> <remote ref> <remote sha>.
+is_valid() {
+  case "$1" in
+    master|stage|prod) return 0 ;;
+  esac
+  echo "$1" | grep -qE '^(feat|fix|docs|refactor|chore|ci|test|style|perf|build)/[a-z0-9-]+$'
+}
+
+status=0
+if [ -t 0 ]; then
+  # No refs on stdin (hook run by hand) — fall back to the current branch.
+  is_valid "$(git rev-parse --abbrev-ref HEAD)" || status=1
+else
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    # Skip branch deletions (the local sha is all zeros).
+    if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+      continue
+    fi
+    case "$remote_ref" in
+      refs/heads/*)
+        if ! is_valid "${remote_ref#refs/heads/}"; then
+          echo "Aborting push: '$remote_ref' does not follow <type>/<description>."
+          status=1
+        fi
+        ;;
+    esac
+  done
+fi
+
+if [ "$status" -ne 0 ]; then
   echo "Allowed types: feat, fix, docs, refactor, chore, ci, test, style, perf, build. Protected: master, stage, prod."
   exit 1
 fi

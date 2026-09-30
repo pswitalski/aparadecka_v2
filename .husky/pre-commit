@@ -1,3 +1,5 @@
+set -e
+
 # Ensure lint tooling is installed in both packages (pre-commit runs their eslint)
 missing=""
 [ -x studio/node_modules/.bin/eslint ] || missing="studio"
@@ -8,7 +10,7 @@ if [ -n "$missing" ]; then
   exit 1
 fi
 
-npx lint-staged
+npx --no-install lint-staged
 
 # Full-project type check for packages with staged changes.
 # (Partial "staged-files-only" checks miss breakage in importers — see dev.to article comments.)
