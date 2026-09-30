@@ -32,10 +32,22 @@ jobs:
               - 'studio/**'
               - 'shared/**'
               - '.github/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
+              - '.syncpackrc.json'
+              - 'commitlint.config.mjs'
+              - '.husky/**'
             web:
               - 'web/**'
               - 'shared/**'
               - '.github/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
+              - '.syncpackrc.json'
+              - 'commitlint.config.mjs'
+              - '.husky/**'
 
   sync-deps:
     name: deps · version consistency
@@ -129,6 +141,9 @@ jobs:
 
       - name: Astro check
         run: npm run check
+
+      - name: Lint
+        run: npm run lint
 
   build-web:
     name: build · web
