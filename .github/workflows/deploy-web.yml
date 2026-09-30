@@ -77,6 +77,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify required build vars
+        run: |
+          missing=""
+          for name in PUBLIC_SANITY_PROJECT_ID PUBLIC_SANITY_DATASET PUBLIC_TURNSTILE_SITE_KEY; do
+            eval "value=\${$name:-}"
+            [ -n "$value" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required build vars:$missing"
+            exit 1
+          fi
+        env:
+          PUBLIC_SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
+          PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+
       - name: Build
         run: npm run build
         env:
