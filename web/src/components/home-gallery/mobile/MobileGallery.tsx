@@ -32,6 +32,7 @@ export default function MobileGallery({ paintings }: Props) {
 	);
 	const autoplayRef = useRef<AutoplayType | null>(null);
 	const resumeTimer = useRef<null | number>(null);
+	const sectionRef = useRef<HTMLElement>(null);
 
 	const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', loop: true }, reduceMotion ? [] : [autoplay]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
@@ -43,6 +44,19 @@ export default function MobileGallery({ paintings }: Props) {
 			if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
 		};
 	}, [autoplay]);
+
+	useEffect(() => {
+		const node = sectionRef.current;
+		if (!node) return;
+		const observer = new IntersectionObserver(([entry]) => {
+			const api = autoplayRef.current;
+			if (!api) return;
+			if (entry.isIntersecting) api.play();
+			else api.stop();
+		});
+		observer.observe(node);
+		return () => observer.disconnect();
+	}, []);
 
 	useEffect(() => {
 		if (!emblaApi) return;
@@ -75,7 +89,7 @@ export default function MobileGallery({ paintings }: Props) {
 	if (paintings.length === 0) return null;
 
 	return (
-		<section aria-label="Wyróżnione obrazy" className={styles.carousel} data-home-carousel>
+		<section aria-label="Wyróżnione obrazy" className={styles.carousel} data-home-carousel ref={sectionRef}>
 			<div className={styles.dotsBar}>
 				<div className={styles.dots}>
 					{visibleDots(selectedIndex, paintings.length, MAX_VISIBLE_DOTS).map((i) => {
