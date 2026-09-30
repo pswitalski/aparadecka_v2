@@ -1,10 +1,13 @@
 name: Deploy Studio
+run-name: Deploy Studio · ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
     inputs:
       deploy_schema:
-        description: Deploy schema to the registry
+        description: >-
+          Deploy the schema registry. The hosted Studio is always built from 'master' —
+          selecting another branch under "Use workflow from" deploys nothing.
         type: boolean
         default: true
 
