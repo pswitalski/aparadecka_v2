@@ -23,7 +23,7 @@ const paintings = (collection?.paintings ?? []).filter(
 );
 ---
 
-<Layout preloadFonts={['bold']} title={`Rocznik ${year}`}>
+<Layout image={paintings[0]?.mainImage} preloadFonts={['bold']} title={`Rocznik ${year}`}>
 	<header class="page-heading">
 		<a class="back-link" href="/portfolio">← Portfolio</a>
 		<h1>{year}</h1>
