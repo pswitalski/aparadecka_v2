@@ -142,7 +142,8 @@ export default function MobileGallery({ paintings }: Props) {
 							<img
 								alt={p.title ?? ''}
 								className={styles.img}
-								loading="lazy"
+								fetchPriority={i === 0 ? 'high' : undefined}
+								loading={i === 0 ? 'eager' : 'lazy'}
 								sizes={MOBILE_GALLERY_SIZES}
 								src={p.mobile}
 								srcSet={p.srcset}

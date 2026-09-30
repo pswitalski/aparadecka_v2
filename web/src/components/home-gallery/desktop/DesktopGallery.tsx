@@ -148,7 +148,8 @@ export default function DesktopGallery({ paintings }: Props) {
 										<motion.img
 											alt={paintings[idx].title ?? ''}
 											className={`${styles.galleryImg} ${styles.bigImg}`}
-											loading="lazy"
+											fetchPriority={idx === 0 ? 'high' : undefined}
+											loading={idx === 0 ? 'eager' : 'lazy'}
 											sizes={DESKTOP_GALLERY_SIZES}
 											src={paintings[idx].image}
 											srcSet={paintings[idx].desktopSrcset}
