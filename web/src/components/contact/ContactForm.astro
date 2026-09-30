@@ -342,6 +342,14 @@ const privacyNotice =
 	const submitBtn = form?.querySelector<HTMLButtonElement>('.contact-form__submit')
 	const turnstile = document.querySelector<TurnstileElement>('turnstile-field')
 
+	const readJson = async (res: Response) => {
+		try {
+			return (await res.json()) as {error?: string; ok?: boolean}
+		} catch {
+			return null
+		}
+	}
+
 	if (form && successEl && errorEl && submitBtn && turnstile) {
 		const originalText = submitBtn.textContent
 
@@ -366,14 +374,18 @@ const privacyNotice =
 					method: 'POST',
 				})
 
-				const json = (await res.json()) as {error?: string; ok: boolean;}
+				const json = await readJson(res)
 
-				if (json.ok) {
+				if (res.ok && json?.ok) {
 					form.hidden = true
 					successEl.hidden = false
 					successEl.focus()
 				} else {
-					errorEl.textContent = json.error || 'Wystąpił błąd. Spróbuj ponownie.'
+					errorEl.textContent =
+						json?.error ??
+						(res.status >= 500
+							? 'Wystąpił błąd serwera. Spróbuj ponownie później.'
+							: 'Nie udało się wysłać wiadomości. Spróbuj ponownie.')
 					errorEl.hidden = false
 					errorEl.focus()
 					turnstile.reset()
