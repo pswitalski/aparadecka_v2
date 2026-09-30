@@ -23,6 +23,7 @@ import '../../../shared/rich-text.css';
 
 import { sanityClient } from 'sanity:client';
 
+import { siteUrl } from '../../siteUrl';
 import Navigation from '../components/navigation/Navigation.astro';
 import { siteQuery } from '../lib/queries';
 
@@ -57,6 +58,8 @@ const resolvedTitle = title ?? site?.siteTitle ?? 'Agnieszka Paradecka - Śwital
 const resolvedDescription =
 	description ?? site?.description ?? 'Agnieszka Paradecka - Świtalska - Portfolio';
 
+const canonical = new URL(Astro.url.pathname, siteUrl).href;
+
 const speculationRules = JSON.stringify({
 	prefetch: [
 		{
@@ -81,6 +84,7 @@ const speculationRules = JSON.stringify({
 		<link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
 		<link href="/favicon.ico" rel="icon" />
 		<link href="/site.webmanifest" rel="manifest" />
+		<link href={canonical} rel="canonical" />
 		<meta content={Astro.generator} name="generator" />
 		{preloadedFonts.map((href) => (
 			<link as="font" crossorigin href={href} rel="preload" type="font/woff2" />
