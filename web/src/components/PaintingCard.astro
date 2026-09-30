@@ -64,7 +64,7 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 	)}
 	{variant === 'detail' ? (
 		<figcaption>
-			{showYear && (year ?? painting.year) && <h1 class="painting__year">{year ?? painting.year}</h1>}
+			{showYear && (year ?? painting.year) && <p class="painting__year">{year ?? painting.year}</p>}
 			<span class="painting__caption-content">
 				<strong>{painting.title ?? 'Bez tytułu'}</strong>
 				{details && <span>{details}</span>}

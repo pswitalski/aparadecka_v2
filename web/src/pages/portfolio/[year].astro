@@ -54,7 +54,12 @@ const paintings = (collection?.paintings ?? []).filter(
 	}
 
 	.page-heading h1 {
-		display: none;
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
 	}
 
 	.page-heading h1 {
@@ -119,10 +124,15 @@ const paintings = (collection?.paintings ?? []).filter(
 		}
 
 		.page-heading h1 {
-			display: block;
+			clip-path: none;
 			color: var(--color-text);
 			font-size: var(--font-size-2xl);
+			height: auto;
 			order: -1;
+			overflow: visible;
+			position: static;
+			white-space: normal;
+			width: auto;
 		}
 
 		.page-heading .back-link {
