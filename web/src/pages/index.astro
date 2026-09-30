@@ -9,9 +9,9 @@ import MobileGallery, { MOBILE_GALLERY_SIZES } from '../components/home-gallery/
 import Layout from '../layouts/main.astro';
 import { featuredPaintingsQuery } from '../lib/queries';
 
-const { featuredPaintings } = await sanityClient.fetch<{ featuredPaintings: Painting[] }>(featuredPaintingsQuery);
+const data = await sanityClient.fetch<null | { featuredPaintings: Painting[] }>(featuredPaintingsQuery);
 
-const paintings = adaptPaintings(featuredPaintings);
+const paintings = adaptPaintings(data?.featuredPaintings);
 const hero = paintings[0];
 ---
 

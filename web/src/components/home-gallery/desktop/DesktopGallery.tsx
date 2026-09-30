@@ -25,6 +25,7 @@ export default function DesktopGallery({ paintings }: Props) {
 	});
 	const [paused, setPaused] = useState(false);
 	const [revealedThumb, setRevealedThumb] = useState<null | number>(null);
+	const [isVisible, setIsVisible] = useState(true);
 	const reduceMotion = useMemo(
 		() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 		[],
@@ -47,14 +48,14 @@ export default function DesktopGallery({ paintings }: Props) {
 	}, [order, stackStrip, visibleStrip]);
 
 	useEffect(() => {
-		if (reduceMotion || paused) return;
+		if (reduceMotion || paused || !isVisible) return;
 		timerRef.current = window.setInterval(() => {
 			setOrder((prev) => [prev[prev.length - 1], prev[0], ...prev.slice(1, -1)]);
 		}, INTERVAL);
 		return () => {
 			if (timerRef.current) window.clearInterval(timerRef.current);
 		};
-	}, [paused, reduceMotion]);
+	}, [isVisible, paused, reduceMotion]);
 
 	const select = (targetIndex: number) => {
 		setOrder((prev) => {
@@ -68,7 +69,11 @@ export default function DesktopGallery({ paintings }: Props) {
 	const [clipWidth, setClipWidth] = useState<null | number>(null);
 
 	useLayoutEffect(() => {
-		const measure = () => setClipWidth(rootRef.current?.clientWidth ?? null);
+		const measure = () => {
+			const width = rootRef.current?.clientWidth ?? null;
+			setClipWidth(width);
+			setIsVisible((width ?? 0) > 0);
+		};
 
 		measure();
 		const ro = new ResizeObserver(measure);
