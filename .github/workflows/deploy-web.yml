@@ -5,8 +5,10 @@ on:
     inputs:
       branch:
         description: Branch to deploy
+        type: choice
         required: true
         default: master
+        options: [master, stage, prod]
   repository_dispatch:
     types: [content-rebuild]
 
@@ -29,7 +31,24 @@ jobs:
       - name: Resolve branch
         id: branch
         working-directory: .
-        run: echo "BRANCH=${{ github.event.client_payload.branch || github.event.inputs.branch || 'master' }}" >> "$GITHUB_OUTPUT"
+        run: |
+          set -euo pipefail
+          allowed="master stage prod"
+          branch=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            branch="${{ inputs.branch }}"
+          else
+            branch="${{ github.event.client_payload.branch }}"
+            if [ -z "$branch" ]; then
+              branch="master"
+              echo "::warning::content-rebuild payload had no 'branch'; defaulting to master"
+            fi
+          fi
+          case " $allowed " in
+            *" $branch "*) ;;
+            *) echo "::error::unrecognized branch '$branch' (allowed: $allowed)"; exit 1 ;;
+          esac
+          echo "BRANCH=$branch" >> "$GITHUB_OUTPUT"
 
       - name: Report deploy started
         working-directory: .
