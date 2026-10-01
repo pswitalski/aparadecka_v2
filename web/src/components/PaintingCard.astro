@@ -75,10 +75,10 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 
 	.painting--detail img {
 		display: block;
+		height: auto;
 		margin-inline: auto;
 		max-width: 100%;
 		object-fit: contain;
-		width: auto;
 
 		@media (min-width: 1025px) {
 			max-height: 560px;
@@ -152,10 +152,6 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 		.painting--detail .painting__image-button {
 			grid-column: 1;
 			grid-row: auto;
-		}
-
-		.painting--detail img {
-			height: auto;
 		}
 
 		.painting--detail figcaption {
