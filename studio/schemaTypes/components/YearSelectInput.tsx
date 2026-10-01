@@ -5,7 +5,7 @@ import {useToast} from '@sanity/ui/toast'
 import {type ChangeEvent, useCallback, useEffect, useState} from 'react'
 import {useClient, useFormValue} from 'sanity'
 
-import {apiVersion} from '../../apiVersion'
+import {apiVersion} from '../../../shared/apiVersion'
 
 type SourceCollection = {
   _id: string

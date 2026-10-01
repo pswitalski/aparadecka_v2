@@ -1,7 +1,7 @@
 import {FolderIcon} from '@sanity/icons/Folder'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-import {apiVersion} from '../../apiVersion'
+import {apiVersion} from '../../../shared/apiVersion'
 import {FeaturedImageInput} from '../components/FeaturedImageInput'
 import {PaintingsArrayInput} from '../components/PaintingsArrayInput'
 

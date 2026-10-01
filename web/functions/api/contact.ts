@@ -30,6 +30,7 @@ type ValidationResult =
 
 const DEFAULT_FROM_EMAIL = 'kontakt@agnieszkaparadecka.pl'
 const MAX_MESSAGE_LENGTH = 2000
+const MAX_NAME_LENGTH = 100
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW_SECONDS = 60
@@ -56,6 +57,14 @@ function parseContactPayload(body: unknown): ValidationResult {
 
   if (!name?.trim() || !surname?.trim() || !email?.trim() || !message?.trim()) {
     return {error: 'Wszystkie pola są wymagane', kind: 'invalid', status: 400}
+  }
+
+  if (name.trim().length > MAX_NAME_LENGTH || surname.trim().length > MAX_NAME_LENGTH) {
+    return {
+      error: `Imię i nazwisko może mieć maksymalnie ${MAX_NAME_LENGTH} znaków`,
+      kind: 'invalid',
+      status: 400,
+    }
   }
 
   if (!EMAIL_RE.test(email.trim())) {

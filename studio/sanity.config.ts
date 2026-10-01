@@ -2,15 +2,17 @@ import {visionTool} from '@sanity/vision'
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 
+import {dataset, projectId} from './project'
 import {schemaTypes} from './schemaTypes'
 import {deleteCollectionAction} from './schemaTypes/documentActions/deleteCollectionAction'
 import {deployToProdAction, deployToStageAction} from './schemaTypes/documentActions/deployActions'
 import {structure} from './schemaTypes/structure'
 
 const singletonTypes = ['home', 'about', 'contact', 'site']
+const deployActionTypes = ['about', 'collection', 'contact', 'home', 'site']
 
 export default defineConfig({
-  dataset: 'production',
+  dataset,
   document: {
     actions: (prev, context) => {
       const base =
@@ -21,7 +23,7 @@ export default defineConfig({
         context.schemaType === 'collection'
           ? base.map((action) => (action.action === 'delete' ? deleteCollectionAction : action))
           : base
-      return context.schemaType && context.schemaType !== 'deploy.trigger'
+      return context.schemaType && deployActionTypes.includes(context.schemaType)
         ? [...collectionActions, deployToStageAction, deployToProdAction]
         : collectionActions
     },
@@ -31,6 +33,7 @@ export default defineConfig({
         return (
           !singletonTypes.includes(schemaType ?? '') &&
           schemaType !== 'deploy.trigger' &&
+          schemaType !== 'deploy.run' &&
           schemaType !== 'painting'
         )
       }),
@@ -39,7 +42,7 @@ export default defineConfig({
   name: 'default',
   plugins: [structureTool({structure}), visionTool()],
 
-  projectId: 'w73pc8ge',
+  projectId,
 
   schema: {
     types: schemaTypes,

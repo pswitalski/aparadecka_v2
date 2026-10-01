@@ -3,7 +3,7 @@ import type {ObjectInputProps, ReferenceValue} from 'sanity'
 import {useCallback, useEffect, useState} from 'react'
 import {set, unset, useClient, useFormValue} from 'sanity'
 
-import {apiVersion} from '../../apiVersion'
+import {apiVersion} from '../../../shared/apiVersion'
 
 type FeaturedImageInputProps = ObjectInputProps<ReferenceValue>
 

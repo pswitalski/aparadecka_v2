@@ -347,7 +347,7 @@ export type FeaturedPaintingsQueryResult = {
 
 // Source: ../web/src/lib/queries.ts
 // Variable: collectionsQuery
-// Query: *[_type == "collection" && count(paintings) > 0] | order(year desc){  year,  "featuredPainting": coalesce(    thumbnail->{ _id, title, medium, support, dimensions, mainImage },    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }  )}
+// Query: *[_type == "collection" && count(paintings[@->_id != null]) > 0] | order(year desc){  year,  "featuredPainting": coalesce(    thumbnail->{ _id, title, medium, support, dimensions, mainImage },    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }  )}
 export type CollectionsQueryResult = Array<{
   year: number | null;
   featuredPainting: {
@@ -443,15 +443,30 @@ export type SiteQueryResult = {
   keywords: Array<string> | null;
 } | null;
 
+// Source: ../web/src/lib/queries.ts
+// Variable: ogImageQuery
+// Query: *[_type == "home"][0].featured[0]->mainImage
+export type OgImageQueryResult = {
+  asset?: SanityImageAssetReference;
+  media?: unknown;
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  _type: "image";
+} | null;
+
 // Query TypeMap
-import "@sanity/client";
-declare module "@sanity/client" {
+declare global {
   interface SanityQueries {
     '*[_type == "home"][0]{\n  "featuredPaintings": (featured[]->{\n    _id,\n    title,\n    medium,\n    support,\n    dimensions,\n    mainImage,\n    "year": *[_type == "collection" && references(^._id)][0].year\n  })[defined(year)]\n}': FeaturedPaintingsQueryResult;
-    '*[_type == "collection" && count(paintings) > 0] | order(year desc){\n  year,\n  "featuredPainting": coalesce(\n    thumbnail->{ _id, title, medium, support, dimensions, mainImage },\n    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }\n  )\n}': CollectionsQueryResult;
+    '*[_type == "collection" && count(paintings[@->_id != null]) > 0] | order(year desc){\n  year,\n  "featuredPainting": coalesce(\n    thumbnail->{ _id, title, medium, support, dimensions, mainImage },\n    paintings[0]->{ _id, title, medium, support, dimensions, mainImage }\n  )\n}': CollectionsQueryResult;
     '*[_type == "collection" && year == $year][0]{\n  year,\n  "paintings": paintings[]->{ _id, title, medium, support, dimensions, year, mainImage }\n}': CollectionByYearQueryResult;
     '*[_type == "about"][0]{\n  "sections": sections[]{\n    _key,\n    _type,\n    text,\n    highlighted,\n    imagePositionDesktop,\n    imagePositionMobile,\n    textAlign,\n    image{\n      "asset": asset,\n      alt,\n      title\n    }\n  }\n}': AboutQueryResult;
     '*[_type == "contact"][0]{\n  email,\n  instagram,\n  facebook\n}': ContactQueryResult;
     '*[_type == "site"][0]{\n  siteTitle,\n  description,\n  keywords\n}': SiteQueryResult;
+    '*[_type == "home"][0].featured[0]->mainImage': OgImageQueryResult;
   }
+}
+// Lets @sanity/client releases that predate the global registry read it too
+declare module "@sanity/client" {
+  interface SanityQueries extends globalThis.SanityQueries {}
 }

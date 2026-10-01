@@ -2,7 +2,7 @@ import {TrashIcon} from '@sanity/icons/Trash'
 import {useState} from 'react'
 import {type DocumentActionComponent, useClient} from 'sanity'
 
-import {apiVersion} from '../../apiVersion'
+import {apiVersion} from '../../../shared/apiVersion'
 import {deleteAssetIfUnused, deletePainting, getPaintingAssetId} from '../lib/paintingCleanup'
 
 const COLLECTION_QUERY = `*[_type == "collection" && _id in [$id, $draftId]][0]{
