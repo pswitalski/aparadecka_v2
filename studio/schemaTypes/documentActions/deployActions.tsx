@@ -177,7 +177,7 @@ const makeDeployAction = (branch: string, label: string, stableUrl: string): Doc
 export const deployToProdAction = makeDeployAction(
   'prod',
   'Deploy to prod',
-  'https://aparadecka-v2.pages.dev',
+  'https://agnieszkaparadecka.pl',
 )
 
 export const deployToStageAction = makeDeployAction(
