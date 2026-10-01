@@ -10,7 +10,7 @@ import {
   useFormValue,
 } from 'sanity'
 
-import {apiVersion} from '../../apiVersion'
+import {apiVersion} from '../../../shared/apiVersion'
 import {deleteAssetIfUnused, deletePainting, getPaintingAssetId} from '../lib/paintingCleanup'
 
 const EXISTING_PAINTINGS_QUERY = `*[_id in $ids]._id`

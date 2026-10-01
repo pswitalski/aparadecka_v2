@@ -8,7 +8,7 @@ import icon from 'astro-icon';
 import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 
-import { apiVersion } from './apiVersion';
+import { apiVersion } from '../shared/apiVersion';
 import preloadIslands from './integrations/preload-islands.mjs';
 import { siteUrl } from './siteUrl';
 
