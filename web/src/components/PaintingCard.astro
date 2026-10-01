@@ -1,7 +1,7 @@
 ---
 import type { Painting } from '../lib/types';
 
-import { imageSrcSet, imageUrl } from '../lib/sanity';
+import { imageDimensions, imageSrcSet, imageUrl } from '../lib/sanity';
 
 interface Props {
 	class?: string;
@@ -23,6 +23,7 @@ const {
 const previewUrl = painting.mainImage ? imageUrl(painting.mainImage, { width: 1600 }) : null;
 const lightboxUrl = painting.mainImage ? imageUrl(painting.mainImage, { width: 2400 }) : null;
 const previewSrcSet = painting.mainImage ? imageSrcSet(painting.mainImage) : undefined;
+const dimensions = painting.mainImage ? imageDimensions(painting.mainImage) : null;
 const details = [painting.medium, painting.support, painting.dimensions].filter(Boolean).join(', ');
 const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytułu', details].filter(Boolean).join(' ');
 ---
@@ -42,10 +43,12 @@ const lightboxCaption = [painting.title ? `„${painting.title}”` : 'Bez tytu�
 				alt={painting.title ?? 'Obraz'}
 				decoding={priority ? 'sync' : 'async'}
 				fetchpriority={priority ? 'high' : undefined}
+				height={dimensions?.height}
 				loading={priority ? 'eager' : 'lazy'}
 				sizes="(min-width: 1025px) min(60vw, 670px), calc(100vw - 2rem)"
 				src={previewUrl}
 				srcset={previewSrcSet}
+				width={dimensions?.width}
 			/>
 		</button>
 	)}

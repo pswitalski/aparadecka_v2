@@ -1,7 +1,7 @@
 ---
 import type { SanityImageSource } from '@sanity/image-url';
 
-import { imageSrcSet, imageUrl } from '../lib/sanity';
+import { imageDimensions, imageSrcSet, imageUrl } from '../lib/sanity';
 
 interface ImageNode {
 	alt?: string;
@@ -11,15 +11,18 @@ interface ImageNode {
 const { node } = Astro.props as { node: ImageNode };
 
 const asset = node.asset;
+const dimensions = asset ? imageDimensions(asset) : null;
 ---
 
 {asset && (
 	<img
 		alt={node.alt ?? ''}
 		decoding="async"
+		height={dimensions?.height}
 		loading="lazy"
 		sizes="calc(min(100vw, 1200px) - 6rem)"
 		src={imageUrl(asset, { width: 800 })}
 		srcset={imageSrcSet(asset)}
+		width={dimensions?.width}
 	/>
 )}
