@@ -8,6 +8,7 @@ import {deployToProdAction, deployToStageAction} from './schemaTypes/documentAct
 import {structure} from './schemaTypes/structure'
 
 const singletonTypes = ['home', 'about', 'contact', 'site']
+const deployActionTypes = ['about', 'collection', 'contact', 'home', 'site']
 
 export default defineConfig({
   dataset: 'production',
@@ -21,7 +22,7 @@ export default defineConfig({
         context.schemaType === 'collection'
           ? base.map((action) => (action.action === 'delete' ? deleteCollectionAction : action))
           : base
-      return context.schemaType && context.schemaType !== 'deploy.trigger'
+      return context.schemaType && deployActionTypes.includes(context.schemaType)
         ? [...collectionActions, deployToStageAction, deployToProdAction]
         : collectionActions
     },
@@ -31,6 +32,7 @@ export default defineConfig({
         return (
           !singletonTypes.includes(schemaType ?? '') &&
           schemaType !== 'deploy.trigger' &&
+          schemaType !== 'deploy.run' &&
           schemaType !== 'painting'
         )
       }),
