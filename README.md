@@ -75,6 +75,11 @@ packages (root tooling, `studio`, and `web`):
 Typical workflow: run `npm run deps:bump`, review the changes, then commit the
 updated `package.json` and `package-lock.json` files.
 
+`web/.npmrc` sets `omit=peer`, so `@sanity/astro`'s Studio-only peer
+dependencies (`sanity`, `styled-components`) are not installed in `web/`, which
+uses the integration for its data client only. This is deliberate — only remove
+it if the Studio is embedded in `web/`.
+
 ## Deployment
 
 The site deploys to [Cloudflare Pages](https://dash.cloudflare.com) and the Sanity Studio to Sanity's hosted service. Nothing deploys on a git push — web deploys are started from GitHub Actions or from the Studio's **Deploy to stage** / **Deploy to prod** document actions, and promotions run from the **Promote Branch** workflow.
