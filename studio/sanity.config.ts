@@ -2,6 +2,7 @@ import {visionTool} from '@sanity/vision'
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 
+import {dataset, projectId} from './project'
 import {schemaTypes} from './schemaTypes'
 import {deleteCollectionAction} from './schemaTypes/documentActions/deleteCollectionAction'
 import {deployToProdAction, deployToStageAction} from './schemaTypes/documentActions/deployActions'
@@ -11,7 +12,7 @@ const singletonTypes = ['home', 'about', 'contact', 'site']
 const deployActionTypes = ['about', 'collection', 'contact', 'home', 'site']
 
 export default defineConfig({
-  dataset: 'production',
+  dataset,
   document: {
     actions: (prev, context) => {
       const base =
@@ -41,7 +42,7 @@ export default defineConfig({
   name: 'default',
   plugins: [structureTool({structure}), visionTool()],
 
-  projectId: 'w73pc8ge',
+  projectId,
 
   schema: {
     types: schemaTypes,
